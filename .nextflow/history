@@ -1,2 +1,0 @@
-2025-07-13 17:20:09	-	friendly_franklin	-	b6d630c37568be29ade1d6aec8855045	9af405a8-8a4b-4864-a9a4-96c95a030efe	nextflow run main.nf -profile conda
-2025-07-13 17:23:40	6m 14s	fervent_almeida	ERR	b6d630c37568be29ade1d6aec8855045	b8585780-3f27-4959-884a-09ba23e6815c	nextflow run main.nf -profile conda
