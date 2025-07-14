@@ -21,6 +21,7 @@ process STAR_SOLO {
         --soloType ${params.soloType} \\
         --soloCBwhitelist ${params.soloCBwhitelist} \\
         --soloUMIfiltering ${params.soloUMIfiltering} \\
-        --outSAMtype BAM SortedByCoordinate
+        --outSAMtype BAM SortedByCoordinate \\
+        --soloUMIdedup ${params.soloUMIdedup} 
     """
 } 
