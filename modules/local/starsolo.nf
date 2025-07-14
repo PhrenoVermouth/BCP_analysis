@@ -8,7 +8,7 @@ process STAR_SOLO {
 
     output:
     tuple val(meta), path("${meta.id}.Solo.out")
-    path "Log.final.out", emit: log
+    path "${meta.id}.Log.final.out", emit: log
 
     script:
     """
