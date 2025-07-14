@@ -1,0 +1,2 @@
+sample,fastq_1,fastq_2,genomeDir
+sample1,/scratch/users/gyangbio/RI_upload_test/10XRun17_sample1_S9_L003_R1_001.fastq.gz,/scratch/users/gyangbio/RI_upload_test/10XRun17_sample1_S9_L003_R2_001.fastq.gz,/path/to/your/star_genome/
