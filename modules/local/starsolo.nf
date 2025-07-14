@@ -4,8 +4,7 @@ process STAR_SOLO {
     publishDir "$params.outdir/starsolo/${meta.id}", mode: 'copy'
 
     input:
-    tuple val(meta), path(reads)
-    path genomeDir
+    tuple val(meta), path(reads), path(genomeDir)
 
     output:
     tuple val(meta), path("${meta.id}.Solo.out")

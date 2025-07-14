@@ -1,0 +1,84 @@
+Jul-13 17:23:39.880 [main] DEBUG nextflow.cli.Launcher - $> nextflow run main.nf -profile conda
+Jul-13 17:23:39.947 [main] INFO  nextflow.cli.CmdRun - N E X T F L O W  ~  version 21.04.3
+Jul-13 17:23:39.963 [main] INFO  nextflow.cli.CmdRun - Launching `main.nf` [fervent_almeida] - revision: b6d630c375
+Jul-13 17:23:39.972 [main] DEBUG nextflow.config.ConfigBuilder - Found config local: /home/groups/wangbo/gyang/Softwares/BCP_analysis/nextflow.config
+Jul-13 17:23:39.973 [main] DEBUG nextflow.config.ConfigBuilder - Parsing config file: /home/groups/wangbo/gyang/Softwares/BCP_analysis/nextflow.config
+Jul-13 17:23:39.985 [main] DEBUG nextflow.config.ConfigBuilder - Applying config profile: `conda`
+Jul-13 17:23:40.384 [main] DEBUG nextflow.config.ConfigBuilder - Available config profiles: [conda]
+Jul-13 17:23:40.407 [main] DEBUG nextflow.plugin.PluginsFacade - Setting up plugin manager > mode=prod; plugins-dir=/home/users/gyangbio/.nextflow/plugins
+Jul-13 17:23:40.409 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins default=[]
+Jul-13 17:23:40.410 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins local root: .nextflow/plr/empty
+Jul-13 17:23:40.416 [main] INFO  org.pf4j.DefaultPluginStatusProvider - Enabled plugins: []
+Jul-13 17:23:40.417 [main] INFO  org.pf4j.DefaultPluginStatusProvider - Disabled plugins: []
+Jul-13 17:23:40.419 [main] INFO  org.pf4j.DefaultPluginManager - PF4J version 3.4.1 in 'deployment' mode
+Jul-13 17:23:40.425 [main] INFO  org.pf4j.AbstractPluginManager - No plugins
+Jul-13 17:23:40.454 [main] DEBUG nextflow.Session - Session uuid: b8585780-3f27-4959-884a-09ba23e6815c
+Jul-13 17:23:40.454 [main] DEBUG nextflow.Session - Run name: fervent_almeida
+Jul-13 17:23:40.454 [main] DEBUG nextflow.Session - Executor pool size: 32
+Jul-13 17:23:40.476 [main] DEBUG nextflow.cli.CmdRun - 
+  Version: 21.04.3 build 5560
+  Created: 21-07-2021 15:09 UTC (08:09 PDT)
+  System: Linux 3.10.0-1160.119.1.el7.tuxcare.els21.x86_64
+  Runtime: Groovy 3.0.7 on Java HotSpot(TM) 64-Bit Server VM 11.0.11+9-LTS-194
+  Encoding: UTF-8 (UTF-8)
+  Process: 18730@sh03-10n47.int [10.19.10.47]
+  CPUs: 32 - Mem: 250 GB (184.5 GB) - Swap: 0 (0)
+Jul-13 17:23:40.500 [main] DEBUG nextflow.Session - Work-dir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work [nfs]
+Jul-13 17:23:40.512 [main] DEBUG nextflow.executor.ExecutorFactory - Extension executors providers=[]
+Jul-13 17:23:40.520 [main] DEBUG nextflow.Session - Observer factory: DefaultObserverFactory
+Jul-13 17:23:40.870 [main] DEBUG nextflow.Session - Session start invoked
+Jul-13 17:23:41.123 [main] DEBUG nextflow.script.ScriptRunner - > Launching execution
+Jul-13 17:23:41.288 [main] DEBUG nextflow.Session - Workflow process names [dsl2]: SCANPY_QC, STAR_SOLO
+Jul-13 17:23:41.391 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Jul-13 17:23:41.391 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Jul-13 17:23:41.394 [main] DEBUG nextflow.executor.Executor - [warm up] executor > local
+Jul-13 17:23:41.398 [main] DEBUG n.processor.LocalPollingMonitor - Creating local task monitor for executor 'local' > cpus=32; memory=250 GB; capacity=32; pollInterval=100ms; dumpInterval=5m
+Jul-13 17:23:41.448 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Jul-13 17:23:41.448 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Jul-13 17:23:41.458 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Jul-13 17:23:41.459 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Jul-13 17:23:41.461 [main] DEBUG nextflow.Session - Ignite dataflow network (5)
+Jul-13 17:23:41.464 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > STAR_SOLO
+Jul-13 17:23:41.465 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > SCANPY_QC
+Jul-13 17:23:41.466 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > MULTIQC
+Jul-13 17:23:41.466 [main] DEBUG nextflow.script.ScriptRunner - > Await termination 
+Jul-13 17:23:41.466 [main] DEBUG nextflow.Session - Session await
+Jul-13 17:23:41.658 [Actor Thread 2] INFO  nextflow.conda.CondaCache - Creating Conda env: /home/groups/wangbo/gyang/Softwares/BCP_analysis/bin/environment.yml [cache /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/conda/BCP-3180d4d43590b10b2bd35f7e4c583fa2]
+Jul-13 17:28:41.613 [Task monitor] DEBUG n.processor.TaskPollingMonitor - No more task to compute -- The following nodes are still active:
+[process] STAR_SOLO
+  status=ACTIVE
+  port 0: (queue) closed; channel: -
+  port 1: (cntrl) -     ; channel: $
+
+[process] SCANPY_QC
+  status=ACTIVE
+  port 0: (queue) OPEN  ; channel: -
+  port 1: (cntrl) -     ; channel: $
+
+[process] MULTIQC
+  status=ACTIVE
+  port 0: (value) OPEN  ; channel: *
+  port 1: (cntrl) -     ; channel: $
+
+Jul-13 17:29:54.123 [SIGINT handler] DEBUG nextflow.Session - Session aborted -- Cause: SIGINT
+Jul-13 17:29:54.345 [SIGINT handler] DEBUG nextflow.Session - The following nodes are still active:
+[process] STAR_SOLO
+  status=ACTIVE
+  port 0: (queue) closed; channel: -
+  port 1: (cntrl) -     ; channel: $
+
+[process] SCANPY_QC
+  status=ACTIVE
+  port 0: (queue) OPEN  ; channel: -
+  port 1: (cntrl) -     ; channel: $
+
+[process] MULTIQC
+  status=ACTIVE
+  port 0: (value) OPEN  ; channel: *
+  port 1: (cntrl) -     ; channel: $
+
+Jul-13 17:29:54.347 [main] DEBUG nextflow.Session - Session await > all process finished
+Jul-13 17:29:54.347 [main] DEBUG nextflow.Session - Session await > all barriers passed
+Jul-13 17:29:54.353 [main] DEBUG nextflow.trace.WorkflowStatsObserver - Workflow completed > WorkflowStats[succeededCount=0; failedCount=0; ignoredCount=0; cachedCount=0; pendingCount=0; submittedCount=0; runningCount=0; retriesCount=0; abortedCount=0; succeedDuration=0ms; failedDuration=0ms; cachedDuration=0ms;loadCpus=0; loadMemory=0; peakRunning=0; peakCpus=0; peakMemory=0; ]
+Jul-13 17:29:54.424 [main] DEBUG nextflow.CacheDB - Closing CacheDB done
+Jul-13 17:29:54.437 [main] DEBUG nextflow.script.ScriptRunner - > Execution complete -- Goodbye
