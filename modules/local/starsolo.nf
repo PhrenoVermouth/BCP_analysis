@@ -12,6 +12,7 @@ process STAR_SOLO {
 
     script:
     // @Prateek: parameters below are fixed based on Notion, might add more flexibility in the future 
+    // --soloOutFileNames.gz Yes updated for scanpy smooth input, haven't test yet
   """  
   STAR \\
         --runThreadN ${task.cpus} \\
@@ -32,6 +33,7 @@ process STAR_SOLO {
         --soloFeatures GeneFull \\
         --soloMultiMappers EM \\
         --outSAMattributes NH HI nM AS CR UR CB UB GX GN sS sQ sM \\
-        --outFilterMultimapNmax 20 
+        --outFilterMultimapNmax 20 \\
+        --soloOutFileNames.gz Yes
     """
 } 
