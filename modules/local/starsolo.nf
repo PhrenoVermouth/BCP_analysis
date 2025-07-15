@@ -11,8 +11,9 @@ process STAR_SOLO {
     path "${meta.id}.Log.final.out", emit: log
 
     script:
-    """
-    STAR \\
+    // @Prateek: parameters below are fixed based on Notion, might add more flexibility in the future 
+  """  
+  STAR \\
         --runThreadN ${task.cpus} \\
         --genomeDir ${genomeDir} \\
         --readFilesIn ${reads[1]} ${reads[0]} \\
@@ -23,9 +24,9 @@ process STAR_SOLO {
         --soloUMIfiltering ${params.soloUMIfiltering} \\
         --soloUMIdedup ${params.soloUMIdedup} \\
         --soloUMIlen ${params.soloUMIlen} \\
-        --outSAMtype BAM SortedByCoordinate \\ //@Prateek: parameters below are fixed based on Notion, might add more flexibility in the future
+        --outSAMtype BAM SortedByCoordinate \\
         --clipAdapterType CellRanger4 \\
-        --outFilterScoreMin 30 \\ 
+        --outFilterScoreMin 30 \\
         --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \\
         --soloCellFilter EmptyDrops_CR 10000 0.99 10 45000 90000 500 0.01 20000 0.01 10000 \\
         --soloFeatures GeneFull \\

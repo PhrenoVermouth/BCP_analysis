@@ -1,4 +1,4 @@
-name: BCP
+name: BCP2
 channels:
   - conda-forge
   - bioconda
@@ -10,4 +10,5 @@ dependencies:
   - seaborn=0.13.2    
   - matplotlib=3.8.4  
   - multiqc=1.21      
-  - star=2.7.10b      
+  - star=2.7.10b
+  - numpy=1.26.4      
