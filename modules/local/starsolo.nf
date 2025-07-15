@@ -7,8 +7,10 @@ process STAR_SOLO {
     tuple val(meta), path(reads), path(genomeDir)
 
     output:
+    // Add bam collection to results, no test yet 
     tuple val(meta), path("${meta.id}.Solo.out")
     path "${meta.id}.Log.final.out", emit: log
+    path "${meta.id}.Aligned.sortedByCoord.out.bam", emit: bam 
 
     script:
     // @Prateek: parameters below are fixed based on Notion, might add more flexibility in the future 
