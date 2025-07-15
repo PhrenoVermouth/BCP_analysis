@@ -17,7 +17,7 @@ process SCANPY_QC {
     """
     run_scanpy_qc.py \\
         --sample_id ${meta.id} \\
-        --matrix_dir ${solo_out}/Gene/raw \\
+        --matrix_dir ${solo_out}/GeneFull/raw \\
         --min_genes ${params.min_genes_per_cell} \\
         --min_cells ${params.min_cells_per_gene} \\
         --max_genes ${params.max_genes_per_cell} \\
