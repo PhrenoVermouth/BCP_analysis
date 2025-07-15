@@ -1,0 +1,124 @@
+---
+title: "SoupX"
+output: html_document
+date: "2024-08-19"
+---
+
+```{r}
+library(SoupX)
+library(readr)
+library(Matrix)
+library(tidyverse)
+library(Seurat)
+source.folder<-"Hicat_CT_Analysis/source_folder/"
+```
+
+```{r}
+source(paste0(source.folder,"hicat.R"))
+source(paste0(source.folder,"IO.R"))
+```
+
+
+```{r}
+#Run_name = "Run12_sample12"
+MO_unfiltered <- ReadMtx( mtx= paste("SoupX/SK/SK_adult_S6_STARSolo_03012025/GeneFull/raw/matrix.mtx.gz",sep=""),
+                 cells = paste("SoupX/SK/SK_adult_S6_STARSolo_03012025/GeneFull/raw/barcodes.tsv.gz",sep=""),
+                 features = paste("SoupX/SK/SK_adult_S6_STARSolo_03012025/GeneFull/raw/features.tsv.gz",sep=""),
+                 feature.column=1, mtx.transpose=F)
+```
+
+```{r}
+MO_filtered <- read.csv(file = paste('SoupX/SK/preprocessed_Sk_adult_S6_03012025_v2.h5ad_filtered.csv',sep=""),row.names=1)
+MO_filtered_matrix = as.matrix(MO_filtered)
+MO_filtered_CSC <- as((MO_filtered_matrix), "dgCMatrix")
+```
+
+```{r}
+MO_unfiltered_gene = MO_unfiltered[rownames(MO_unfiltered) %in%(rownames(MO_filtered_CSC)),]
+```
+
+```{r}
+MO_sc1 = SoupChannel(MO_unfiltered_gene,MO_filtered_CSC)
+```
+
+```{r}
+MO_clusters <- read.csv(file = paste('SoupX/SK/preprocessed_Sk_adult_S6_03012025_v2.h5ad_leiden_clusters.csv',sep =""),row.names=1)
+```
+
+```{r}
+MO_sc1_clus = setClusters(MO_sc1, setNames(MO_clusters$leiden_clusters, rownames(MO_clusters)))
+```
+
+```{r}
+MO_sc1_clus <- autoEstCont(MO_sc1_clus, soupQuantile = .1)
+
+```
+```{r}
+MO_sc1_clus = setContaminationFraction(MO_sc1_clus, MO_sc1_clus$fit$rhoEst)
+```
+
+```{r}
+MO_out1 = adjustCounts(MO_sc1_clus,roundToInt = T)
+```
+
+```{r}
+# Code from alleninstititute scratch.io 
+write_dgCMatrix_csv <- function(mat,
+                                filename,
+                                col1_name = "gene",
+                                chunk_size = 1000) {
+
+  #library(Matrix)
+  #library(data.table)
+
+  # Transpose so retrieval of "rows" is much faster
+  mat <- Matrix::t(mat)
+
+  # Row names
+  row_names <- colnames(mat)
+
+  # gene names are now columns
+  col_names <- rownames(mat)
+
+  n_row <- length(row_names)
+  n_col <- length(col_names)
+
+  n_chunks <- floor(n_row/chunk_size)
+
+  # Initial chunk
+  chunk <- 1
+  chunk_start <- 1 + chunk_size * (chunk - 1)
+  chunk_end <- chunk_size * chunk
+  print(paste0("Writing rows ",chunk_start," to ", chunk_end))
+  chunk_mat <- t(as.matrix(mat[,chunk_start:chunk_end]))
+  chunk_df <- cbind(data.frame(col1 = row_names[chunk_start:chunk_end]),as.data.frame(chunk_mat))
+  names(chunk_df)[1] <- col1_name
+  data.table::fwrite(chunk_df, file = filename, append = F)
+
+  # chunkation over chunks
+  for(chunk in 2:n_chunks) {
+    chunk_start <- 1 + chunk_size * (chunk - 1)
+    chunk_end <- chunk_size * chunk
+    print(paste0("Writing rows ",chunk_start," to ", chunk_end))
+    chunk_mat <- t(as.matrix(mat[,chunk_start:chunk_end]))
+    chunk_df <- cbind(data.frame(col1 = row_names[chunk_start:chunk_end]),as.data.frame(chunk_mat))
+    data.table::fwrite(chunk_df, file = filename, append = T)
+  }
+
+  # Remaining samples
+  chunk_start <- (n_chunks*chunk_size + 1)
+  chunk_end <- n_row
+  print(paste0("Writing rows ",chunk_start," to ", chunk_end))
+  chunk_mat <- t(as.matrix(mat[,chunk_start:chunk_end]))
+  chunk_df <- cbind(data.frame(col1 = row_names[chunk_start:chunk_end]),as.data.frame(chunk_mat))
+  data.table::fwrite(chunk_df, file = filename, append = T)
+
+}
+
+```
+
+```{r}
+#saving adjusted filed
+write_dgCMatrix_csv(MO_out1,filename = paste("SoupX/SK/", "Sk_juv_S5_03012025_soupcorrected.csv",sep = ""))
+```
+
