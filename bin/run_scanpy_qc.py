@@ -17,7 +17,7 @@ def run_qc2(sample_id, matrix_dir, min_genes, min_cells, max_genes, max_counts, 
     adata = sc.read_10x_mtx(matrix_dir, var_names='gene_symbols', cache=True)
     adata.var_names_make_unique()
     
-    # --- Initial filtering and QC calculations ---
+    # 2. --- Initial filtering and QC calculations ---
     # a. Basic filtering on lower limit
     sc.pp.filter_cells(adata, min_genes=min_genes)
     sc.pp.filter_genes(adata, min_cells=min_cells)
@@ -95,7 +95,44 @@ def run_qc2(sample_id, matrix_dir, min_genes, min_cells, max_genes, max_counts, 
     number_cells_QC2 = adata_QC2.n_obs
     median_genes_QC2  = np.median(adata_QC2.obs['n_genes_by_counts'])
     median_counts_QC2 = np.median(adata_QC2.obs['total_counts'])
- 
+
+    
+    # 3. CLUSTERING @Prateek potential flexibilities for parameters? I don't scale often (annotated), what do you think?
+    # ----------------
+    # store raw (pre‐normalized) counts in .raw for safe‐keeping
+    adata_QC2.raw = adata_QC2.copy()
+    # (a) Normalize & log-transform
+    sc.pp.normalize_total(adata_QC2, target_sum=1e6)
+    sc.pp.log1p(adata_QC2)    
+    sc.pp.highly_variable_genes(adata_QC2, n_top_genes=2000, subset=True)
+    # sc.pp.scale(adata_QC2, max_value=10)
+    sc.tl.pca(adata_QC2, svd_solver='arpack')
+    sc.pp.neighbors(adata_QC2, n_neighbors=10, n_pcs=40)
+    sc.tl.leiden(adata_QC2, resolution=1.0, key_added='leiden_clusters')
+
+
+    # Fig 3: UMAP fot Leiden
+    fig3 = plt.figure()
+    sc.pl.umap(
+        adata_QC2,
+        color='leiden_clusters',
+        show=False,
+        title=f'{sample_id} - Leiden Clustering (UMAP) - QC2'
+    )
+    fig3.savefig(f'{sample_id}_umap_leiden_QC2.png')
+    plt.close(fig3)
+    
+    # 4. EXPORT RAW COUNTS MATRIX
+    # ----------------------------
+    # pull it out as a dense DataFrame
+    raw_mat = pd.DataFrame(
+        adata_QC2.raw.X.todense(),
+        index=adata_QC2.obs_names,
+        columns=adata_QC2.raw.var_names
+    )
+    raw_mat.to_csv(f'{sample_id}_raw_counts.csv')
+    adata_QC2.obs['leiden_clusters'].to_csv(f'{sample_id}_leiden_clusters.csv', header=True)
+         
     # --- Generate a simple tab-delimited file for MultiQC ---
     with open(f'{sample_id}_qc_metrics.tsv', 'w') as f:
         f.write("metric\tvalue\n")
