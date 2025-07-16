@@ -1,19 +1,25 @@
 // modules/local/starsolo.nf
 process STAR_SOLO {
     tag "$meta.id"
-    publishDir "$params.outdir/starsolo/${meta.id}", mode: 'copy'
 
     input:
     tuple val(meta), path(reads), path(genomeDir)
 
     output:
-    // Add bam collection to results, no test yet 
     tuple val(meta), path("${meta.id}.Solo.out")
-    path "${meta.id}.Log.final.out", emit: log
-    path "${meta.id}.Aligned.sortedByCoord.out.bam", emit: bam 
+    
+    // Only publish log and bam files. Matrices are fed to gzip process. 
+    path "${meta.id}.Log.final.out", emit: log, publishDir: [
+        path: "$params.outdir/starsolo/${meta.id}/logs",
+        mode: 'copy'
+    ]
 
-    script:
+    path "${meta.id}.Aligned.sortedByCoord.out.bam", emit: bam, publishDir: [
+        path: "$params.outdir/starsolo/${meta.id}/bam",
+        mode: 'copy'
+    ]:
     // @Prateek: parameters below are fixed based on Notion, might add more flexibility in the future 
+
   """  
   STAR \\
         --runThreadN ${task.cpus} \\
