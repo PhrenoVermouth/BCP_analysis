@@ -38,6 +38,7 @@ def run_qc2(sample_id, matrix_dir, min_genes, min_cells, max_genes, max_counts, 
     scrub = scr.Scrublet(raw_matrix)
     doublet_score, predicted_doublets = scrub.scrub_doublets()
     real_cells = np.logical_not(predicted_doublets)
+    adata_QC1.obs['predicted_doublet'] = predicted_doublets
     adata_QC2 = adata_QC1[real_cells,:]
     
     
@@ -54,7 +55,7 @@ def run_qc2(sample_id, matrix_dir, min_genes, min_cells, max_genes, max_counts, 
     # Fig 1: Doublet cells shown on scatter plots
     fig1 = plt.figure()
     sc.pl.scatter(
-        adata, 
+        adata_QC1, 
         x='total_counts', 
         y='n_genes_by_counts', 
         color='predicted_doublet',  
