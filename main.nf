@@ -5,6 +5,7 @@ nextflow.enable.dsl=2
 include { STAR_SOLO } from './modules/local/starsolo'
 include { GZIP_SOLO_OUTPUT } from './modules/local/gzip_solout' 
 include { SCANPY_QC } from './modules/local/scanpy_qc'
+include { MULTIQC } from './modules/local/multiqc' 
 
 workflow {
     // 1. Sample input
@@ -16,7 +17,6 @@ workflow {
             meta.id = row.sample
             
             def reads = [ file(row.fastq_1), file(row.fastq_2) ]
-            
             return [ meta, reads, file(row.genomeDir) ]
         }
         .set { ch_input_reads }
@@ -34,23 +34,10 @@ workflow {
         .mix(SCANPY_QC.out.qc_metrics)
         .collect()
         .set{ ch_multiqc_files }
-    
-    // MultiQC commands
-    process MULTIQC {
-        publishDir "$params.outdir/multiqc", mode: 'copy'
 
-        input:
-        path files
-
-        output:
-        path "multiqc_report.html"
-
-        script:
-        """
-        multiqc .
-        """
-    }
 
     MULTIQC(ch_multiqc_files)
+    
+
 }
 
