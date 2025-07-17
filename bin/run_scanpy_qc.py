@@ -111,7 +111,7 @@ def run_qc2(sample_id, matrix_dir, min_genes, min_cells, max_genes, max_counts, 
     sc.tl.pca(adata_QC2, svd_solver='arpack')
     sc.pp.neighbors(adata_QC2, n_neighbors=10, n_pcs=40)
     sc.tl.leiden(adata_QC2, resolution=1.0, key_added='leiden_clusters')
-
+    sc.tl.umap(adata_QC2)
 
     # Fig 3: UMAP fot Leiden
     fig3 = plt.figure()
