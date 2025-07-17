@@ -17,9 +17,10 @@ process STAR_SOLO {
     path "${meta.id}.Aligned.sortedByCoord.out.bam", emit: bam, publishDir: [
         path: "$params.outdir/starsolo/${meta.id}/bam",
         mode: 'copy'
-    ]:
+    ]
     // @Prateek: parameters below are fixed based on Notion, might add more flexibility in the future 
 
+script:
   """  
   STAR \\
         --runThreadN ${task.cpus} \\
