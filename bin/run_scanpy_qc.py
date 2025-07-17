@@ -162,4 +162,4 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    run_qc(args.sample_id, args.matrix_dir, args.min_genes, args.min_cells, args.max_genes, args.max_counts, args.max_mito, args.mito_prefixes)
+    run_qc2(args.sample_id, args.matrix_dir, args.min_genes, args.min_cells, args.max_genes, args.max_counts, args.max_mito, args.mito_prefixes)
