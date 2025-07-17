@@ -40,7 +40,7 @@ workflow {
         publishDir "$params.outdir/multiqc", mode: 'copy'
 
         input:
-        path '*'
+        path files
 
         output:
         path "multiqc_report.html"
