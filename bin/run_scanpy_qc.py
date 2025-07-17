@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import scanpy as sc
+import scrublet as scr
 import pandas as pd
 import numpy as np
 import argparse
