@@ -49,7 +49,7 @@ def run_qc2(sample_id, matrix_dir, min_genes, min_cells, max_genes, max_counts, 
     sc.pl.violin(adata_QC1, 'pct_counts_mito', jitter=0.4, ax=axes[1], show=False)
     fig0.suptitle(f'{sample_id} - Before Filtering - QC1')
     fig0.tight_layout()
-    fig0.savefig(f'{sample_id}_violin_before_filtering_QC1.png')
+    fig0.savefig(f'{sample_id}_violin_before_mito_filtering_QC1.png')
     plt.close(fig0)
     
     # Fig 1: Doublet cells shown on scatter plots
@@ -114,15 +114,13 @@ def run_qc2(sample_id, matrix_dir, min_genes, min_cells, max_genes, max_counts, 
     sc.tl.umap(adata_QC2)
 
     # Fig 3: UMAP fot Leiden
-    fig3 = plt.figure()
     sc.pl.umap(
-        adata_QC2,
-        color='leiden_clusters',
-        show=False,
-        title=f'{sample_id} - Leiden Clustering (UMAP) - QC2'
-    )
-    fig3.savefig(f'{sample_id}_umap_leiden_QC2.png')
-    plt.close(fig3)
+    adata_QC2,
+    color='leiden_clusters',
+    save=f'_{sample_id}_umap_leiden_QC2.png',  
+    title=f'{sample_id} - Leiden Clustering (UMAP) - QC2'
+     )
+
     
     # 4. EXPORT RAW COUNTS MATRIX
     # ----------------------------
