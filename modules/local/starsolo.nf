@@ -1,16 +1,32 @@
 // modules/local/starsolo.nf
 process STAR_SOLO {
+
     tag "$meta.id"
 
-    // — send the STAR log to …/logs
     publishDir "$params.outdir/starsolo/${meta.id}/logs", \
         mode: 'copy', \
-        pattern: "${meta.id}.Log.final.out"
+        pattern: "${meta.id}.Log.final.out", \
+        enabled: true
 
-    // — send the sorted BAM to …/bam
     publishDir "$params.outdir/starsolo/${meta.id}/bam", \
         mode: 'copy', \
-        pattern: "${meta.id}.Aligned.sortedByCoord.out.bam"
+        pattern: "${meta.id}.Aligned.sortedByCoord.out.bam", \
+        enabled: true
+
+    publishDir "$params.outdir/starsolo/${meta.id}", \
+        mode: 'copy', \
+        pattern: "${meta.id}.Solo.out", \
+        enabled: false  
+
+    // — send the STAR log to …/logs
+   // publishDir "$params.outdir/starsolo/${meta.id}/logs", \
+    //    mode: 'copy', \
+     //   pattern: "${meta.id}.Log.final.out"
+
+    // — send the sorted BAM to …/bam
+    // publishDir "$params.outdir/starsolo/${meta.id}/bam", \
+      //  mode: 'copy', \
+       // pattern: "${meta.id}.Aligned.sortedByCoord.out.bam"
 
     input:
     tuple val(meta), path(reads), path(genomeDir)
