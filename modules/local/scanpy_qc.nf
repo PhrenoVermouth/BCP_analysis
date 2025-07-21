@@ -5,7 +5,7 @@ process SCANPY_QC {
     publishDir "$params.outdir/scanpy_qc/${meta.id}", mode: 'copy'
     
     input:
-    tuple val(meta), path(solo_out)
+    tuple val(meta), path(corrected_h5ad)
 
     output:
     tuple val(meta), path("*.png"), emit: qc_plots
@@ -17,7 +17,7 @@ process SCANPY_QC {
     """
     run_scanpy_qc.py \\
         --sample_id ${meta.id} \\
-        --matrix_dir ${solo_out}/GeneFull/raw \\
+        --input_h5ad ${corrected_h5ad} \\
         --min_genes ${params.min_genes_per_cell} \\
         --min_cells ${params.min_cells_per_gene} \\
         --max_genes ${params.max_genes_per_cell} \\
