@@ -32,8 +32,12 @@ process STAR_SOLO {
     tuple val(meta), path(reads), path(genomeDir)
 
     output:
-    tuple val(meta), path("${meta.id}.Solo.out")
-    path "${meta.id}.Log.final.out",                 emit: log
+    // tuple val(meta), path("${meta.id}.Solo.out")
+    // path "${meta.id}.Log.final.out",                 emit: log
+    // path "${meta.id}.Aligned.sortedByCoord.out.bam", emit: bam
+
+    tuple val(meta), path("${meta.id}.Solo.out/GeneFull"), emit: gene_dir
+    path "Log.final.out", emit: log
     path "${meta.id}.Aligned.sortedByCoord.out.bam", emit: bam
 
     script:
