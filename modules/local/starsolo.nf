@@ -36,7 +36,7 @@ process STAR_SOLO {
     // path "${meta.id}.Log.final.out",                 emit: log
     // path "${meta.id}.Aligned.sortedByCoord.out.bam", emit: bam
 
-    tuple val(meta), path("${meta.id}.Solo.out"), emit: gene_dir
+    tuple val(meta), path("${meta.id}.Solo.out"), emit: solo_out_dir
     path "Log.final.out", emit: log
     path "${meta.id}.Aligned.sortedByCoord.out.bam", emit: bam
 
