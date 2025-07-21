@@ -10,12 +10,12 @@ import matplotlib.pyplot as plt
 def run_qc2(sample_id, matrix_dir, min_genes, min_cells, max_genes, max_counts, max_mito, mito_prefixes):
     """
     Run single-cell data QC.
-    adata - only lower limit filtration
+    adata - after removing ambient RNA, filter lower limits
     adata_QC1 - mitochondria filtration
     adata_QC2 - doublet removal
     """
     # 1. Load data
-    adata = sc.read_10x_mtx(matrix_dir, var_names='gene_symbols', cache=True)
+    adata = sc.read_h5ad(input_h5ad)
     adata.var_names_make_unique()
     
     # 2. --- Initial filtering and QC calculations ---
