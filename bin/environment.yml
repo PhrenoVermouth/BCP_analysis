@@ -3,6 +3,7 @@ channels:
   - conda-forge
   - bioconda
   - defaults
+  - r
 dependencies:
   - python=3.11
   - scanpy=1.9.8    
@@ -12,3 +13,11 @@ dependencies:
   - multiqc=1.21      
   - star=2.7.10b
   - numpy=1.26.4      
+
+  - r-base=4.4
+  - r-argparse
+  - r-seurat=4.4.0
+  - bioconductor-soupx=1.6.2
+  - bioconductor-dropletutils=1.26.0
+  - bioconductor-zellkonverter=1.16.0
+  - bioconductor-singlecellexperiment=1.28.1
