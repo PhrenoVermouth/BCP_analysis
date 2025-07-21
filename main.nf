@@ -23,16 +23,18 @@ workflow {
 
     // 2. Run STARsolo
     STAR_SOLO(ch_input_reads)
-    // gyang0716:gzip STARsolo output 
+    
+    // 2.1 gyang0716:gzip STARsolo output 
     GZIP_SOLO_OUTPUT(STAR_SOLO.out[0])
+    
     // 3. Run Scanpy QC
     SCANPY_QC(GZIP_SOLO_OUTPUT.out.gzipped_dir)
 
     // 4. Run MultiQC for visualization
-    Channel
-        .from(STAR_SOLO.out.log)
+    STAR_SOLO.out.log
         .mix(SCANPY_QC.out.qc_metrics)
         .collect()
+        .view()
         .set{ ch_multiqc_files }
 
 
