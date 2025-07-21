@@ -6,12 +6,14 @@ process MULTIQC {
 
     input:
     path files
+    path config
 
     output:
     path "multiqc_report.html"
+    path "multiqc_data"
 
     script:
     """
-    multiqc .
+    multiqc . -c ${config} -o .
     """
 }

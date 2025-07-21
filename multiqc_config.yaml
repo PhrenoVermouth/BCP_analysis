@@ -1,0 +1,54 @@
+custom_content:
+    - plot_type: 'table'
+      file_format: 'tsv'
+      module_name: 'Scanpy QC Stats'
+      file_patt: "*_qc_metrics.tsv"
+      headers:
+          cells_initial:
+              title: 'Cells (Initial)'
+              description: 'Number of cells after basic filtering (min genes/cells).'
+              format: '{:,.0f}' 
+          median_genes_initial:
+              title: 'Median Genes (Initial)'
+              description: 'Median genes per cell after basic filtering.'
+              format: '{:,.0f}'
+          median_counts_initial:
+              title: 'Median UMIs (Initial)'
+              description: 'Median UMI counts per cell after basic filtering.'
+              format: '{:,.0f}'
+          cells_after_MT_Removal:
+              title: 'Cells (Post-Mito)'
+              description: 'Number of cells after mitochondrial filtering.'
+              format: '{:,.0f}'
+          median_genes_MT_Removal:
+              title: 'Median Genes (Post-Mito)'
+              description: 'Median genes per cell after mitochondrial filtering.'
+              format: '{:,.0f}'
+          median_counts_MT_Removal:
+              title: 'Median UMIs (Post-Mito)'
+              description: 'Median UMI counts per cell after mitochondrial filtering.'
+              format: '{:,.0f}'
+          cells_after_Doublet_Removal:
+              title: 'Cells (Final)'
+              description: 'Final number of cells after doublet removal.'
+              format: '{:,.0f}'
+          median_genes_Doublet_Removal:
+              title: 'Median Genes (Final)'
+              description: 'Final median genes per cell.'
+              format: '{:,.0f}'
+          median_counts_Doublet_Removal:
+              title: 'Median UMIs (Final)'
+              description: 'Final median UMI counts per cell.'
+              format: '{:,.0f}'
+
+
+ module_order:
+     - star:
+         name: 'STAR Alignment' 
+         info: 'scRNA-seq alignment statistics.'
+     - custom_content:
+         name: 'Scanpy QC Stats'
+         info: 'Cell quality control metrics from Scanpy.'
+     - multiqc:
+         name: 'MultiQC Execution'
+         info: 'MultiQC run summary.'
