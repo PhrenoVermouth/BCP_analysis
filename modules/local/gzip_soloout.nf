@@ -5,7 +5,7 @@ process GZIP_SOLO_OUTPUT {
     publishDir "$params.outdir/gzipped_matrix/${meta.id}", mode: 'copy'
 
     input:
-    tuple val(meta), path(solo_out_dir) // 输入来自STAR_SOLO的顶层输出目录
+    tuple val(meta), path(solo_out_dir) 
 
     output:
     tuple val(meta), path(solo_out_dir), emit: gzipped_dir 
