@@ -4,6 +4,7 @@ nextflow.enable.dsl=2
 // Previously compiled scripts
 include { STAR_SOLO } from './modules/local/starsolo'
 include { GZIP_SOLO_OUTPUT } from './modules/local/gzip_solout' 
+include { SOUPX } from './modules/local/soupx'
 include { SCANPY_QC } from './modules/local/scanpy_qc'
 include { MULTIQC } from './modules/local/multiqc' 
 
@@ -24,11 +25,13 @@ workflow {
     // 2. Run STARsolo
     STAR_SOLO(ch_input_reads)
     
-    // 2.1 gyang0716:gzip STARsolo output 
-    GZIP_SOLO_OUTPUT(STAR_SOLO.out[0])
-    
+    // 2.1 gyang0721:gzip STARsolo output 
+    GZIP_SOLO_OUTPUT(STAR_SOLO.out.solo_out_dir)
+    // 2.2 gyang0721: SoupX
+    SOUPX(GZIP_SOLO_OUTPUT.out.gzipped_dir) 
+
     // 3. Run Scanpy QC
-    SCANPY_QC(GZIP_SOLO_OUTPUT.out.gzipped_dir)
+    SCANPY_QC(SOUPX.out.corrected_h5ad)
 
     // 4. Run MultiQC for visualization
     STAR_SOLO.out.log
