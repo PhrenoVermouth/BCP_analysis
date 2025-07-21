@@ -3,7 +3,7 @@ nextflow.enable.dsl=2
 
 // Previously compiled scripts
 include { STAR_SOLO } from './modules/local/starsolo'
-include { GZIP_SOLO_OUTPUT } from './modules/local/gzip_solout' 
+include { GZIP_SOLO_OUTPUT } from './modules/local/gzip_soloout' 
 include { SOUPX } from './modules/local/soupx'
 include { SCANPY_QC } from './modules/local/scanpy_qc'
 include { MULTIQC } from './modules/local/multiqc' 
