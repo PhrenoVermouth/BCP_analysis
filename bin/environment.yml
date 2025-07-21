@@ -17,7 +17,7 @@ dependencies:
   - r-base=4.4
   - r-argparse
   - r-seurat=4.4.0
-  - bioconductor-soupx=1.6.2
+  - r-soupx=1.6.2
   - bioconductor-dropletutils=1.26.0
   - bioconductor-zellkonverter=1.16.0
-  - bioconductor-singlecellexperiment=1.28.1
+  - bioconductor-singlecellexperiment=1.28.0
