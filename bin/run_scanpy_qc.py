@@ -7,7 +7,7 @@ import numpy as np
 import argparse
 import matplotlib.pyplot as plt
 
-def run_qc2(sample_id, min_genes, min_cells, max_genes, max_counts, max_mito, mito_prefixes):
+def run_qc2(sample_id, input_h5ad, min_genes, min_cells, max_genes, max_counts, max_mito, mito_prefixes):
     """
     Run single-cell data QC.
     adata - after removing ambient RNA, filter lower limits
@@ -152,6 +152,8 @@ def run_qc2(sample_id, min_genes, min_cells, max_genes, max_counts, max_mito, mi
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Run Scanpy QC on STARsolo output")
     parser.add_argument('--sample_id', required=True, help="Sample identifier")
+    parser.add_argument('--input_h5ad', required=True, help="Sample h5ad")
+    
     #parser.add_argument('--matrix_dir', required=True, help="Path to STARsolo matrix directory")
     parser.add_argument('--min_genes', type=int, default=600, help="Min genes per cell")
     parser.add_argument('--min_cells', type=int, default=3, help="Min cells per gene")
@@ -162,4 +164,4 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    run_qc2(args.sample_id,  args.min_genes, args.min_cells, args.max_genes, args.max_counts, args.max_mito, args.mito_prefixes)
+    run_qc2(args.sample_id, args.input_h5ad,  args.min_genes, args.min_cells, args.max_genes, args.max_counts, args.max_mito, args.mito_prefixes)
