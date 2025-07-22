@@ -33,15 +33,20 @@ workflow {
     // 3. Run Scanpy QC
     SCANPY_QC(SOUPX.out.corrected_h5ad)
 
-    // 4. Run MultiQC for visualization
-    STAR_SOLO.out.log
+    // 4.1 Collect all the report files that need to be summarized
+    ch_for_multiqc = Channel.empty()
+        .mix(STAR_SOLO.out.log)
         .mix(SCANPY_QC.out.qc_metrics)
         .collect()
-        .view()
-        .set{ ch_multiqc_files }
 
+    // 4.2 Create a channel pointing to the configuration file
+    ch_multiqc_config = Channel.fromPath("${baseDir}/multiqc_config.yaml")
 
-    MULTIQC(ch_multiqc_files)
+    // 4.3 Call MULTIQC
+    MULTIQC(
+        ch_for_multiqc,
+        ch_multiqc_config
+    )
     
 
 }
