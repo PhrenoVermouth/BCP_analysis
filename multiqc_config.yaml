@@ -41,14 +41,13 @@ custom_content:
               description: 'Final median UMI counts per cell.'
               format: '{:,.0f}'
 
-
- module_order:
-     - star:
-         name: 'STAR Alignment' 
-         info: 'scRNA-seq alignment statistics.'
-     - custom_content:
-         name: 'Scanpy QC Stats'
-         info: 'Cell quality control metrics from Scanpy.'
-     - multiqc:
-         name: 'MultiQC Execution'
-         info: 'MultiQC run summary.'
+module_order:
+    - star:
+        name: 'STAR Alignment' 
+        info: 'scRNA-seq alignment statistics.'
+    - custom_content:
+        name: 'Scanpy QC Stats'
+        info: 'Cell quality control metrics from Scanpy.'
+    - multiqc:
+        name: 'MultiQC Execution'
+        info: 'MultiQC run summary.'
