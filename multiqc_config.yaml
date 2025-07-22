@@ -3,7 +3,8 @@ custom_content:
       file_format: 'tsv'
       module_name: 'Scanpy QC Stats'
       file_patt: "*_qc_metrics.tsv"
-      headers:
+      sample_names_first_col: False
+      headers:    
           cells_initial:
               title: 'Cells (Initial)'
               description: 'Number of cells after basic filtering (min genes/cells).'
