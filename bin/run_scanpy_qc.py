@@ -146,21 +146,35 @@ def run_qc2(sample_id, input_h5ad, min_genes, min_cells, max_genes, max_counts, 
     #     f.write(f"median_genes_Doublet_Removal\t{int(median_genes_QC2)}\n")
     #     f.write(f"median_counts_Doublet_Removal\t{int(median_counts_QC2)}\n")
 
-    with open(f"{sample_id}_cells_metrics.tsv", "w") as f:
-        f.write("Sample\tcells_initial\tcells_after_MT_Removal\tcells_after_Doublet_Removal\n")
-        f.write(f"{sample_id}\t{number_cells}\t{number_cells_QC1}\t{number_cells_QC2}\n")
-    
-    with open(f"{sample_id}_counts_metrics.tsv", "w") as f:
-        f.write("Sample\tmedian_counts_initial\tmedian_counts_MT_Removal\tmedian_counts_Doublet_Removal\n")
-        f.write(f"{sample_id}\t{int(median_counts)}\t{int(median_counts_QC1)}\t{int(median_counts_QC2)}\n")
+with open(f"{sample_id}_cells_mqc.tsv", "w") as f:
+    f.write("# plot_type: 'table'\n")
+    f.write("# section_name: 'Cells QC Metrics'\n")
+    f.write("# description: 'Cell counts at different filtering steps'\n")
+    f.write("# pconfig:\n")
+    f.write("#     sortRows: false\n")
+    f.write("Sample\tcells_initial\tcells_after_MT_Removal\tcells_after_Doublet_Removal\n")
+    f.write(f"{sample_id}\t{number_cells}\t{number_cells_QC1}\t{number_cells_QC2}\n")
 
-    with open(f"{sample_id}_genes_metrics.tsv", "w") as f:
-        f.write("Sample\tmedian_genes_initial\tmedian_genes_MT_Removal\tmedian_genes_Doublet_Removal\n")
-        f.write(f"{sample_id}\t{int(median_genes)}\t{int(median_genes_QC1)}\t{int(median_genes_QC2)}\n")
+with open(f"{sample_id}_counts_mqc.tsv", "w") as f:
+    f.write("# plot_type: 'table'\n")
+    f.write("# section_name: 'Counts QC Metrics'\n")
+    f.write("# description: 'Median UMI counts at different filtering steps'\n")
+    f.write("# pconfig:\n")
+    f.write("#     sortRows: false\n")
+    f.write("Sample\tmedian_counts_initial\tmedian_counts_MT_Removal\tmedian_counts_Doublet_Removal\n")
+    f.write(f"{sample_id}\t{int(median_counts)}\t{int(median_counts_QC1)}\t{int(median_counts_QC2)}\n")
 
+with open(f"{sample_id}_genes_mqc.tsv", "w") as f:
+    f.write("# plot_type: 'table'\n")
+    f.write("# section_name: 'Genes QC Metrics'\n")
+    f.write("# description: 'Median genes at different filtering steps'\n")
+    f.write("# pconfig:\n")
+    f.write("#     sortRows: false\n")
+    f.write("Sample\tmedian_genes_initial\tmedian_genes_MT_Removal\tmedian_genes_Doublet_Removal\n")
+    f.write(f"{sample_id}\t{int(median_genes)}\t{int(median_genes_QC1)}\t{int(median_genes_QC2)}\n")
         
     # @Prateek: Do we need to keep more h5ads above?
-    adata.write_h5ad(f'{sample_id}_filtered_QC2.h5ad')
+adata.write_h5ad(f'{sample_id}_filtered_QC2.h5ad')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Run Scanpy QC on STARsolo output")
