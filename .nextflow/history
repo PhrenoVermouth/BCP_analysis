@@ -1,0 +1,3 @@
+2025-07-21 12:35:18	-	lethal_goldwasser	-	4c5acfab5b7c1f8d44ee76d61a720ae5	41e1c94d-9e81-4b94-9050-0ded8f748877	nextflow run /home/groups/wangbo/gyang/Softwares/BCP_analysis/main.nf -profile standard
+2025-07-21 12:35:38	-	prickly_brahmagupta	-	4c5acfab5b7c1f8d44ee76d61a720ae5	98052d27-92a2-4e8e-914c-b1adcfba7346	nextflow run /home/groups/wangbo/gyang/Softwares/BCP_analysis/main.nf -profile standard
+2025-07-21 12:37:42	-	serene_celsius	-	edebc8f4b2b998926bb9a98206e670b6	7d7a0980-9097-41f5-aea5-b405a2efc745	nextflow run /home/groups/wangbo/gyang/Softwares/BCP_analysis/main.nf -profile standard

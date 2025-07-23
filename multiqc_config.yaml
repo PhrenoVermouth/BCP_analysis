@@ -11,7 +11,7 @@ custom_content:
     plot_type: 'table'
     file_format: 'tsv'
     module_name: 'Scanpy QC Statistics'
-    file_patt: "*_qc_metrics.tsv"
+   #file_patt: "*_qc_metrics.tsv"
     sample_names_first_col: False
     headers:
       cells_after_soupx:
@@ -46,6 +46,9 @@ custom_content:
         title: 'Median UMIs (Final)'
         description: 'Final median UMI counts per cell after all QC.'
         format: '{:,.0f}'
+sp:
+  custom_content:
+    fn: "*_qc_metrics.tsv"
 
 module_order:
     - star:

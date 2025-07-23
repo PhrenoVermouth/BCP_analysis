@@ -1,0 +1,166 @@
+Jul-21 12:37:40.855 [main] DEBUG nextflow.cli.Launcher - $> nextflow run /home/groups/wangbo/gyang/Softwares/BCP_analysis/main.nf -profile standard
+Jul-21 12:37:41.007 [main] INFO  nextflow.cli.CmdRun - N E X T F L O W  ~  version 21.04.3
+Jul-21 12:37:41.039 [main] INFO  nextflow.cli.CmdRun - Launching `/home/groups/wangbo/gyang/Softwares/BCP_analysis/main.nf` [serene_celsius] - revision: edebc8f4b2
+Jul-21 12:37:41.069 [main] DEBUG nextflow.config.ConfigBuilder - Found config local: /home/groups/wangbo/gyang/Softwares/BCP_analysis/nextflow.config
+Jul-21 12:37:41.070 [main] DEBUG nextflow.config.ConfigBuilder - Parsing config file: /home/groups/wangbo/gyang/Softwares/BCP_analysis/nextflow.config
+Jul-21 12:37:41.092 [main] DEBUG nextflow.config.ConfigBuilder - Applying config profile: `standard`
+Jul-21 12:37:42.168 [main] DEBUG nextflow.plugin.PluginsFacade - Setting up plugin manager > mode=prod; plugins-dir=/home/users/gyangbio/.nextflow/plugins
+Jul-21 12:37:42.169 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins default=[]
+Jul-21 12:37:42.171 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins local root: .nextflow/plr/empty
+Jul-21 12:37:42.178 [main] INFO  org.pf4j.DefaultPluginStatusProvider - Enabled plugins: []
+Jul-21 12:37:42.179 [main] INFO  org.pf4j.DefaultPluginStatusProvider - Disabled plugins: []
+Jul-21 12:37:42.182 [main] INFO  org.pf4j.DefaultPluginManager - PF4J version 3.4.1 in 'deployment' mode
+Jul-21 12:37:42.201 [main] INFO  org.pf4j.AbstractPluginManager - No plugins
+Jul-21 12:37:42.259 [main] DEBUG nextflow.Session - Session uuid: 7d7a0980-9097-41f5-aea5-b405a2efc745
+Jul-21 12:37:42.259 [main] DEBUG nextflow.Session - Run name: serene_celsius
+Jul-21 12:37:42.259 [main] DEBUG nextflow.Session - Executor pool size: 2
+Jul-21 12:37:42.307 [main] DEBUG nextflow.cli.CmdRun - 
+  Version: 21.04.3 build 5560
+  Created: 21-07-2021 15:09 UTC (08:09 PDT)
+  System: Linux 3.10.0-1160.119.1.el7.tuxcare.els20.x86_64
+  Runtime: Groovy 3.0.7 on Java HotSpot(TM) 64-Bit Server VM 11.0.11+9-LTS-194
+  Encoding: UTF-8 (UTF-8)
+  Process: 31572@sh03-10n48.int [10.19.10.48]
+  CPUs: 1 - Mem: 250 GB (249.7 GB) - Swap: 0 (0)
+Jul-21 12:37:42.367 [main] DEBUG nextflow.Session - Work-dir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work [nfs]
+Jul-21 12:37:42.384 [main] DEBUG nextflow.executor.ExecutorFactory - Extension executors providers=[]
+Jul-21 12:37:42.404 [main] DEBUG nextflow.Session - Observer factory: DefaultObserverFactory
+Jul-21 12:37:42.691 [main] DEBUG nextflow.Session - Session start invoked
+Jul-21 12:37:43.111 [main] DEBUG nextflow.script.ScriptRunner - > Launching execution
+Jul-21 12:37:44.142 [main] DEBUG nextflow.Session - Workflow process names [dsl2]: SCANPY_QC, SOUPX, MULTIQC, STAR_SOLO, GZIP_SOLO_OUTPUT
+Jul-21 12:37:44.334 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withName:STAR_SOLO` matches process STAR_SOLO
+Jul-21 12:37:44.352 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: local
+Jul-21 12:37:44.352 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Jul-21 12:37:44.355 [main] DEBUG nextflow.executor.Executor - [warm up] executor > local
+Jul-21 12:37:44.361 [main] DEBUG n.processor.LocalPollingMonitor - Creating local task monitor for executor 'local' > cpus=35; memory=250 GB; capacity=1; pollInterval=100ms; dumpInterval=5m
+Jul-21 12:37:44.473 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withName:GZIP_SOLO_OUTPUT|GZIP_MATRICES` matches process GZIP_SOLO_OUTPUT
+Jul-21 12:37:44.474 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: local
+Jul-21 12:37:44.474 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Jul-21 12:37:44.485 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: local
+Jul-21 12:37:44.485 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Jul-21 12:37:44.506 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: local
+Jul-21 12:37:44.506 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Jul-21 12:37:44.539 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: local
+Jul-21 12:37:44.539 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Jul-21 12:37:44.544 [main] DEBUG nextflow.Session - Ignite dataflow network (6)
+Jul-21 12:37:44.559 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > STAR_SOLO
+Jul-21 12:37:44.561 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > GZIP_SOLO_OUTPUT
+Jul-21 12:37:44.561 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > SOUPX
+Jul-21 12:37:44.562 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > SCANPY_QC
+Jul-21 12:37:44.562 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > MULTIQC
+Jul-21 12:37:44.563 [main] DEBUG nextflow.script.ScriptRunner - > Await termination 
+Jul-21 12:37:44.563 [main] DEBUG nextflow.Session - Session await
+Jul-21 12:37:45.125 [Task submitter] DEBUG nextflow.executor.LocalTaskHandler - Launch cmd line: /bin/bash -ue .command.run
+Jul-21 12:37:45.140 [Task submitter] INFO  nextflow.Session - [5d/09f96f] Submitted process > STAR_SOLO (sample1)
+Jul-21 12:42:44.583 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 12:47:44.636 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 12:52:44.698 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 12:57:44.769 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 13:02:44.847 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 13:07:44.925 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 13:12:45.005 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 13:17:45.079 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 13:22:45.082 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 13:27:45.170 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 13:32:45.266 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 13:37:45.338 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 13:42:45.435 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 13:47:45.438 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 13:52:45.444 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 13:57:45.445 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 14:02:45.483 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 14:07:45.543 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 14:12:45.629 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 14:17:45.724 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 14:22:45.812 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 14:27:45.836 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 14:32:45.843 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 14:37:45.855 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 14:42:45.862 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 14:47:45.873 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 14:52:45.895 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 14:57:45.983 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 15:02:45.994 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 15:07:46.003 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 15:12:46.019 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 15:17:46.032 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 15:22:46.047 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 15:27:46.056 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 15:32:46.072 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 15:37:46.094 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 15:42:46.103 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 15:47:46.133 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 15:52:46.214 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 15:57:46.230 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 16:02:46.243 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 16:07:46.250 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 16:12:46.255 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 16:17:46.265 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 16:22:46.278 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 16:27:46.287 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 16:32:46.320 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 16:37:46.335 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 16:42:46.370 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 16:47:46.391 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 16:52:46.404 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 16:57:46.421 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 17:02:46.430 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 17:07:46.440 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 17:12:46.454 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
+Jul-21 17:17:46.465 [Task monitor] DEBUG n.processor.TaskPollingMonitor - !! executor local > tasks to be completed: 1 -- submitted tasks are shown below
+~> TaskHandler[id: 1; name: STAR_SOLO (sample1); status: RUNNING; exit: -; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/5d/09f96f0e3adb26b0163b0a8fb284d8]
