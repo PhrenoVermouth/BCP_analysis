@@ -36,7 +36,10 @@ workflow {
     // 4.1 Collect all the report files that need to be summarized
     ch_for_multiqc = Channel.empty()
         .mix(STAR_SOLO.out.log)
-        .mix(SCANPY_QC.out.qc_metrics)
+        .mix(SCANPY_QC.out.qc_plots)
+        .mix(SCANPY_QC.out.qc_cells_metrics)
+        .mix(SCANPY_QC.out.qc_counts_metrics)
+        .mix(SCANPY_QC.out.qc_genes_metrics)
         .collect()
 
     // 4.2 Create a channel pointing to the configuration file
