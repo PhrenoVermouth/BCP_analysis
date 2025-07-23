@@ -28,7 +28,7 @@ Singularity container support will be implemented upon completion of the develop
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone [<repository-url>](https://github.com/PhrenoVermouth/BCP_analysis.git)
 cd BCP_analysis
 
 # Create conda environment
