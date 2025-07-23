@@ -1,0 +1,47 @@
+Jul-21 12:35:37.495 [main] DEBUG nextflow.cli.Launcher - $> nextflow run /home/groups/wangbo/gyang/Softwares/BCP_analysis/main.nf -profile standard
+Jul-21 12:35:37.638 [main] INFO  nextflow.cli.CmdRun - N E X T F L O W  ~  version 21.04.3
+Jul-21 12:35:37.656 [main] INFO  nextflow.cli.CmdRun - Launching `/home/groups/wangbo/gyang/Softwares/BCP_analysis/main.nf` [prickly_brahmagupta] - revision: 4c5acfab5b
+Jul-21 12:35:37.687 [main] DEBUG nextflow.config.ConfigBuilder - Found config local: /home/groups/wangbo/gyang/Softwares/BCP_analysis/nextflow.config
+Jul-21 12:35:37.688 [main] DEBUG nextflow.config.ConfigBuilder - Parsing config file: /home/groups/wangbo/gyang/Softwares/BCP_analysis/nextflow.config
+Jul-21 12:35:37.707 [main] DEBUG nextflow.config.ConfigBuilder - Applying config profile: `standard`
+Jul-21 12:35:38.799 [main] DEBUG nextflow.plugin.PluginsFacade - Setting up plugin manager > mode=prod; plugins-dir=/home/users/gyangbio/.nextflow/plugins
+Jul-21 12:35:38.801 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins default=[]
+Jul-21 12:35:38.802 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins local root: .nextflow/plr/empty
+Jul-21 12:35:38.808 [main] INFO  org.pf4j.DefaultPluginStatusProvider - Enabled plugins: []
+Jul-21 12:35:38.809 [main] INFO  org.pf4j.DefaultPluginStatusProvider - Disabled plugins: []
+Jul-21 12:35:38.811 [main] INFO  org.pf4j.DefaultPluginManager - PF4J version 3.4.1 in 'deployment' mode
+Jul-21 12:35:38.833 [main] INFO  org.pf4j.AbstractPluginManager - No plugins
+Jul-21 12:35:38.890 [main] DEBUG nextflow.Session - Session uuid: 98052d27-92a2-4e8e-914c-b1adcfba7346
+Jul-21 12:35:38.890 [main] DEBUG nextflow.Session - Run name: prickly_brahmagupta
+Jul-21 12:35:38.890 [main] DEBUG nextflow.Session - Executor pool size: 2
+Jul-21 12:35:38.940 [main] DEBUG nextflow.cli.CmdRun - 
+  Version: 21.04.3 build 5560
+  Created: 21-07-2021 15:09 UTC (08:09 PDT)
+  System: Linux 3.10.0-1160.119.1.el7.tuxcare.els20.x86_64
+  Runtime: Groovy 3.0.7 on Java HotSpot(TM) 64-Bit Server VM 11.0.11+9-LTS-194
+  Encoding: UTF-8 (UTF-8)
+  Process: 31314@sh03-10n48.int [10.19.10.48]
+  CPUs: 1 - Mem: 250 GB (249.7 GB) - Swap: 0 (0)
+Jul-21 12:35:38.978 [main] DEBUG nextflow.Session - Work-dir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work [nfs]
+Jul-21 12:35:39.010 [main] DEBUG nextflow.executor.ExecutorFactory - Extension executors providers=[]
+Jul-21 12:35:39.031 [main] DEBUG nextflow.Session - Observer factory: DefaultObserverFactory
+Jul-21 12:35:39.566 [main] DEBUG nextflow.Session - Session start invoked
+Jul-21 12:35:39.958 [main] DEBUG nextflow.script.ScriptRunner - > Launching execution
+Jul-21 12:35:40.308 [main] DEBUG nextflow.Session - Session aborted -- Cause: Can't find a matching module file for include: ./modules/local/gzip_solout
+Jul-21 12:35:40.316 [main] ERROR nextflow.cli.Launcher - Can't find a matching module file for include: ./modules/local/gzip_solout
+java.nio.file.NoSuchFileException: Can't find a matching module file for include: ./modules/local/gzip_solout
+	at nextflow.script.IncludeDef.realModulePath(IncludeDef.groovy:177)
+	at nextflow.script.IncludeDef.load0(IncludeDef.groovy:112)
+	at nextflow.script.IncludeDef$load0$1.call(Unknown Source)
+	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCall(CallSiteArray.java:47)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.call(AbstractCallSite.java:125)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.call(AbstractCallSite.java:139)
+	at Script_363ee016.runScript(Script_363ee016:6)
+	at nextflow.script.BaseScript.runDsl2(BaseScript.groovy:170)
+	at nextflow.script.BaseScript.run(BaseScript.groovy:200)
+	at nextflow.script.ScriptParser.runScript(ScriptParser.groovy:221)
+	at nextflow.script.ScriptRunner.run(ScriptRunner.groovy:212)
+	at nextflow.script.ScriptRunner.execute(ScriptRunner.groovy:120)
+	at nextflow.cli.CmdRun.run(CmdRun.groovy:302)
+	at nextflow.cli.Launcher.run(Launcher.groovy:475)
+	at nextflow.cli.Launcher.main(Launcher.groovy:657)
