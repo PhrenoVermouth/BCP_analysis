@@ -134,17 +134,30 @@ def run_qc2(sample_id, input_h5ad, min_genes, min_cells, max_genes, max_counts, 
     adata_QC2.obs['leiden_clusters'].to_csv(f'{sample_id}_leiden_clusters.csv', header=True)
          
     # --- Generate a simple tab-delimited file for MultiQC ---
-    with open(f'{sample_id}_qc_metrics.tsv', 'w') as f:
-        f.write("metric\tvalue\n")
-        f.write(f"cells_initial\t{number_cells}\n")
-        f.write(f"median_genes_initial\t{int(median_genes)}\n")
-        f.write(f"median_counts_initial\t{int(median_counts)}\n")
-        f.write(f"cells_after_MT_Removal\t{number_cells_QC1}\n")
-        f.write(f"median_genes_MT_Removal\t{int(median_genes_QC1)}\n")
-        f.write(f"median_counts_MT_Removal\t{int(median_counts_QC1)}\n")
-        f.write(f"cells_after_Doublet_Removal\t{number_cells_QC2}\n")
-        f.write(f"median_genes_Doublet_Removal\t{int(median_genes_QC2)}\n")
-        f.write(f"median_counts_Doublet_Removal\t{int(median_counts_QC2)}\n")
+    # with open(f'{sample_id}_qc_metrics.tsv', 'w') as f:
+    #     f.write("metric\tvalue\n")
+    #     f.write(f"cells_initial\t{number_cells}\n")
+    #     f.write(f"median_genes_initial\t{int(median_genes)}\n")
+    #     f.write(f"median_counts_initial\t{int(median_counts)}\n")
+    #     f.write(f"cells_after_MT_Removal\t{number_cells_QC1}\n")
+    #     f.write(f"median_genes_MT_Removal\t{int(median_genes_QC1)}\n")
+    #     f.write(f"median_counts_MT_Removal\t{int(median_counts_QC1)}\n")
+    #     f.write(f"cells_after_Doublet_Removal\t{number_cells_QC2}\n")
+    #     f.write(f"median_genes_Doublet_Removal\t{int(median_genes_QC2)}\n")
+    #     f.write(f"median_counts_Doublet_Removal\t{int(median_counts_QC2)}\n")
+
+    with open(f"{sample_id}_cells_metrics.tsv", "w") as f:
+        f.write("Sample\tcells_initial\tcells_after_MT_Removal\tcells_after_Doublet_Removal\n")
+        f.write(f"{sample_id}\t{number_cells}\t{number_cells_QC1}\t{number_cells_QC2}\n")
+    
+    with open(f"{sample_id}_counts_metrics.tsv", "w") as f:
+        f.write("Sample\tmedian_counts_initial\tmedian_counts_MT_Removal\tmedian_counts_Doublet_Removal\n")
+        f.write(f"{sample_id}\t{int(median_counts)}\t{int(median_counts_QC1)}\t{int(median_counts_QC2)}\n")
+
+    with open(f"{sample_id}_genes_metrics.tsv", "w") as f:
+        f.write("Sample\tmedian_genes_initial\tmedian_genes_MT_Removal\tmedian_genes_Doublet_Removal\n")
+        f.write(f"{sample_id}\t{int(median_genes)}\t{int(median_genes_QC1)}\t{int(median_genes_QC2)}\n")
+
         
     # @Prateek: Do we need to keep more h5ads above?
     adata.write_h5ad(f'{sample_id}_filtered_QC2.h5ad')
