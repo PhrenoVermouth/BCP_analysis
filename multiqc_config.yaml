@@ -10,7 +10,7 @@ custom_content:
     file_format: tsv
     plot_type: table
     section_name: "Cells QC Metrics"
-    sample_names_first_col: true
+    sample_names_first_col: false
     pconfig:
       sortRows: false           
 
@@ -18,7 +18,7 @@ custom_content:
     file_format: tsv
     plot_type: table
     section_name: "Counts QC Metrics"
-    sample_names_first_col: true
+    sample_names_first_col: false
     pconfig:
       sortRows: false
 
@@ -26,7 +26,7 @@ custom_content:
     file_format: tsv
     plot_type: table
     section_name: "Genes QC Metrics"
-    sample_names_first_col: true
+    sample_names_first_col: false
     pconfig:
       sortRows: false
 sp:
