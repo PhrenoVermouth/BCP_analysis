@@ -10,7 +10,10 @@ process SCANPY_QC {
     output:
     tuple val(meta), path("*.png"), emit: qc_plots
     tuple val(meta), path("*.h5ad"), emit: filtered_adata
-    path "*_qc_metrics.tsv", emit: qc_metrics
+    path "*_cells_metrics.tsv", emit: qc_cells_metrics
+    path "*_counts_metrics.tsv", emit: qc_counts_metrics
+    path "*_genes_metrics.tsv", emit: qc_genes_metrics
+    // path "*_qc_metrics.tsv", emit: qc_metrics
 
     script:
     def mito_prefixes = params.mito_prefixes.join(' ')
