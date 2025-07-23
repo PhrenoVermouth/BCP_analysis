@@ -1,34 +1,34 @@
-# ====================================================================
-#          MultiQC Custom Configuration for scRNA-seq QC
-# ====================================================================
-
 title: "Single-Cell QC Pipeline Report"
 
-
 custom_content:
-  cells_metrics:               
+  cells_metrics:
     file_format: tsv
     plot_type: table
     section_name: "Cells QC Metrics"
-    sample_names_first_col: false
+    sample_names_first_col: true
     pconfig:
-      sortRows: false           
+      sortRows: false
+      id: 'cells_metrics_table'
 
   counts_metrics:
     file_format: tsv
     plot_type: table
     section_name: "Counts QC Metrics"
-    sample_names_first_col: false
+    sample_names_first_col: true
     pconfig:
       sortRows: false
+      id: 'counts_metrics_table'
 
   genes_metrics:
     file_format: tsv
     plot_type: table
     section_name: "Genes QC Metrics"
-    sample_names_first_col: false
+    sample_names_first_col: true
     pconfig:
       sortRows: false
+      id: 'genes_metrics_table'
+
+
 sp:
   cells_metrics:
     fn: "*_cells_metrics.tsv"
@@ -38,9 +38,5 @@ sp:
     fn: "*_genes_metrics.tsv"
 
 module_order:
-    - star:
-        name: 'STAR Alignment' 
-        info: 'scRNA-seq alignment statistics from STARsolo.'
-    - custom_content|cells_metrics
-    - custom_content|counts_metrics
-    - custom_content|genes_metrics
+  - star
+  - custom_content
