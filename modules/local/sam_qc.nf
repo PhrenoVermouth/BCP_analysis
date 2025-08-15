@@ -3,7 +3,7 @@
 process SAM_QC {
     tag "$meta.id"
     publishDir "$params.outdir/sam_qc/${meta.id}", mode: 'copy'
-    
+
     input:
     tuple val(meta), path(corrected_h5ad)
 
@@ -24,7 +24,10 @@ process SAM_QC {
         --min_cells ${params.min_cells_per_gene} \\
         --max_genes ${params.max_genes_per_cell} \\
         --max_counts ${params.max_counts_per_cell} \\
-        --max_mito ${params.max_mito_percent} \\
-        --mito_prefixes ${mito_prefixes}
+        --max_mito ${params.max_mito} \\
+        --mito_prefixes ${mito_prefixes} \\
+        --n_hvg ${params.n_hvg} \\
+        --n_neighbors ${params.n_neighbors} \\
+        --n_pcs ${params.n_pcs}
     """
 }
