@@ -16,6 +16,7 @@ process SAM_QC {
 
     script:
     def mito_prefixes = params.mito_prefixes.join(' ')
+    def marker_arg = params.marker_genes ? "\\\n        --marker_genes ${params.marker_genes}" : ""
     """
     run_sam_qc.py \\
         --sample_id ${meta.id} \\
@@ -28,6 +29,6 @@ process SAM_QC {
         --mito_prefixes ${mito_prefixes} \\
         --n_hvg ${params.n_hvg} \\
         --n_neighbors ${params.n_neighbors} \\
-        --n_pcs ${params.n_pcs}
+        --n_pcs ${params.n_pcs}  ${marker_arg}
     """
 }

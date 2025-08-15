@@ -6,9 +6,10 @@ import pandas as pd
 import numpy as np
 import argparse
 import matplotlib.pyplot as plt
+import seaborn as sns
 from samalg import SAM
 
-def run_qc2(sample_id, input_h5ad, min_genes, min_cells, max_genes, max_counts, max_mito, mito_prefixes, n_hvg, n_neighbors, n_pcs):
+def run_qc2(sample_id, input_h5ad, min_genes, min_cells, max_genes, max_counts, max_mito, mito_prefixes, n_hvg, n_neighbors, n_pcs, marker_genes_file=None):
     """
     Run single-cell data QC.
     adata - after removing ambient RNA, filter lower limits
@@ -122,6 +123,29 @@ def run_qc2(sample_id, input_h5ad, min_genes, min_cells, max_genes, max_counts, 
     plt.savefig(f'{sample_id}_umap_leiden_QC2.png')
     plt.close()
 
+    # Identify marker genes and plot heatmap
+    sc.tl.rank_genes_groups(sam.adata, groupby='leiden_clusters', method='wilcoxon')
+    rank_df = sc.get.rank_genes_groups_df(sam.adata, None)
+    top_markers = rank_df.groupby('group').first()['names'].tolist()
+    external_markers = []
+    if marker_genes_file:
+        with open(marker_genes_file) as f:
+            external_markers = [line.strip() for line in f if line.strip()]
+    genes_to_plot = list(dict.fromkeys(top_markers + external_markers))
+    genes_to_plot = [g for g in genes_to_plot if g in sam.adata.raw.var_names]
+    if genes_to_plot:
+        expr = sam.adata.raw.to_adata()[:, genes_to_plot].to_df()
+        expr['cluster'] = sam.adata.obs['leiden_clusters'].values
+        mean_expr = expr.groupby('cluster').mean()
+        mean_expr = mean_expr.reindex(sorted(mean_expr.index, key=lambda x: int(x)))
+        plt.figure(figsize=(0.5*len(genes_to_plot)+5, 0.5*mean_expr.shape[0]+5))
+        sns.heatmap(mean_expr, cmap='viridis')
+        plt.xlabel('Gene')
+        plt.ylabel('Cluster')
+        plt.title(f'{sample_id} Marker Gene Expression')
+        plt.tight_layout()
+        plt.savefig(f'{sample_id}_marker_genes_heatmap.png')
+        plt.close()
 
     # 4. EXPORT RAW COUNTS MATRIX
     # ----------------------------
@@ -192,6 +216,7 @@ if __name__ == '__main__':
     parser.add_argument('--n_hvg', type=int, default=3000, help="Number of highly variable genes")
     parser.add_argument('--n_neighbors', type=int, default=15, help="Number of nearest neighbors in PCA space")
     parser.add_argument('--n_pcs', type=int, default=50, help="Number of principal components")
+    parser.add_argument('--marker_genes', type=str, default=None, help="Optional path to marker genes list (one gene per line)")
 
     args = parser.parse_args()
 
@@ -207,4 +232,5 @@ if __name__ == '__main__':
         args.n_hvg,
         args.n_neighbors,
         args.n_pcs,
+        args.marker_genes,
     )
