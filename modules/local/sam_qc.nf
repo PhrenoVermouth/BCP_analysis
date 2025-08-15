@@ -1,8 +1,8 @@
-// modules/local/scanpy_qc.nf
+// modules/local/sam_qc.nf
 
-process SCANPY_QC {
+process SAM_QC {
     tag "$meta.id"
-    publishDir "$params.outdir/scanpy_qc/${meta.id}", mode: 'copy'
+    publishDir "$params.outdir/sam_qc/${meta.id}", mode: 'copy'
     
     input:
     tuple val(meta), path(corrected_h5ad)
@@ -17,7 +17,7 @@ process SCANPY_QC {
     script:
     def mito_prefixes = params.mito_prefixes.join(' ')
     """
-    run_scanpy_qc.py \\
+    run_sam_qc.py \\
         --sample_id ${meta.id} \\
         --input_h5ad ${corrected_h5ad} \\
         --min_genes ${params.min_genes_per_cell} \\
