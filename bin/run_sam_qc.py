@@ -149,14 +149,16 @@ def run_qc2(sample_id, input_h5ad, min_genes, min_cells, max_genes, max_counts, 
         expr['cluster'] = sam.adata.obs['leiden_clusters'].values
         mean_expr = expr.groupby('cluster').mean()
         mean_expr = mean_expr.reindex(sorted(mean_expr.index, key=lambda x: int(x)))
-        plt.figure(figsize=(0.5*len(genes_to_plot)+5, 0.5*mean_expr.shape[0]+5))
-        sns.heatmap(mean_expr, cmap='viridis')
-        plt.xlabel('Gene')
-        plt.ylabel('Cluster')
-        plt.title(f'{sample_id} Marker Gene Expression')
-        plt.tight_layout()
-        plt.savefig(f'{sample_id}_marker_genes_heatmap.png')
-        plt.close()
+        g = sns.clustermap(
+            mean_expr,
+            cmap='viridis',
+            figsize=(0.5 * len(genes_to_plot) + 5, 0.5 * mean_expr.shape[0] + 5),
+        )
+        g.fig.suptitle(f'{sample_id} Marker Gene Expression')
+        g.ax_heatmap.set_xlabel('Gene')
+        g.ax_heatmap.set_ylabel('Cluster')
+        g.savefig(f'{sample_id}_marker_genes_heatmap.png')
+        plt.close(g.fig)
 
     # 4. EXPORT RAW COUNTS MATRIX
     # ----------------------------
