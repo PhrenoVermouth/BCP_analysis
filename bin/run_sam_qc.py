@@ -55,7 +55,7 @@ def run_qc2(sample_id, input_h5ad, min_genes, min_cells, max_genes, max_counts, 
     sc.pl.violin(adata_QC1, 'pct_counts_mito', jitter=0.4, ax=axes[1], show=False)
     fig0.suptitle(f'{sample_id} - Before Filtering - QC1')
     fig0.tight_layout()
-    fig0.savefig(f'{sample_id}_violin_before_mito_filtering_QC1.png')
+    fig0.savefig(f'{sample_id}_violin_before_mito_filtering_QC1_mqc.png')
     plt.close(fig0)
 
     # Fig 1: Doublet cells shown on scatter plots
@@ -68,7 +68,7 @@ def run_qc2(sample_id, input_h5ad, min_genes, min_cells, max_genes, max_counts, 
         show=False,
         title=f'{sample_id} - Predicted Doublets Highlighted - QC2'
     )
-    fig1.savefig(f'{sample_id}_scatter_doublet_highlight_QC2.png')
+    fig1.savefig(f'{sample_id}_scatter_doublet_highlight_QC2_mqc.png')
     plt.close(fig1)
 
     # Fig 2: Global violin before and after doublet removal
@@ -86,7 +86,7 @@ def run_qc2(sample_id, input_h5ad, min_genes, min_cells, max_genes, max_counts, 
     sc.pl.violin(adata_QC2, 'total_counts', jitter=0.4, ax=axes[1, 1], show=False)
 
     fig2.tight_layout(rect=[0, 0.03, 1, 0.95])
-    fig2.savefig(f'{sample_id}_violin_comparison_QC2.png')
+    fig2.savefig(f'{sample_id}_violin_comparison_QC2_mqc.png')
     plt.close(fig2)
 
 
@@ -131,7 +131,7 @@ def run_qc2(sample_id, input_h5ad, min_genes, min_cells, max_genes, max_counts, 
         show=False,
         title=f'{sample_id} - Leiden Clustering (UMAP) - QC2'
     )
-    plt.savefig(f'{sample_id}_umap_leiden_QC2.png')
+    plt.savefig(f'{sample_id}_umap_leiden_QC2_mqc.png')
     plt.close()
 
     # Identify marker genes and plot heatmap
@@ -157,7 +157,7 @@ def run_qc2(sample_id, input_h5ad, min_genes, min_cells, max_genes, max_counts, 
         g.fig.suptitle(f'{sample_id} Marker Gene Expression')
         g.ax_heatmap.set_xlabel('Gene')
         g.ax_heatmap.set_ylabel('Cluster')
-        g.savefig(f'{sample_id}_marker_genes_heatmap.png')
+        g.savefig(f'{sample_id}_marker_genes_heatmap_mqc.png')
         plt.close(g.fig)
 
     # 4. EXPORT RAW COUNTS MATRIX
