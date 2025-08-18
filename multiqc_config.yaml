@@ -1,38 +1,37 @@
+run_modules:
+  - custom_content
+
 title: "Single-Cell QC Pipeline Report"
 
-custom_content:
+custom_data:
   cells_metrics:
-    file_format: tsv
-    plot_type: table
     section_name: "Cells QC Metrics"
+    description: "Cell counts at different filtering steps"
+    file_format: "tsv"
+    plot_type: "table"
     sample_names_first_col: true
     pconfig:
       sortRows: false
-      id: 'cells_metrics_table'
-
   counts_metrics:
-    file_format: tsv
-    plot_type: table
     section_name: "Counts QC Metrics"
+    description: "Median UMI counts at different filtering steps"
+    file_format: "tsv"
+    plot_type: "table"
     sample_names_first_col: true
     pconfig:
       sortRows: false
-      id: 'counts_metrics_table'
-
   genes_metrics:
-    file_format: tsv
-    plot_type: table
     section_name: "Genes QC Metrics"
+    description: "Median genes at different filtering steps"
+    file_format: "tsv"
+    plot_type: "table"
     sample_names_first_col: true
     pconfig:
       sortRows: false
-      id: 'genes_metrics_table'
-
   sam_qc_plots:
-    file_format: png
-    plot_type: image
     section_name: "SAM QC Plots"
-
+    description: "QC plots generated during SAM QC"
+    file_format: "png"
 
 sp:
   cells_metrics:
@@ -42,8 +41,15 @@ sp:
   genes_metrics:
     fn: "*_genes_mqc.tsv"
 
-  sam_qc_plots:
-    fn: "*.png"
+ignore_images: false
+
+custom_content:
+  order:
+    - cells_metrics
+    - counts_metrics
+    - genes_metrics
+    - sam_qc_plots
+
 
 module_order:
   - star
