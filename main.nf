@@ -39,7 +39,8 @@ workflow {
         .mix(SAM_QC.out.qc_cells_metrics)
         .mix(SAM_QC.out.qc_counts_metrics)
         .mix(SAM_QC.out.qc_genes_metrics)
-        .mix(SAM_QC.out.qc_plots)
+        // sam_qc outputs tuples; extract the file component for MultiQC
+        .mix(SAM_QC.out.qc_plots.map { it[1] })
         .collect()
 
     // 4.2 Create a channel pointing to the configuration file
