@@ -28,6 +28,11 @@ custom_content:
       sortRows: false
       id: 'genes_metrics_table'
 
+  sam_qc_plots:
+    file_format: png
+    plot_type: image
+    section_name: "SAM QC Plots"
+
 
 sp:
   cells_metrics:
@@ -36,6 +41,8 @@ sp:
     fn: "*_counts_metrics.tsv"
   genes_metrics:
     fn: "*_genes_metrics.tsv"
+  sam_qc_plots:
+    fn: "*.png"
 
 module_order:
   - star

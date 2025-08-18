@@ -39,6 +39,7 @@ workflow {
         .mix(SAM_QC.out.qc_cells_metrics)
         .mix(SAM_QC.out.qc_counts_metrics)
         .mix(SAM_QC.out.qc_genes_metrics)
+        .mix(SAM_QC.out.qc_plots)
         .collect()
 
     // 4.2 Create a channel pointing to the configuration file
