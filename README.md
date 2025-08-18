@@ -10,6 +10,7 @@ A Nextflow-based pipeline for single-cell RNA sequencing data preprocessing, spe
 - **Ambient RNA removal** for cleaner expression profiles
 - **Doublet detection** to filter multiplets
 - **Comprehensive QC metrics** with MultiQC reporting
+- **Embedded QC plots** included in MultiQC report
 - **Automated preprocessing** with minimal manual intervention
 
 ## Future Development
