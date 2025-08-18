@@ -40,8 +40,6 @@ sp:
     fn: "*_counts_mqc.tsv"
   genes_metrics:
     fn: "*_genes_mqc.tsv"
-  sam_qc_plots:
-    fn: "*_mqc.png"
 
 ignore_images: false
 
@@ -51,6 +49,7 @@ custom_content:
     - counts_metrics
     - genes_metrics
     - sam_qc_plots
+
 
 module_order:
   - star
