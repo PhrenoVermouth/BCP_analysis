@@ -41,6 +41,7 @@ sp:
     fn: "*_counts_mqc.tsv"
   genes_metrics:
     fn: "*_genes_mqc.tsv"
+
   sam_qc_plots:
     fn: "*.png"
 
