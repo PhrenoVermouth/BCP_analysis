@@ -35,12 +35,13 @@ custom_content:
 
 
 sp:
-    cells_metrics:
-      fn: "*_cells_mqc.tsv"
-    counts_metrics:
-      fn: "*_counts_mqc.tsv"
-    genes_metrics:
-      fn: "*_genes_mqc.tsv"
+  cells_metrics:
+    fn: "*_cells_mqc.tsv"
+  counts_metrics:
+    fn: "*_counts_mqc.tsv"
+  genes_metrics:
+    fn: "*_genes_mqc.tsv"
+
   sam_qc_plots:
     fn: "*.png"
 
