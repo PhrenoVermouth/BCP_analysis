@@ -47,9 +47,9 @@ custom_data:
     file_format: "png"
     plot_type: "image"
 
-  img_violin_before_mito_qc1:
-    section_name: "sample1 violin before mito filtering QC1"
-    description: "nCount_RNA / nFeature_RNA distributions before mitochondrial filtering."
+  img_violin_mito_qc1:
+    section_name: "sample1 violin before and after mito filtering QC1"
+    description: "nCount_RNA / nFeature_RNA distributions before and after mitochondrial filtering."
     file_format: "png"
     plot_type: "image"
 
@@ -79,8 +79,8 @@ sp:
     fn: "*_marker_genes_heatmap.png"
   img_umap_leiden_qc2:
     fn: "*_umap_leiden_QC2.png"
-  img_violin_before_mito_qc1:
-    fn: "*_violin_before_mito_filtering_QC1.png"
+  img_violin_mito_qc1:
+    fn: "*_violin_mito_filtering_QC1.png"
   img_violin_comparison_qc2:
     fn: "*_violin_comparison_QC2.png"
   img_scatter_doublet_qc2:
@@ -91,7 +91,7 @@ custom_content:
     - cells_metrics
     - counts_metrics
     - genes_metrics
-    - img_violin_before_mito_qc1
+    - img_violin_mito_qc1
     - img_violin_comparison_qc2
     - img_scatter_doublet_qc2
     - img_umap_leiden_qc2
@@ -104,7 +104,7 @@ report_section_order:
   "custom_content:cells_metrics": 30
   "custom_content:counts_metrics": 40
   "custom_content:genes_metrics": 50
-  "custom_content:img_violin_before_mito_qc1": 60
+  "custom_content:img_violin_mito_qc1": 60
   "custom_content:img_violin_comparison_qc2": 70
   "custom_content:img_scatter_doublet_qc2": 80
   "custom_content:img_umap_leiden_qc2": 90
