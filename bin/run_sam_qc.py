@@ -93,7 +93,7 @@ def run_qc2(
     sc.pl.violin(adata_QC1, 'pct_counts_mito', jitter=0.4, ax=axes[1], show=False)
     fig0.suptitle(f'{sample_id} - Mito Filtering - QC1')
     fig0.tight_layout()
-    fig0.savefig(f'1.{sample_id}_violin_before_mito_filtering_QC1.png')
+    fig0.savefig(f'1.{sample_id}_violin_mito_filtering_QC1.png')
     plt.close(fig0)
 
     # Fig 1: Doublet cells shown on scatter plots
