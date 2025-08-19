@@ -7,6 +7,7 @@ suppressPackageStartupMessages(library(DropletUtils))
 suppressPackageStartupMessages(library(zellkonverter))
 suppressPackageStartupMessages(library(SingleCellExperiment))
 suppressPackageStartupMessages(library(argparse))
+suppressPackageStartupMessages(library(ggplot2))
 
 # 2. parse paras 
 parser <- ArgumentParser(description="Run SoupX to correct ambient RNA")
@@ -36,6 +37,20 @@ sc <- setClusters(sc, clusters = seurat_clusters)
 # 5. auto-correction
 sc <- autoEstCont(sc)
 adj_counts <- adjustCounts(sc)
+
+raw_counts <- Matrix::colSums(sc$toc)
+corr_counts <- Matrix::colSums(adj_counts)
+removed_fraction <- (raw_counts - corr_counts) / raw_counts
+plot_df <- data.frame(fraction_removed = removed_fraction)
+plot_file <- paste0("0.",args$sample_id, "_ambient_RNA_removed.png")
+p <- ggplot(plot_df, aes(x = fraction_removed)) +
+  geom_histogram(binwidth = 0.01, fill = "steelblue", color = "black") +
+  labs(title = "Fraction of Counts Removed by SoupX",
+       x = "Fraction Removed",
+       y = "Number of Cells")
+ggsave(plot_file, plot = p, width = 6, height = 4)
+cat("Ambient RNA removal plot saved to:", plot_file, "\n")
+
 
 # 6. output .h5ad
 output_file <- paste0(args$sample_id, "_corrected.h5ad")

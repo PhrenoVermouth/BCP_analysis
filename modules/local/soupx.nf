@@ -5,9 +5,10 @@ process SOUPX {
     publishDir "$params.outdir/soupx/${meta.id}", mode: 'copy'
 
     input:
-    tuple val(meta), path(gzipped_dir) 
+    tuple val(meta), path(gzipped_dir)
     output:
     tuple val(meta), path("${meta.id}_corrected.h5ad"), emit: corrected_h5ad
+    path("0.${meta.id}_ambient_RNA_removed.png"), emit: ambient_plot
 
     script:
     """
