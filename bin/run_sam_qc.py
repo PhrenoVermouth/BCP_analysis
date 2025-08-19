@@ -110,10 +110,10 @@ def run_qc2(
         show=False,
         title=f'{sample_id} - Predicted Doublets Highlighted - QC2'
     )
-    fig1.savefig(f'2.{sample_id}_scatter_doublet_highlight_QC2.png', dpi=300, bbox_inches='tight',
-        show=False,
-        title=f'{sample_id} - Predicted Doublets Highlighted - QC2'
-    )
+    fig1.savefig(
+    f'2.{sample_id}_scatter_doublet_highlight_QC2.png',
+    dpi=300,
+    bbox_inches='tight')
     plt.close(fig1)
 
     # Fig 2: Global violin before and after doublet removal
