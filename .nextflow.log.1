@@ -1,0 +1,84 @@
+Aug-16 16:15:55.167 [main] DEBUG nextflow.cli.Launcher - $> nextflow run /home/groups/wangbo/gyang/Softwares/BCP_analysis/main.nf -profile standard --base /scratch/users/gyangbio/RI_test2
+Aug-16 16:15:55.251 [main] INFO  nextflow.cli.CmdRun - N E X T F L O W  ~  version 21.04.3
+Aug-16 16:15:55.267 [main] INFO  nextflow.cli.CmdRun - Launching `/home/groups/wangbo/gyang/Softwares/BCP_analysis/main.nf` [big_watson] - revision: 56fd1efab5
+Aug-16 16:15:55.277 [main] DEBUG nextflow.config.ConfigBuilder - Found config local: /home/groups/wangbo/gyang/Softwares/BCP_analysis/nextflow.config
+Aug-16 16:15:55.277 [main] DEBUG nextflow.config.ConfigBuilder - Parsing config file: /home/groups/wangbo/gyang/Softwares/BCP_analysis/nextflow.config
+Aug-16 16:15:55.291 [main] DEBUG nextflow.config.ConfigBuilder - Applying config profile: `standard`
+Aug-16 16:15:55.743 [main] DEBUG nextflow.plugin.PluginsFacade - Setting up plugin manager > mode=prod; plugins-dir=/home/users/gyangbio/.nextflow/plugins
+Aug-16 16:15:55.744 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins default=[]
+Aug-16 16:15:55.746 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins local root: .nextflow/plr/empty
+Aug-16 16:15:55.753 [main] INFO  org.pf4j.DefaultPluginStatusProvider - Enabled plugins: []
+Aug-16 16:15:55.753 [main] INFO  org.pf4j.DefaultPluginStatusProvider - Disabled plugins: []
+Aug-16 16:15:55.755 [main] INFO  org.pf4j.DefaultPluginManager - PF4J version 3.4.1 in 'deployment' mode
+Aug-16 16:15:55.761 [main] INFO  org.pf4j.AbstractPluginManager - No plugins
+Aug-16 16:15:55.789 [main] DEBUG nextflow.Session - Session uuid: 333eb135-d25e-44fd-be12-97954c98c6ca
+Aug-16 16:15:55.789 [main] DEBUG nextflow.Session - Run name: big_watson
+Aug-16 16:15:55.790 [main] DEBUG nextflow.Session - Executor pool size: 32
+Aug-16 16:15:55.812 [main] DEBUG nextflow.cli.CmdRun - 
+  Version: 21.04.3 build 5560
+  Created: 21-07-2021 15:09 UTC (08:09 PDT)
+  System: Linux 3.10.0-1160.119.1.el7.tuxcare.els20.x86_64
+  Runtime: Groovy 3.0.7 on Java HotSpot(TM) 64-Bit Server VM 11.0.11+9-LTS-194
+  Encoding: UTF-8 (UTF-8)
+  Process: 20134@sh03-10n48.int [10.19.10.48]
+  CPUs: 32 - Mem: 250 GB (240.9 GB) - Swap: 0 (0)
+Aug-16 16:15:55.841 [main] DEBUG nextflow.Session - Work-dir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work [nfs]
+Aug-16 16:15:55.855 [main] DEBUG nextflow.executor.ExecutorFactory - Extension executors providers=[]
+Aug-16 16:15:55.862 [main] DEBUG nextflow.Session - Observer factory: DefaultObserverFactory
+Aug-16 16:15:55.998 [main] DEBUG nextflow.Session - Session start invoked
+Aug-16 16:15:56.165 [main] DEBUG nextflow.script.ScriptRunner - > Launching execution
+Aug-16 16:15:56.458 [main] DEBUG nextflow.Session - Workflow process names [dsl2]: SOUPX, SAM_QC, MULTIQC, STAR_SOLO, GZIP_SOLO_OUTPUT
+Aug-16 16:15:56.558 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withName:STAR_SOLO` matches process STAR_SOLO
+Aug-16 16:15:56.562 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: local
+Aug-16 16:15:56.562 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Aug-16 16:15:56.565 [main] DEBUG nextflow.executor.Executor - [warm up] executor > local
+Aug-16 16:15:56.569 [main] DEBUG n.processor.LocalPollingMonitor - Creating local task monitor for executor 'local' > cpus=35; memory=250 GB; capacity=32; pollInterval=100ms; dumpInterval=5m
+Aug-16 16:15:56.615 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withName:GZIP_SOLO_OUTPUT|GZIP_MATRICES` matches process GZIP_SOLO_OUTPUT
+Aug-16 16:15:56.615 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: local
+Aug-16 16:15:56.616 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Aug-16 16:15:56.619 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: local
+Aug-16 16:15:56.619 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Aug-16 16:15:56.628 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: local
+Aug-16 16:15:56.628 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Aug-16 16:15:56.647 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: local
+Aug-16 16:15:56.647 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Aug-16 16:15:56.650 [main] DEBUG nextflow.extension.CH - Bridging dataflow queue=DataflowQueue(queue=[])
+Aug-16 16:15:56.651 [main] DEBUG nextflow.Session - Ignite dataflow network (8)
+Aug-16 16:15:56.656 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > STAR_SOLO
+Aug-16 16:15:56.656 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > GZIP_SOLO_OUTPUT
+Aug-16 16:15:56.656 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > SOUPX
+Aug-16 16:15:56.657 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > SAM_QC
+Aug-16 16:15:56.659 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > MULTIQC
+Aug-16 16:15:56.661 [main] DEBUG nextflow.script.ScriptRunner - > Await termination 
+Aug-16 16:15:56.661 [main] DEBUG nextflow.Session - Session await
+Aug-16 16:15:56.817 [Task submitter] DEBUG nextflow.executor.LocalTaskHandler - Launch cmd line: /bin/bash -ue .command.run
+Aug-16 16:15:56.821 [Task submitter] INFO  nextflow.Session - [52/07c1fa] Submitted process > STAR_SOLO (sample1)
+Aug-16 16:16:26.560 [SIGINT handler] DEBUG nextflow.Session - Session aborted -- Cause: SIGINT
+Aug-16 16:16:26.613 [SIGINT handler] DEBUG nextflow.Session - The following nodes are still active:
+[process] GZIP_SOLO_OUTPUT
+  status=ACTIVE
+  port 0: (queue) OPEN  ; channel: -
+  port 1: (cntrl) -     ; channel: $
+
+[process] SOUPX
+  status=ACTIVE
+  port 0: (queue) OPEN  ; channel: -
+  port 1: (cntrl) -     ; channel: $
+
+[process] SAM_QC
+  status=ACTIVE
+  port 0: (queue) OPEN  ; channel: -
+  port 1: (cntrl) -     ; channel: $
+
+[process] MULTIQC
+  status=ACTIVE
+  port 0: (value) OPEN  ; channel: files
+  port 1: (queue) OPEN  ; channel: config
+  port 2: (cntrl) -     ; channel: $
+
+Aug-16 16:16:26.614 [main] DEBUG nextflow.Session - Session await > all process finished
+Aug-16 16:16:26.615 [main] DEBUG nextflow.Session - Session await > all barriers passed
+Aug-16 16:16:26.619 [main] WARN  n.processor.TaskPollingMonitor - Killing pending tasks (1)
+Aug-16 16:16:27.460 [SIGINT handler] INFO  nextflow.Session - Adieu
+Aug-16 16:16:27.460 [SIGINT handler] INFO  nextflow.Session - Adieu
+Aug-16 16:16:27.604 [SIGINT handler] INFO  nextflow.Session - Adieu

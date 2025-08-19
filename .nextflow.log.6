@@ -1,0 +1,84 @@
+Aug-16 13:52:10.254 [main] DEBUG nextflow.cli.Launcher - $> nextflow run /home/groups/wangbo/gyang/Softwares/BCP_analysis/main.nf -profile standard --outdir /scratch/users/gyangbio/RI_upload_test
+Aug-16 13:52:10.337 [main] INFO  nextflow.cli.CmdRun - N E X T F L O W  ~  version 21.04.3
+Aug-16 13:52:10.354 [main] INFO  nextflow.cli.CmdRun - Launching `/home/groups/wangbo/gyang/Softwares/BCP_analysis/main.nf` [elated_bhaskara] - revision: 56fd1efab5
+Aug-16 13:52:10.363 [main] DEBUG nextflow.config.ConfigBuilder - Found config local: /home/groups/wangbo/gyang/Softwares/BCP_analysis/nextflow.config
+Aug-16 13:52:10.363 [main] DEBUG nextflow.config.ConfigBuilder - Parsing config file: /home/groups/wangbo/gyang/Softwares/BCP_analysis/nextflow.config
+Aug-16 13:52:10.377 [main] DEBUG nextflow.config.ConfigBuilder - Applying config profile: `standard`
+Aug-16 13:52:10.817 [main] DEBUG nextflow.plugin.PluginsFacade - Setting up plugin manager > mode=prod; plugins-dir=/home/users/gyangbio/.nextflow/plugins
+Aug-16 13:52:10.819 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins default=[]
+Aug-16 13:52:10.820 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins local root: .nextflow/plr/empty
+Aug-16 13:52:10.828 [main] INFO  org.pf4j.DefaultPluginStatusProvider - Enabled plugins: []
+Aug-16 13:52:10.828 [main] INFO  org.pf4j.DefaultPluginStatusProvider - Disabled plugins: []
+Aug-16 13:52:10.830 [main] INFO  org.pf4j.DefaultPluginManager - PF4J version 3.4.1 in 'deployment' mode
+Aug-16 13:52:10.836 [main] INFO  org.pf4j.AbstractPluginManager - No plugins
+Aug-16 13:52:10.863 [main] DEBUG nextflow.Session - Session uuid: a5b0a148-c4f0-40df-a760-add503815dd5
+Aug-16 13:52:10.863 [main] DEBUG nextflow.Session - Run name: elated_bhaskara
+Aug-16 13:52:10.864 [main] DEBUG nextflow.Session - Executor pool size: 32
+Aug-16 13:52:10.888 [main] DEBUG nextflow.cli.CmdRun - 
+  Version: 21.04.3 build 5560
+  Created: 21-07-2021 15:09 UTC (08:09 PDT)
+  System: Linux 3.10.0-1160.119.1.el7.tuxcare.els20.x86_64
+  Runtime: Groovy 3.0.7 on Java HotSpot(TM) 64-Bit Server VM 11.0.11+9-LTS-194
+  Encoding: UTF-8 (UTF-8)
+  Process: 10645@sh03-10n48.int [10.19.10.48]
+  CPUs: 32 - Mem: 250 GB (249.4 GB) - Swap: 0 (0)
+Aug-16 13:52:10.933 [main] DEBUG nextflow.Session - Work-dir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work [nfs]
+Aug-16 13:52:10.949 [main] DEBUG nextflow.executor.ExecutorFactory - Extension executors providers=[]
+Aug-16 13:52:10.956 [main] DEBUG nextflow.Session - Observer factory: DefaultObserverFactory
+Aug-16 13:52:11.094 [main] DEBUG nextflow.Session - Session start invoked
+Aug-16 13:52:11.287 [main] DEBUG nextflow.script.ScriptRunner - > Launching execution
+Aug-16 13:52:11.597 [main] DEBUG nextflow.Session - Workflow process names [dsl2]: SOUPX, SAM_QC, MULTIQC, GZIP_SOLO_OUTPUT, STAR_SOLO
+Aug-16 13:52:11.690 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withName:STAR_SOLO` matches process STAR_SOLO
+Aug-16 13:52:11.694 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: local
+Aug-16 13:52:11.694 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Aug-16 13:52:11.697 [main] DEBUG nextflow.executor.Executor - [warm up] executor > local
+Aug-16 13:52:11.701 [main] DEBUG n.processor.LocalPollingMonitor - Creating local task monitor for executor 'local' > cpus=35; memory=250 GB; capacity=32; pollInterval=100ms; dumpInterval=5m
+Aug-16 13:52:11.745 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withName:GZIP_SOLO_OUTPUT|GZIP_MATRICES` matches process GZIP_SOLO_OUTPUT
+Aug-16 13:52:11.746 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: local
+Aug-16 13:52:11.746 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Aug-16 13:52:11.749 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: local
+Aug-16 13:52:11.750 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Aug-16 13:52:11.753 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: local
+Aug-16 13:52:11.753 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Aug-16 13:52:11.777 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: local
+Aug-16 13:52:11.777 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Aug-16 13:52:11.781 [main] DEBUG nextflow.extension.CH - Bridging dataflow queue=DataflowQueue(queue=[])
+Aug-16 13:52:11.782 [main] DEBUG nextflow.Session - Ignite dataflow network (8)
+Aug-16 13:52:11.787 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > STAR_SOLO
+Aug-16 13:52:11.788 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > GZIP_SOLO_OUTPUT
+Aug-16 13:52:11.788 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > SOUPX
+Aug-16 13:52:11.789 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > SAM_QC
+Aug-16 13:52:11.791 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > MULTIQC
+Aug-16 13:52:11.791 [main] DEBUG nextflow.script.ScriptRunner - > Await termination 
+Aug-16 13:52:11.792 [main] DEBUG nextflow.Session - Session await
+Aug-16 13:52:12.012 [Task submitter] DEBUG nextflow.executor.LocalTaskHandler - Launch cmd line: /bin/bash -ue .command.run
+Aug-16 13:52:12.015 [Task submitter] INFO  nextflow.Session - [4e/caa7ce] Submitted process > STAR_SOLO (sample1)
+Aug-16 13:52:12.156 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[id: 1; name: STAR_SOLO (sample1); status: COMPLETED; exit: 127; error: -; workDir: /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/4e/caa7ce9a9f5777d6b9b4aace48ceef]
+Aug-16 13:52:12.175 [Task monitor] ERROR nextflow.processor.TaskProcessor - Error executing process > 'STAR_SOLO (sample1)'
+
+Caused by:
+  Process `STAR_SOLO (sample1)` terminated with an error exit status (127)
+
+Command executed:
+
+  STAR         --runThreadN 8         --genomeDir RI         --readFilesIn 10XRun17_sample1_S9_L003_R2_001.fastq.gz 10XRun17_sample1_S9_L003_R1_001.fastq.gz         --readFilesCommand zcat         --outFileNamePrefix sample1.         --soloType CB_UMI_Simple         --soloCBwhitelist /home/groups/wangbo/gyang/Resources/10X/3M-february-2018.txt         --soloUMIfiltering MultiGeneUMI_CR         --soloUMIdedup 1MM_CR         --soloUMIlen 12         --outSAMtype BAM SortedByCoordinate         --clipAdapterType CellRanger4         --outFilterScoreMin 30         --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts         --soloCellFilter EmptyDrops_CR 10000 0.99 10 45000 90000 500 0.01 20000 0.01 10000         --soloFeatures GeneFull         --soloMultiMappers EM         --outSAMattributes NH HI nM AS CR UR CB UB GX GN sS sQ sM         --outFilterMultimapNmax 20
+
+Command exit status:
+  127
+
+Command output:
+  (empty)
+
+Command error:
+  .command.sh: line 2: STAR: command not found
+
+Work dir:
+  /home/groups/wangbo/gyang/Softwares/BCP_analysis/work/4e/caa7ce9a9f5777d6b9b4aace48ceef
+
+Tip: view the complete command output by changing to the process work dir and entering the command `cat .command.out`
+Aug-16 13:52:12.180 [Task monitor] DEBUG nextflow.Session - Session aborted -- Cause: Process `STAR_SOLO (sample1)` terminated with an error exit status (127)
+Aug-16 13:52:12.181 [main] DEBUG nextflow.Session - Session await > all process finished
+Aug-16 13:52:12.192 [main] DEBUG nextflow.Session - Session await > all barriers passed
+Aug-16 13:52:12.199 [main] DEBUG nextflow.trace.WorkflowStatsObserver - Workflow completed > WorkflowStats[succeededCount=0; failedCount=1; ignoredCount=0; cachedCount=0; pendingCount=0; submittedCount=0; runningCount=0; retriesCount=0; abortedCount=0; succeedDuration=0ms; failedDuration=360ms; cachedDuration=0ms;loadCpus=0; loadMemory=0; peakRunning=1; peakCpus=8; peakMemory=64 GB; ]
+Aug-16 13:52:12.390 [main] DEBUG nextflow.CacheDB - Closing CacheDB done
+Aug-16 13:52:12.407 [main] DEBUG nextflow.script.ScriptRunner - > Execution complete -- Goodbye

@@ -1,0 +1,11 @@
+Aug-15 14:46:33.204 [main] DEBUG nextflow.cli.Launcher - $> nextflow run /home/users/gyangbio/BCP_analysis/main.nf -profile standard
+Aug-15 14:46:33.317 [main] INFO  nextflow.cli.CmdRun - N E X T F L O W  ~  version 21.04.3
+Aug-15 14:46:33.410 [main] ERROR nextflow.cli.Launcher - Not a valid project name: /home
+java.lang.IllegalArgumentException: Not a valid project name: /home
+	at nextflow.scm.AssetManager.checkProjectDir(AssetManager.groovy:187)
+	at nextflow.scm.AssetManager.build(AssetManager.groovy:132)
+	at nextflow.scm.AssetManager.<init>(AssetManager.groovy:109)
+	at nextflow.cli.CmdRun.getScriptFile(CmdRun.groovy:360)
+	at nextflow.cli.CmdRun.run(CmdRun.groovy:265)
+	at nextflow.cli.Launcher.run(Launcher.groovy:475)
+	at nextflow.cli.Launcher.main(Launcher.groovy:657)
