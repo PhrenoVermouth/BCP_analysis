@@ -23,7 +23,7 @@ def run_scrublet(sample_id, matrix_dir, min_genes, min_cells, max_mito, mito_pre
         adata.var['mito'] = adata.var_names.str.startswith(tuple(mito_prefixes))
     sc.pp.calculate_qc_metrics(adata, qc_vars=['mito'], percent_top=None, log1p=False, inplace=True)
 
-    adata_QC1 = adata[adata.obs.pct_counts_mito < max_mito * 100, :]
+    adata_QC1 = adata[adata.obs.pct_counts_mito < max_mito, :]
 
     raw_matrix = adata_QC1.X.todense()
     scrub = scr.Scrublet(raw_matrix)
