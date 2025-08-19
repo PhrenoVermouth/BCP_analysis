@@ -33,10 +33,6 @@ def run_qc2(
     # 1. Load data
     adata = sc.read_h5ad(input_h5ad)
     adata.var_names_make_unique()
-<<<<<<< HEAD
-=======
-    adata.var_names_make_unique()
->>>>>>> d8bf57fbf70a1e3b54159a888735b1c6c69d5d43
     sc.pp.normalize_total(adata, target_sum=1e6) #log2 CPM, but input has been processed by SoupX
     sc.pp.log1p(adata)
 
