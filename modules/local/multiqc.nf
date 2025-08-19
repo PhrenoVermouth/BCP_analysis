@@ -14,7 +14,7 @@ process MULTIQC {
 
     script:
     """
-    multiqc . -c ${config} -o . -n multiqc_report.html
+    multiqc . -f  -c ${config} -o . -n multiqc_report.html
     mv multiqc_report_data multiqc_data
     """
 }
