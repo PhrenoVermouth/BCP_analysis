@@ -55,7 +55,7 @@ def run_qc2(sample_id, input_h5ad, min_genes, min_cells, max_genes, max_counts, 
     sc.pl.violin(adata_QC1, 'pct_counts_mito', jitter=0.4, ax=axes[1], show=False)
     fig0.suptitle(f'{sample_id} - Before Filtering - QC1')
     fig0.tight_layout()
-    fig0.savefig(f'{sample_id}_violin_before_mito_filtering_QC1_mqc.png')
+    fig0.savefig(f'{sample_id}_violin_before_mito_filtering_QC1.png')
     plt.close(fig0)
 
     # Fig 1: Doublet cells shown on scatter plots
@@ -68,7 +68,7 @@ def run_qc2(sample_id, input_h5ad, min_genes, min_cells, max_genes, max_counts, 
         show=False,
         title=f'{sample_id} - Predicted Doublets Highlighted - QC2'
     )
-    fig1.savefig(f'{sample_id}_scatter_doublet_highlight_QC2_mqc.png')
+    fig1.savefig(f'{sample_id}_scatter_doublet_highlight_QC2.png')
     plt.close(fig1)
 
     # Fig 2: Global violin before and after doublet removal
@@ -86,7 +86,7 @@ def run_qc2(sample_id, input_h5ad, min_genes, min_cells, max_genes, max_counts, 
     sc.pl.violin(adata_QC2, 'total_counts', jitter=0.4, ax=axes[1, 1], show=False)
 
     fig2.tight_layout(rect=[0, 0.03, 1, 0.95])
-    fig2.savefig(f'{sample_id}_violin_comparison_QC2_mqc.png')
+    fig2.savefig(f'{sample_id}_violin_comparison_QC2.png')
     plt.close(fig2)
 
 
@@ -131,7 +131,7 @@ def run_qc2(sample_id, input_h5ad, min_genes, min_cells, max_genes, max_counts, 
         show=False,
         title=f'{sample_id} - Leiden Clustering (UMAP) - QC2'
     )
-    plt.savefig(f'{sample_id}_umap_leiden_QC2_mqc.png')
+    plt.savefig(f'{sample_id}_umap_leiden_QC2.png')
     plt.close()
 
     # Identify marker genes and plot heatmap
@@ -157,7 +157,7 @@ def run_qc2(sample_id, input_h5ad, min_genes, min_cells, max_genes, max_counts, 
         g.fig.suptitle(f'{sample_id} Marker Gene Expression')
         g.ax_heatmap.set_xlabel('Gene')
         g.ax_heatmap.set_ylabel('Cluster')
-        g.savefig(f'{sample_id}_marker_genes_heatmap_mqc.png')
+        g.savefig(f'{sample_id}_marker_genes_heatmap.png')
         plt.close(g.fig)
 
     # 4. EXPORT RAW COUNTS MATRIX
@@ -184,7 +184,7 @@ def run_qc2(sample_id, input_h5ad, min_genes, min_cells, max_genes, max_counts, 
     #     f.write(f"median_genes_Doublet_Removal\t{int(median_genes_QC2)}\n")
     #     f.write(f"median_counts_Doublet_Removal\t{int(median_counts_QC2)}\n")
 
-    with open(f"{sample_id}_cells_mqc.tsv", "w") as f:
+    with open(f"{sample_id}_cells.tsv", "w") as f:
         f.write("# plot_type: 'table'\n")
         f.write("# section_name: 'Cells QC Metrics'\n")
         f.write("# description: 'Cell counts at different filtering steps'\n")
@@ -193,7 +193,7 @@ def run_qc2(sample_id, input_h5ad, min_genes, min_cells, max_genes, max_counts, 
         f.write("Sample\tcells_initial\tcells_after_MT_Removal\tcells_after_Doublet_Removal\n")
         f.write(f"{sample_id}\t{number_cells}\t{number_cells_QC1}\t{number_cells_QC2}\n")
 
-    with open(f"{sample_id}_counts_mqc.tsv", "w") as f:
+    with open(f"{sample_id}_counts.tsv", "w") as f:
         f.write("# plot_type: 'table'\n")
         f.write("# section_name: 'Counts QC Metrics'\n")
         f.write("# description: 'Median UMI counts at different filtering steps'\n")
@@ -202,7 +202,7 @@ def run_qc2(sample_id, input_h5ad, min_genes, min_cells, max_genes, max_counts, 
         f.write("Sample\tmedian_counts_initial\tmedian_counts_MT_Removal\tmedian_counts_Doublet_Removal\n")
         f.write(f"{sample_id}\t{int(median_counts)}\t{int(median_counts_QC1)}\t{int(median_counts_QC2)}\n")
 
-    with open(f"{sample_id}_genes_mqc.tsv", "w") as f:
+    with open(f"{sample_id}_genes.tsv", "w") as f:
         f.write("# plot_type: 'table'\n")
         f.write("# section_name: 'Genes QC Metrics'\n")
         f.write("# description: 'Median genes at different filtering steps'\n")
