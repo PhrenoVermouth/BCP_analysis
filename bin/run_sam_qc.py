@@ -33,6 +33,10 @@ def run_qc2(
     # 1. Load data
     adata = sc.read_h5ad(input_h5ad)
     adata.var_names_make_unique()
+<<<<<<< HEAD
+=======
+    adata.var_names_make_unique()
+>>>>>>> d8bf57fbf70a1e3b54159a888735b1c6c69d5d43
     sc.pp.normalize_total(adata, target_sum=1e6) #log2 CPM, but input has been processed by SoupX
     sc.pp.log1p(adata)
 
@@ -41,7 +45,10 @@ def run_qc2(
     # a. Basic filtering on lower limit
     sc.pp.filter_cells(adata, min_genes=min_genes)
     sc.pp.filter_genes(adata, min_cells=min_cells)
-
+    print("---mito list---")
+    print(max_mito)
+    print(mito_gene_list)
+    print("---mito list---")
     # b. Calculate mitochondrial gene percentage
     if mito_gene_list:
         with open(mito_gene_list) as f:
@@ -88,7 +95,7 @@ def run_qc2(
     fig0, axes = plt.subplots(1, 2, figsize=(15, 5))
     sc.pl.violin(adata, 'pct_counts_mito', jitter=0.4, ax=axes[0], show=False)
     sc.pl.violin(adata_QC1, 'pct_counts_mito', jitter=0.4, ax=axes[1], show=False)
-    fig0.suptitle(f'{sample_id} - Before Filtering - QC1')
+    fig0.suptitle(f'{sample_id} - Mito Filtering - QC1')
     fig0.tight_layout()
     fig0.savefig(f'1.{sample_id}_violin_before_mito_filtering_QC1.png')
     plt.close(fig0)
@@ -96,10 +103,9 @@ def run_qc2(
     # Fig 1: Doublet cells shown on scatter plots
     adata_QC1.obs['predicted_doublet'] = adata_QC1.obs['predicted_doublet'].astype('category')
     custom_palette = ['#DDDDDD', 'red']
-
     fig1, ax = plt.subplots()
     sc.pl.scatter(
-        adata_QC1,
+        adata_QC1,  # as marks saved within QC1
         x='total_counts',
         y='n_genes_by_counts',
         color='predicted_doublet',
@@ -109,6 +115,9 @@ def run_qc2(
         title=f'{sample_id} - Predicted Doublets Highlighted - QC2'
     )
     fig1.savefig(f'2.{sample_id}_scatter_doublet_highlight_QC2.png', dpi=300, bbox_inches='tight')
+        show=False,
+        title=f'{sample_id} - Predicted Doublets Highlighted - QC2'
+    )
     plt.close(fig1)
 
     # Fig 2: Global violin before and after doublet removal
@@ -171,7 +180,7 @@ def run_qc2(
         show=False,
         title=f'{sample_id} - Leiden Clustering (UMAP) - QC2'
     )
-    plt.savefig(f'4.{sample_id}_umap_leiden_QC2.png')
+    plt.savefig(f'4.{sample_id}_umap_leiden_QC2.png',dpi=300, bbox_inches='tight')
     plt.close()
 
     # Identify marker genes and plot heatmap
