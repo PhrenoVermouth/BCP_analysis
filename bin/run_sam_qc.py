@@ -43,7 +43,9 @@ def run_qc2(
     sc.pp.filter_cells(adata, min_genes=min_genes)
     sc.pp.filter_genes(adata, min_cells=min_cells)
     print("---mito list---")
+    print(max_mito)
     print(mito_gene_list)
+    print("---mito list---")
     # b. Calculate mitochondrial gene percentage
     if mito_gene_list:
         with open(mito_gene_list) as f:
@@ -92,7 +94,7 @@ def run_qc2(
     sc.pl.violin(adata_QC1, 'pct_counts_mito', jitter=0.4, ax=axes[1], show=False)
     fig0.suptitle(f'{sample_id} - Before Filtering - QC1')
     fig0.tight_layout()
-    fig0.savefig(f'1.{sample_id}_violin_before_mito_filtering_QC1.png')
+    fig0.savefig(f'1.{sample_id}_violin_mito_filtering_QC1.png')
     plt.close(fig0)
 
     # Fig 1: Doublet cells shown on scatter plots
