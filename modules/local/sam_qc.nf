@@ -8,11 +8,11 @@ process SAM_QC {
     tuple val(meta), path(corrected_h5ad)
 
     output:
-    tuple val(meta), path("*_mqc.png"), emit: qc_plots
+    tuple val(meta), path("*.png"), emit: qc_plots
     tuple val(meta), path("*.h5ad"), emit: filtered_adata
-    path "*_cells_mqc.tsv", emit: qc_cells_metrics
-    path "*_counts_mqc.tsv", emit: qc_counts_metrics
-    path "*_genes_mqc.tsv", emit: qc_genes_metrics
+    path "*_cells.tsv", emit: qc_cells_metrics
+    path "*_counts.tsv", emit: qc_counts_metrics
+    path "*_genes.tsv", emit: qc_genes_metrics
 
     script:
     def mito_prefixes = params.mito_prefixes.join(' ')
