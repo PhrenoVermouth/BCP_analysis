@@ -1,96 +1,41 @@
 run_modules:
-  - star
   - custom_content
-
-# 第一层排序：定义模块的宏观顺序
-# 先显示 STAR 模块，然后显示所有自定义内容
 module_order:
-  - star
   - custom_content
-
 title: "BCP Single-Cell QC Report"
 
+ignore_images: true          # 关掉自动扫图（防止其它 PNG 混进来）
+skip_generalstats: true      # 可选：关总表
+
+# 可选但很稳妥：黑名单掉不想要的两张
+fn_ignore:
+  - "*_violin_before_mito_filtering_QC1.png"
+  - "*_violin_comparison_QC2.png"
+
 custom_data:
-  cells_metrics:
-    section_name: "Cells QC Metrics"
-    description: "Cell counts at different filtering steps"
-    file_format: "tsv"
-    plot_type: "table"
-    sample_names_first_col: true
-    pconfig:
-      sortRows: false
-  counts_metrics:
-    section_name: "Counts QC Metrics"
-    description: "Median UMI counts at different filtering steps"
-    file_format: "tsv"
-    plot_type: "table"
-    sample_names_first_col: true
-    pconfig:
-      sortRows: false
-  genes_metrics:
-    section_name: "Genes QC Metrics"
-    description: "Median genes at different filtering steps"
-    file_format: "tsv"
-    plot_type: "table"
-    sample_names_first_col: true
-    pconfig:
-      sortRows: false
-  img_violin_before_mito_qc1:
-    section_name: "sample1 violin before mito filtering QC1"
-    description: "nCount_RNA / nFeature_RNA distributions before mitochondrial filtering."
-    file_format: "png"
-    plot_type: "image"
-  img_violin_comparison_qc2:
-    section_name: "sample1 violin comparison QC2"
-    description: "QC2 distributions after filtering; compare to QC1 to assess filtering effects."
-    file_format: "png"
-    plot_type: "image"
   img_scatter_doublet_qc2:
     section_name: "sample1 scatter doublet highlight QC2"
-    description: "Doublet score vs. nCount_RNA; highlighted putative doublets post-QC2."
-    file_format: "png"
-    plot_type: "image"
+    description: "..."
+    file_format: png
+    plot_type: image
+    fn: "*_scatter_doublet_highlight_QC2.png"   # ← 放这里
+
   img_umap_leiden_qc2:
     section_name: "sample1 umap leiden QC2"
-    description: "UMAP colored by Leiden clusters after QC2 filtering; parameters: resolution=1.0."
-    file_format: "png"
-    plot_type: "image"
-  img_marker_genes_heatmap:
-    section_name: "sample1 marker genes heatmap"
-    description: "Top marker genes per cluster; heatmap scaled by row; shows cluster-specific markers."
-    file_format: "png"
-    plot_type: "image"
-
-ignore_images: false
-
-# Search patterns: keys must match the custom_data IDs
-sp:
-  cells_metrics:
-    fn: "*_cells_mqc.tsv"
-  counts_metrics:
-    fn: "*_counts_mqc.tsv"
-  genes_metrics:
-    fn: "*_genes_mqc.tsv"
-  img_violin_before_mito_qc1:
-    fn: "*_violin_before_mito_filtering_QC1.png"
-  img_violin_comparison_qc2:
-    fn: "*_violin_comparison_QC2.png"
-  img_scatter_doublet_qc2:
-    fn: "*_scatter_doublet_highlight_QC2.png"
-  img_umap_leiden_qc2:
+    description: "..."
+    file_format: png
+    plot_type: image
     fn: "*_umap_leiden_QC2.png"
+
   img_marker_genes_heatmap:
+    section_name: "a.sample1 marker genes heatmap"   # ← 加了 a.
+    description: "..."
+    file_format: png
+    plot_type: image
     fn: "*_marker_genes_heatmap.png"
 
-# 第二层排序：定义 custom_content 模块内部的顺序
-# 这是控制您的表格和图片顺序的关键
 custom_content:
   order:
-    - cells_metrics
-    - counts_metrics
-    - genes_metrics
-    - img_violin_before_mito_qc1
-    - img_violin_comparison_qc2
     - img_scatter_doublet_qc2
     - img_umap_leiden_qc2
     - img_marker_genes_heatmap
