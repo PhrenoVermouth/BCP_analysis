@@ -23,59 +23,63 @@ def run_scrublet(sample_id, matrix_dir, min_genes, min_cells, max_mito, mito_pre
         adata.var['mito'] = adata.var_names.str.startswith(tuple(mito_prefixes))
     sc.pp.calculate_qc_metrics(adata, qc_vars=['mito'], percent_top=None, log1p=False, inplace=True)
 
-    adata_QC1 = adata[adata.obs.pct_counts_mito < max_mito, :]
+    raw_matrix = adata.X.todense()
+    scrub = scr.Scrublet(raw_matrix, expected_doublet_rate=0.06)
+    doublet_score, predicted_doublets = scrub.scrub_doublets(
+        min_counts=2,
+        min_cells=3,
+        min_gene_variability_pctl=85,
+        n_prin_comps=30,
+    )
+    adata.obs['predicted_doublet'] = predicted_doublets
+    adata_QC1 = adata[~predicted_doublets, :]
+    adata_QC2 = adata_QC1[adata_QC1.obs.pct_counts_mito < max_mito, :]
 
-    raw_matrix = adata_QC1.X.todense()
-    scrub = scr.Scrublet(raw_matrix)
-    doublet_score, predicted_doublets = scrub.scrub_doublets()
-    adata_QC1.obs['predicted_doublet'] = predicted_doublets
-    adata_QC2 = adata_QC1[~predicted_doublets, :]
-
-    # Fig 0: Mitochondria removal
-    fig0, axes = plt.subplots(1, 2, figsize=(15, 5))
-    sc.pl.violin(adata, 'pct_counts_mito', jitter=0.4, ax=axes[0], show=False)
-    sc.pl.violin(adata_QC1, 'pct_counts_mito', jitter=0.4, ax=axes[1], show=False)
-    fig0.suptitle(f'{sample_id} - Mito Filtering - QC1')
-    fig0.tight_layout()
-    fig0.savefig(f'1.{sample_id}_violin_mito_filtering_QC1.png')
-    plt.close(fig0)
-
-    # Fig 1: Doublet scatter
-    adata_QC1.obs['predicted_doublet'] = adata_QC1.obs['predicted_doublet'].astype('category')
+    # Fig 0: Doublet scatter
+    adata.obs['predicted_doublet'] = adata.obs['predicted_doublet'].astype('category')
     custom_palette = ['#DDDDDD', 'red']
-    fig1, ax = plt.subplots()
+    fig0, ax = plt.subplots()
     sc.pl.scatter(
-        adata_QC1,
+        adata,
         x='total_counts',
         y='n_genes_by_counts',
         color='predicted_doublet',
         palette=custom_palette,
         ax=ax,
         show=False,
-        title=f'{sample_id} - Predicted Doublets Highlighted - QC2'
+        title=f'{sample_id} - Predicted Doublets Highlighted - QC1',
     )
-    fig1.savefig(
-        f'2.{sample_id}_scatter_doublet_highlight_QC2.png',
+    fig0.savefig(
+        f'1.{sample_id}_scatter_doublet_highlight_QC1.png',
         dpi=300,
         bbox_inches='tight')
-    plt.close(fig1)
+    plt.close(fig0)
 
-    # Fig 2: Global violin before and after doublet removal
-    fig2, axes = plt.subplots(2, 2, figsize=(18, 10))
-    fig2.suptitle(f'{sample_id} - QC Metrics: Before vs. After Doublet Removal', fontsize=16)
+    # Fig 1: Global violin before and after doublet removal
+    fig1, axes = plt.subplots(2, 2, figsize=(18, 10))
+    fig1.suptitle(f'{sample_id} - QC Metrics: Before vs. After Doublet Removal', fontsize=16)
 
     axes[0, 0].set_title('Genes per Cell (Before)')
-    sc.pl.violin(adata_QC1, 'n_genes_by_counts', jitter=0.4, ax=axes[0, 0], show=False)
+    sc.pl.violin(adata, 'n_genes_by_counts', jitter=0.4, ax=axes[0, 0], show=False)
     axes[0, 1].set_title('Counts per Cell (Before)')
-    sc.pl.violin(adata_QC1, 'total_counts', jitter=0.4, ax=axes[0, 1], show=False)
+    sc.pl.violin(adata, 'total_counts', jitter=0.4, ax=axes[0, 1], show=False)
 
     axes[1, 0].set_title('Genes per Cell (After)')
-    sc.pl.violin(adata_QC2, 'n_genes_by_counts', jitter=0.4, ax=axes[1, 0], show=False)
+    sc.pl.violin(adata_QC1, 'n_genes_by_counts', jitter=0.4, ax=axes[1, 0], show=False)
     axes[1, 1].set_title('Counts per Cell (After)')
-    sc.pl.violin(adata_QC2, 'total_counts', jitter=0.4, ax=axes[1, 1], show=False)
+    sc.pl.violin(adata_QC1, 'total_counts', jitter=0.4, ax=axes[1, 1], show=False)
 
-    fig2.tight_layout(rect=[0, 0.03, 1, 0.95])
-    fig2.savefig(f'3.{sample_id}_violin_comparison_QC2.png')
+    fig1.tight_layout(rect=[0, 0.03, 1, 0.95])
+    fig1.savefig(f'2.{sample_id}_violin_comparison_QC1.png')
+    plt.close(fig1)
+
+    # Fig 2: Mitochondria removal
+    fig2, axes = plt.subplots(1, 2, figsize=(15, 5))
+    sc.pl.violin(adata_QC1, 'pct_counts_mito', jitter=0.4, ax=axes[0], show=False)
+    sc.pl.violin(adata_QC2, 'pct_counts_mito', jitter=0.4, ax=axes[1], show=False)
+    fig2.suptitle(f'{sample_id} - Mito Filtering - QC2')
+    fig2.tight_layout()
+    fig2.savefig(f'3.{sample_id}_violin_mito_filtering_QC2.png')
     plt.close(fig2)
 
     # Save whitelist
@@ -100,7 +104,7 @@ def run_scrublet(sample_id, matrix_dir, min_genes, min_cells, max_mito, mito_pre
         f.write("# description: 'Cell counts at different filtering steps'\n")
         f.write("# pconfig:\n")
         f.write("#     sortRows: false\n")
-        f.write("Sample\tcells_initial\tcells_after_MT_Removal\tcells_after_Doublet_Removal\n")
+        f.write("Sample\tcells_initial\tcells_after_Doublet_Removal\tcells_after_MT_Removal\n")
         f.write(f"{sample_id}\t{number_cells}\t{number_cells_QC1}\t{number_cells_QC2}\n")
 
     with open(f"{sample_id}_counts.tsv", "w") as f:
@@ -109,7 +113,7 @@ def run_scrublet(sample_id, matrix_dir, min_genes, min_cells, max_mito, mito_pre
         f.write("# description: 'Median UMI counts at different filtering steps'\n")
         f.write("# pconfig:\n")
         f.write("#     sortRows: false\n")
-        f.write("Sample\tmedian_counts_initial\tmedian_counts_MT_Removal\tmedian_counts_Doublet_Removal\n")
+        f.write("Sample\tmedian_counts_initial\tmedian_counts_Doublet_Removal\tmedian_counts_MT_Removal\n")
         f.write(f"{sample_id}\t{median_counts}\t{median_counts_QC1}\t{median_counts_QC2}\n")
 
     with open(f"{sample_id}_genes.tsv", "w") as f:
@@ -118,7 +122,7 @@ def run_scrublet(sample_id, matrix_dir, min_genes, min_cells, max_mito, mito_pre
         f.write("# description: 'Median genes at different filtering steps'\n")
         f.write("# pconfig:\n")
         f.write("#     sortRows: false\n")
-        f.write("Sample\tmedian_genes_initial\tmedian_genes_MT_Removal\tmedian_genes_Doublet_Removal\n")
+        f.write("Sample\tmedian_genes_initial\tmedian_genes_Doublet_Removal\tmedian_genes_MT_Removal\n")
         f.write(f"{sample_id}\t{median_genes}\t{median_genes_QC1}\t{median_genes_QC2}\n")
 
 if __name__ == '__main__':
