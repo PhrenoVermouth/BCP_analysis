@@ -41,6 +41,12 @@ custom_data:
     file_format: "png"
     plot_type: "image"
 
+  img_soupx:
+    section_name: "sample1 soupX ambient RNA removal"
+    description: "Ambient RNA removel profile by cells"
+    file_format: "png"
+    plot_type: "image"
+    
   img_umap_leiden_qc2:
     section_name: "sample1 umap leiden QC2"
     description: "UMAP colored by Leiden clusters after QC2 filtering; parameters: resolution=1.0."
