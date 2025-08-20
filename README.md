@@ -1,4 +1,4 @@
-![graphviz](https://github.com/user-attachments/assets/b18166e1-f707-41a7-b86c-576b95cca189)# BCP Analysis Pipeline
+# BCP Analysis Pipeline
 
 A Nextflow-based pipeline for single-cell RNA sequencing data preprocessing, specifically designed for BCP (Billion Cell Program) analysis. The pipeline performs comprehensive single-cell data processing including alignment, ambient RNA removal, doublet detection, and basic quality control metrics.
 
