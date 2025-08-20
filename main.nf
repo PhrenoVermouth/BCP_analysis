@@ -44,6 +44,7 @@ workflow {
         .mix(SCRUBLET.out.qc_genes_metrics)
         .mix(SCRUBLET.out.qc_plots.map { it[1] })
         .mix(SAM_QC.out.qc_plots.map { it[1] })
+        .mix(SOUPX.out.ambient_plot)
         .collect()
 
     // 4.2 Create a channel pointing to the configuration file
