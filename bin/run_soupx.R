@@ -35,7 +35,12 @@ names(seurat_clusters) <- rownames(srat_tmp@meta.data)
 sc <- setClusters(sc, clusters = seurat_clusters)
 
 # 5. auto-correction
+contamination_plot_file <- paste0('0.',args$sample_id, "_soupx_contamination_estimation.png")
+png(contamination_plot_file, width = 600, height = 400)
 sc <- autoEstCont(sc)
+dev.off()
+cat("Contamination estimation plot saved to:", contamination_plot_file, "\n")
+
 adj_counts <- adjustCounts(sc)
 
 raw_counts <- Matrix::colSums(sc$toc)
