@@ -98,7 +98,7 @@ def run_scrublet(sample_id, matrix_dir, min_genes, min_cells, max_mito, mito_pre
     median_genes_QC2 = int(np.median(adata_QC2.obs['n_genes_by_counts']))
     median_counts_QC2 = int(np.median(adata_QC2.obs['total_counts']))
 
-    with open(f"{sample_id}_cells.tsv", "w") as f:
+    with open(f"{sample_id}_cells_mqc.tsv", "w") as f:
         f.write("# plot_type: 'table'\n")
         f.write("# section_name: 'Cells QC Metrics'\n")
         f.write("# description: 'Cell counts at different filtering steps'\n")
@@ -107,7 +107,7 @@ def run_scrublet(sample_id, matrix_dir, min_genes, min_cells, max_mito, mito_pre
         f.write("Sample\tcells_initial\tcells_after_Doublet_Removal\tcells_after_MT_Removal\n")
         f.write(f"{sample_id}\t{number_cells}\t{number_cells_QC1}\t{number_cells_QC2}\n")
 
-    with open(f"{sample_id}_counts.tsv", "w") as f:
+    with open(f"{sample_id}_counts_mqc.tsv", "w") as f:
         f.write("# plot_type: 'table'\n")
         f.write("# section_name: 'Counts QC Metrics'\n")
         f.write("# description: 'Median UMI counts at different filtering steps'\n")
@@ -116,7 +116,7 @@ def run_scrublet(sample_id, matrix_dir, min_genes, min_cells, max_mito, mito_pre
         f.write("Sample\tmedian_counts_initial\tmedian_counts_Doublet_Removal\tmedian_counts_MT_Removal\n")
         f.write(f"{sample_id}\t{median_counts}\t{median_counts_QC1}\t{median_counts_QC2}\n")
 
-    with open(f"{sample_id}_genes.tsv", "w") as f:
+    with open(f"{sample_id}_genes_mqc.tsv", "w") as f:
         f.write("# plot_type: 'table'\n")
         f.write("# section_name: 'Genes QC Metrics'\n")
         f.write("# description: 'Median genes at different filtering steps'\n")
