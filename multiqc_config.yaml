@@ -85,12 +85,15 @@ sp:
     fn: "*_violin_comparison_QC1.png"
   img_violin_mito_qc2:
     fn: "*_violin_mito_filtering_QC2.png"
+  img_soupx:
+    fn: "*_ambient_RNA_removed.png"
 
 custom_content:
   order:
     - cells_metrics
     - counts_metrics
     - genes_metrics
+    - img_soupx
     - img_scatter_doublet_qc1
     - img_violin_comparison_qc1
     - img_violin_mito_qc2
@@ -104,8 +107,9 @@ report_section_order:
   "custom_content:cells_metrics": 30
   "custom_content:counts_metrics": 40
   "custom_content:genes_metrics": 50
-  "custom_content:img_scatter_doublet_qc1": 60
-  "custom_content:img_violin_comparison_qc1": 70
-  "custom_content:img_violin_mito_qc2": 80
-  "custom_content:img_umap_leiden_qc2": 90
-  "custom_content:img_marker_genes_heatmap": 100
+  "custom_content:img_soupx": 60
+  "custom_content:img_scatter_doublet_qc1": 70
+  "custom_content:img_violin_comparison_qc1": 80
+  "custom_content:img_violin_mito_qc2": 90
+  "custom_content:img_umap_leiden_qc2": 100
+  "custom_content:img_marker_genes_heatmap": 110
