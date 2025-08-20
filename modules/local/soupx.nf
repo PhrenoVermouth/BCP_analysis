@@ -9,7 +9,7 @@ process SOUPX {
     output:
     tuple val(meta), path("${meta.id}_corrected.h5ad"), emit: corrected_h5ad
     path("0.${meta.id}_ambient_RNA_removed.png"), emit: ambient_plot
-
+    path("0.${meta.id}_soupx_contamination_estimation.png"), emit: contamination_plot
     script:
     """
     Rscript ${baseDir}/bin/run_soupx.R \\
