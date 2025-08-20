@@ -41,9 +41,15 @@ custom_data:
     file_format: "png"
     plot_type: "image"
 
-  img_soupx:
+  img_soupx_result:
     section_name: "sample1 soupX ambient RNA removal"
     description: "Ambient RNA removel profile by cells"
+    file_format: "png"
+    plot_type: "image"
+  
+  img_soupx_progress:
+    section_name: "sample1 soupX ambient RNA identification"
+    description: "Ambient RNA estimation profile by cells"
     file_format: "png"
     plot_type: "image"
     
@@ -91,15 +97,18 @@ sp:
     fn: "*_violin_comparison_QC1.png"
   img_violin_mito_qc2:
     fn: "*_violin_mito_filtering_QC2.png"
-  img_soupx:
+  img_soupx_result:
     fn: "*_ambient_RNA_removed.png"
+  img_soupx_progress:
+    jn: "*_contamination_estimation.png"
 
 custom_content:
   order:
     - cells_metrics
     - counts_metrics
     - genes_metrics
-    - img_soupx
+    - img_soupx_result
+    - img_soupx_progress
     - img_scatter_doublet_qc1
     - img_violin_comparison_qc1
     - img_violin_mito_qc2
@@ -113,9 +122,10 @@ report_section_order:
   "custom_content:cells_metrics": 30
   "custom_content:counts_metrics": 40
   "custom_content:genes_metrics": 50
-  "custom_content:img_soupx": 60
-  "custom_content:img_scatter_doublet_qc1": 70
-  "custom_content:img_violin_comparison_qc1": 80
-  "custom_content:img_violin_mito_qc2": 90
-  "custom_content:img_umap_leiden_qc2": 100
-  "custom_content:img_marker_genes_heatmap": 110
+  "custom_content:img_soupx_result": 60
+  "custom_content:img_soupx_progress": 70
+  "custom_content:img_scatter_doublet_qc1": 80
+  "custom_content:img_violin_comparison_qc1": 90
+  "custom_content:img_violin_mito_qc2": 100
+  "custom_content:img_umap_leiden_qc2": 110
+  "custom_content:img_marker_genes_heatmap": 120
