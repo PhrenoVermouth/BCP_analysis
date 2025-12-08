@@ -8,10 +8,10 @@ process GZIP_SOLO_OUTPUT {
     tuple val(meta), path(solo_out_dir) 
 
     output:
-    tuple val(meta), path(solo_out_dir), emit: gzipped_dir 
+    tuple val(meta), path(solo_out_dir), emit: gzipped_dir
 
     script:
     """
-    find ${solo_out_dir}/GeneFull -type f \\( -name "*.tsv" -o -name "*.mtx" \\) -print0 | xargs -0 -r gzip
+    find ${solo_out_dir}/GeneFull ${solo_out_dir}/Velocyto -type f \\( -name "*.tsv" -o -name "*.mtx" \\) -print0 | xargs -0 -r gzip
     """
 }
