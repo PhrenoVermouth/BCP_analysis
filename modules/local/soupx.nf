@@ -2,6 +2,7 @@
 
 process SOUPX {
     tag "$meta.id"
+    errorStrategy 'ignore'
     publishDir "$params.outdir/soupx/${meta.id}", mode: 'copy'
 
     input:
