@@ -2,7 +2,7 @@
 process STAR_SOLO {
 
     tag "$meta.id"
-
+    errorStrategy 'ignore'
     publishDir "$params.outdir/starsolo/${meta.id}/logs", \
         mode: 'copy', \
         pattern: "${meta.id}.Log.final.out", \

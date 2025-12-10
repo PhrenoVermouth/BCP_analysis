@@ -3,7 +3,7 @@
 process SAM_QC {
     tag "$meta.id"
     publishDir "$params.outdir/sam_qc/${meta.id}", mode: 'copy'
-
+    errorStrategy 'ignore'
     input:
     tuple val(meta), path(corrected_h5ad), path(whitelist)
 
