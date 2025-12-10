@@ -3,7 +3,7 @@
 process SCRUBLET {
     tag "$meta.id"
     publishDir "$params.outdir/scrublet/${meta.id}", mode: 'copy'
-
+    errorStrategy 'ignore'
     input:
     tuple val(meta), path(gzipped_dir)
 
