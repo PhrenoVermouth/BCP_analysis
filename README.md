@@ -48,11 +48,13 @@ nextflow run ~/BCP_analysis/main.nf -profile standard
   ```bash
   nextflow run ~/BCP_analysis/main.nf --run_mode genefull
   ```
-- **Velocity only with existing GeneFull AnnData**: provide a `counts_h5ad` column in `samples.csv` pointing to the precomputed
-  GeneFull `.h5ad` for each sample, then run:
+- **Velocity using prior GeneFull outputs**: rerun in the same project directory after a completed GeneFull run. The pipeline
+  will reuse `${outdir}/soupx/<sample>/<sample>_corrected.h5ad` by default.
   ```bash
   nextflow run ~/BCP_analysis/main.nf --run_mode velocity
   ```
+  If GeneFull outputs live elsewhere, optionally add a `counts_h5ad` column in `samples.csv` to point to custom `.h5ad`
+  locations.
 
 ## Output
 

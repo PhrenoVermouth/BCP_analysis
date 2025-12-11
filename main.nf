@@ -25,7 +25,8 @@ workflow {
             meta.id = row.sample
 
             def reads = [ file(row.fastq_1), file(row.fastq_2) ]
-            def countsAdata = row.counts_h5ad ? file(row.counts_h5ad) : null
+            def defaultCounts = file("${params.outdir}/soupx/${row.sample}/${row.sample}_corrected.h5ad")
+            def countsAdata = row.counts_h5ad ? file(row.counts_h5ad) : defaultCounts
             return [ meta, reads, file(row.genomeDir), countsAdata ]
         }
         .set { ch_samples }
@@ -62,8 +63,12 @@ workflow {
     } else {
         ch_samples
             .map { meta, reads, genomeDir, countsAdata ->
-                if (!countsAdata) {
-                    throw new IllegalArgumentException("counts_h5ad is required for velocity mode for sample ${meta.id}")
+                if (!countsAdata.exists()) {
+                    throw new IllegalArgumentException(
+                        "counts_h5ad is required for velocity mode for sample ${meta.id}. " +
+                        "Provide counts_h5ad in samples.csv or ensure GeneFull output exists at " +
+                        "${params.outdir}/soupx/${meta.id}/${meta.id}_corrected.h5ad"
+                    )
                 }
                 [ meta, countsAdata ]
             }
