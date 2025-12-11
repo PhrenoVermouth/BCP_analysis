@@ -49,8 +49,9 @@ workflow {
         SOUPX(GZIP_SOLO_OUTPUT.out.gzipped_dir)
 
         // 3. Run SAM QC using whitelist from Scrublet
-        SAM_QC(SOUPX.out.corrected_h5ad.join(SCRUBLET.out.whitelist))
-
+        def soupx_h5ad_output = params.bypass_soupX ? SOUPX.out.pre_h5ad : SOUPX.out.corrected_h5ad
+        SAM_QC(soupx_h5ad_output.join(SCRUBLET.out.whitelist))
+        
         ch_for_multiqc = ch_for_multiqc
             .mix(SCRUBLET.out.qc_cells_metrics)
             .mix(SCRUBLET.out.qc_counts_metrics)
