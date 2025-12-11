@@ -7,9 +7,15 @@ include { GZIP_SOLO_OUTPUT } from './modules/local/gzip_soloout'
 include { SCRUBLET } from './modules/local/scrublet'
 include { SOUPX } from './modules/local/soupx'
 include { SAM_QC } from './modules/local/sam_qc'
+include { ADD_VELOCITY_LAYERS } from './modules/local/add_velocity_layers'
 include { MULTIQC } from './modules/local/multiqc'
 
 workflow {
+    def runMode = params.run_mode.toLowerCase()
+    if (!['genefull', 'velocity'].contains(runMode)) {
+        log.error "Invalid params.run_mode: ${runMode}. Choose either 'genefull' or 'velocity'."
+        System.exit(1)
+    }
     // 1. Sample input
     Channel
         .fromPath(params.input)
@@ -19,8 +25,13 @@ workflow {
             meta.id = row.sample
 
             def reads = [ file(row.fastq_1), file(row.fastq_2) ]
-            return [ meta, reads, file(row.genomeDir) ]
+            def countsAdata = row.counts_h5ad ? file(row.counts_h5ad) : null
+            return [ meta, reads, file(row.genomeDir), countsAdata ]
         }
+        .set { ch_samples }
+
+    ch_samples
+        .map { meta, reads, genomeDir, countsAdata -> [ meta, reads, genomeDir ] }
         .set { ch_input_reads }
 
     // 2. Run STARsolo
@@ -28,25 +39,40 @@ workflow {
 
     // 2.1 gyang0721:gzip STARsolo output
     GZIP_SOLO_OUTPUT(STAR_SOLO.out.solo_out_dir)
-    // 2.2 Run Scrublet before SoupX
-    SCRUBLET(GZIP_SOLO_OUTPUT.out.gzipped_dir)
-    // 2.3 SoupX ambient RNA removal
-    SOUPX(GZIP_SOLO_OUTPUT.out.gzipped_dir)
+        def ch_for_multiqc = Channel.empty().mix(STAR_SOLO.out.log)
 
-    // 3. Run SAM QC using whitelist from Scrublet
-    SAM_QC(SOUPX.out.corrected_h5ad.join(SCRUBLET.out.whitelist))
+    if (runMode == 'genefull') {
+        // 2.2 Run Scrublet before SoupX
+        SCRUBLET(GZIP_SOLO_OUTPUT.out.gzipped_dir)
+        // 2.3 SoupX ambient RNA removal
+        SOUPX(GZIP_SOLO_OUTPUT.out.gzipped_dir)
 
+        // 3. Run SAM QC using whitelist from Scrublet
+        SAM_QC(SOUPX.out.corrected_h5ad.join(SCRUBLET.out.whitelist))
+
+        ch_for_multiqc = ch_for_multiqc
+            .mix(SCRUBLET.out.qc_cells_metrics)
+            .mix(SCRUBLET.out.qc_counts_metrics)
+            .mix(SCRUBLET.out.qc_genes_metrics)
+            .mix(SCRUBLET.out.qc_plots.map { it[1] })
+            .mix(SAM_QC.out.qc_plots.map { it[1] })
+            .mix(SOUPX.out.ambient_plot)
+            .mix(SOUPX.out.contamination_plot)
+
+    } else {
+        ch_samples
+            .map { meta, reads, genomeDir, countsAdata ->
+                if (!countsAdata) {
+                    throw new IllegalArgumentException("counts_h5ad is required for velocity mode for sample ${meta.id}")
+                }
+                [ meta, countsAdata ]
+            }
+            .set { ch_counts_h5ad }
+
+        ADD_VELOCITY_LAYERS(GZIP_SOLO_OUTPUT.out.gzipped_dir.join(ch_counts_h5ad))
+    }
     // 4.1 Collect all the report files that need to be summarized
-    ch_for_multiqc = Channel.empty()
-        .mix(STAR_SOLO.out.log)
-        .mix(SCRUBLET.out.qc_cells_metrics)
-        .mix(SCRUBLET.out.qc_counts_metrics)
-        .mix(SCRUBLET.out.qc_genes_metrics)
-        .mix(SCRUBLET.out.qc_plots.map { it[1] })
-        .mix(SAM_QC.out.qc_plots.map { it[1] })
-        .mix(SOUPX.out.ambient_plot)
-        .mix(SOUPX.out.contamination_plot)
-        .collect()
+    ch_for_multiqc = ch_for_multiqc.collect()
 
     // 4.2 Create a channel pointing to the configuration file
     ch_multiqc_config = Channel.fromPath("${baseDir}/multiqc_config.yaml")
