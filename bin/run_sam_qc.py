@@ -1,12 +1,62 @@
 #!/usr/bin/env python
 
-import scanpy as sc
-import pandas as pd
-import numpy as np
 import argparse
+from typing import Dict, List
+
 import matplotlib.pyplot as plt
-import seaborn as sns
+import numpy as np
+import pandas as pd
+import scanpy as sc
+import scipy.sparse as sps
 from samalg import SAM
+from scipy import stats
+
+
+def bs_mean_diff(x: np.ndarray, y: np.ndarray, alpha: float = 0.1, n_bs: int = 500):
+    """Bootstrap the mean difference between two vectors."""
+    if x.size == 0 or y.size == 0:
+        return 0.0, 0.0, 0.0
+    rng = np.random.default_rng()
+    diffs = np.empty(n_bs)
+    for i in range(n_bs):
+        diffs[i] = rng.choice(x, size=x.size, replace=True).mean() - rng.choice(
+            y, size=y.size, replace=True
+        ).mean()
+
+    mean_diff = x.mean() - y.mean()
+    lower = np.percentile(diffs, (alpha / 2) * 100)
+    upper = np.percentile(diffs, (1 - alpha / 2) * 100)
+    return mean_diff, lower, upper
+
+
+def _to_dense_vector(array_like) -> np.ndarray:
+    if sps.issparse(array_like):
+        return array_like.toarray().ravel()
+    return np.asarray(array_like).ravel()
+
+
+def _sort_cluster_labels(labels: List[str]) -> List[str]:
+    def _sort_key(label: str):
+        try:
+            return int(label)
+        except ValueError:
+            return label
+
+    return sorted(labels, key=_sort_key)
+
+
+def _ensure_marker_dict(markers, clusters: List[str]) -> Dict[str, List[str]]:
+    marker_dict: Dict[str, List[str]] = {}
+    if isinstance(markers, dict):
+        for cluster in clusters:
+            values = markers.get(cluster)
+            if values is None:
+                values = markers.get(str(cluster), [])
+            marker_dict[str(cluster)] = list(values)
+    else:
+        for idx, cluster in enumerate(clusters):
+            marker_dict[str(cluster)] = list(markers[idx]) if len(markers) > idx else []
+    return marker_dict
 
 def run_qc2(
     sample_id,
@@ -50,30 +100,135 @@ def run_qc2(
     plt.savefig(f'4.{sample_id}_umap_leiden_QC2.png', dpi=300, bbox_inches='tight')
     plt.close()
 
-    sc.tl.rank_genes_groups(sam.adata, groupby='leiden_clusters', method='wilcoxon')
-    rank_df = sc.get.rank_genes_groups_df(sam.adata, None)
-    top_markers = rank_df.groupby('group').head(2)['names'].tolist()
-    external_markers = []
-    if marker_genes_file:
-        with open(marker_genes_file) as f:
-            external_markers = [line.strip() for line in f if line.strip()]
-    genes_to_plot = list(dict.fromkeys(top_markers + external_markers))
-    genes_to_plot = [g for g in genes_to_plot if g in sam.adata.raw.var_names]
-    if genes_to_plot:
-        expr = sam.adata.raw.to_adata()[:, genes_to_plot].to_df()
-        expr['cluster'] = sam.adata.obs['leiden_clusters'].values
-        mean_expr = expr.groupby('cluster').mean()
-        mean_expr = mean_expr.reindex(sorted(mean_expr.index, key=lambda x: int(x)))
-        g = sns.clustermap(
-            mean_expr,
-            cmap='viridis',
-            figsize=(0.5 * len(genes_to_plot) + 5, 0.5 * mean_expr.shape[0] + 5),
+    cluster_labels = sam.adata.obs['leiden_clusters'].astype(str)
+    clusters_sorted = _sort_cluster_labels(cluster_labels.unique().tolist())
+
+    strategy_one_markers_raw, strategy_one_scores = sam.identify_marker_genes_rf(
+        labels='leiden_clusters', clusters=clusters_sorted, n_genes=10
+    )
+    strategy_one_markers = _ensure_marker_dict(strategy_one_markers_raw, clusters_sorted)
+    for cluster in clusters_sorted:
+        strategy_one_markers[cluster] = strategy_one_markers[cluster][:10]
+
+    X = sam.adata.X
+    labels = cluster_labels.values
+    n_genes_total = sam.adata.n_vars
+    cluster_means = np.vstack(
+        [np.asarray(X[labels == c].mean(axis=0)).ravel() for c in clusters_sorted]
+    )
+
+    strategy_two_results: Dict[str, pd.DataFrame] = {}
+    for idx, cluster in enumerate(clusters_sorted):
+        y_mask = labels == cluster
+        a = np.zeros(n_genes_total)
+        b = np.zeros(n_genes_total)
+        c_ci = np.zeros(n_genes_total)
+        p_values = np.ones(n_genes_total)
+        for j in range(n_genes_total):
+            gene_means = cluster_means[:, j]
+            order = np.argsort(gene_means)
+            second_idx = order[-2] if len(clusters_sorted) > 1 else idx
+            y_next_mask = labels == clusters_sorted[second_idx]
+
+            x_target = _to_dense_vector(X[y_mask, j])
+            x_next = _to_dense_vector(X[y_next_mask, j])
+
+            a[j], b[j], c_ci[j] = bs_mean_diff(x_target, x_next, alpha=0.1, n_bs=500)
+            if x_target.size > 0 and x_next.size > 0:
+                _, p_values[j] = stats.mannwhitneyu(
+                    x_target, x_next, alternative="two-sided"
+                )
+
+        anchor = pd.DataFrame(
+            {
+                'genes': sam.adata.var_names,
+                'a': a,
+                'b': b,
+                'c': c_ci,
+                'p': p_values,
+            }
+        ).set_index('genes')
+        strategy_two_results[cluster] = anchor
+
+    strategy_two_markers: Dict[str, List[str]] = {}
+    for cluster, anchor in strategy_two_results.items():
+        top_genes = anchor.sort_values(by='b', ascending=False).head(10).index.tolist()
+        strategy_two_markers[cluster] = top_genes
+
+    intersection_markers: Dict[str, List[str]] = {}
+    for cluster in clusters_sorted:
+        primary = strategy_one_markers[cluster]
+        secondary = strategy_two_markers[cluster]
+        intersection = [g for g in secondary if g in primary][:10]
+        intersection_markers[cluster] = intersection
+
+    marker_rows = []
+    for cluster in clusters_sorted:
+        for rank, gene in enumerate(strategy_one_markers[cluster], start=1):
+            marker_rows.append(
+                {
+                    'cluster': cluster,
+                    'strategy': 'strategy_one',
+                    'rank': rank,
+                    'gene': gene,
+                }
+            )
+        for rank, gene in enumerate(strategy_two_markers[cluster], start=1):
+            marker_rows.append(
+                {
+                    'cluster': cluster,
+                    'strategy': 'strategy_two',
+                    'rank': rank,
+                    'gene': gene,
+                }
+            )
+        for rank, gene in enumerate(intersection_markers[cluster], start=1):
+            marker_rows.append(
+                {
+                    'cluster': cluster,
+                    'strategy': 'intersection',
+                    'rank': rank,
+                    'gene': gene,
+                }
+            )
+
+    markers_df = pd.DataFrame(marker_rows)
+    markers_df.to_csv(f'{sample_id}_markers.csv', index=False)
+
+    sam.adata.uns['marker_genes'] = {
+        'strategy_one': strategy_one_markers,
+        'strategy_two': {
+            k: v_df.sort_values(by='b', ascending=False)
+            .reset_index()
+            .to_dict(orient='list')
+            for k, v_df in strategy_two_results.items()
+        },
+        'strategy_two_top': strategy_two_markers,
+        'intersection': intersection_markers,
+    }
+
+    genes_for_dotplot: List[str] = []
+    for cluster in clusters_sorted:
+        candidate_genes = intersection_markers[cluster][:3]
+        if len(candidate_genes) < 3:
+            candidate_genes = strategy_one_markers[cluster][:3]
+        for gene in candidate_genes:
+            if gene not in genes_for_dotplot:
+                genes_for_dotplot.append(gene)
+
+    if genes_for_dotplot:
+        sc.pl.dotplot(
+            sam.adata,
+            genes_for_dotplot,
+            'leiden_clusters',
+            standard_scale='var',
+            dendrogram=True,
+            show=False,
         )
-        g.fig.suptitle(f'{sample_id} Marker Gene Expression')
-        g.ax_heatmap.set_xlabel('Gene')
-        g.ax_heatmap.set_ylabel('Cluster')
-        g.savefig(f'5.{sample_id}_marker_genes_heatmap.png')
-        plt.close(g.fig)
+        plt.savefig(
+            f'5.{sample_id}_marker_genes_dotplot.png', dpi=300, bbox_inches='tight'
+        )
+        plt.close()
 
     raw_mat = pd.DataFrame(
         sam.adata.raw.X.todense(),
