@@ -91,17 +91,50 @@ def run_qc2(
     )
     sam.leiden_clustering(res=0.5)
 
+    cluster_labels = sam.adata.obs['leiden_clusters'].astype(str)
+    clusters_sorted = _sort_cluster_labels(cluster_labels.unique().tolist())
+
+    cluster_stats = (
+        sam.adata.obs.assign(leiden_clusters=cluster_labels)
+        .groupby('leiden_clusters')[['n_counts', 'n_genes']]
+        .median()
+        .loc[clusters_sorted]
+    )
+
+    fig, axes = plt.subplots(1, 2, figsize=(14, 6))
     sc.pl.umap(
         sam.adata,
         color='leiden_clusters',
         show=False,
+        ax=axes[0],
         title=f'{sample_id} - Leiden Clustering (UMAP) - QC2'
     )
-    plt.savefig(f'4.{sample_id}_umap_leiden_QC2.png', dpi=300, bbox_inches='tight')
-    plt.close()
 
-    cluster_labels = sam.adata.obs['leiden_clusters'].astype(str)
-    clusters_sorted = _sort_cluster_labels(cluster_labels.unique().tolist())
+    y_pos = np.arange(len(clusters_sorted))
+    bar_height = 0.35
+    axes[1].barh(
+        y_pos - bar_height / 2,
+        cluster_stats['n_counts'],
+        height=bar_height,
+        label='n_counts'
+    )
+    axes[1].barh(
+        y_pos + bar_height / 2,
+        cluster_stats['n_genes'],
+        height=bar_height,
+        label='n_genes'
+    )
+    axes[1].set_yticks(y_pos)
+    axes[1].set_yticklabels(clusters_sorted)
+    axes[1].invert_yaxis()
+    axes[1].set_xlabel('Median value')
+    axes[1].set_title('Median n_counts and n_genes by Leiden cluster')
+    axes[1].legend()
+
+    plt.tight_layout()
+    plt.savefig(f'4.{sample_id}_umap_leiden_QC2.png', dpi=300, bbox_inches='tight')
+    plt.close(fig)
+
 
     strategy_one_markers_raw, strategy_one_scores = sam.identify_marker_genes_rf(
         labels='leiden_clusters', clusters=clusters_sorted, n_genes=10
