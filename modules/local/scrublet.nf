@@ -17,6 +17,7 @@ process SCRUBLET {
     script:
     def mito_prefixes = params.mito_prefixes.join(' ')
     def mito_list_arg = params.mito_gene_list ? "\\\n        --mito_gene_list ${params.mito_gene_list}" : ""
+    def summary_csv = "${gzipped_dir}/GeneFull/Summary.csv"
     """
     run_scrublet.py \
         --sample_id ${meta.id} \
@@ -24,6 +25,7 @@ process SCRUBLET {
         --min_genes ${params.min_genes_per_cell} \
         --min_cells ${params.min_cells_per_gene} \
         --max_mito ${params.max_mito} \
+        --summary_csv ${summary_csv} \
         --mito_prefixes ${mito_prefixes} ${mito_list_arg}
     """
 }

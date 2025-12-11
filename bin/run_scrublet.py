@@ -7,8 +7,18 @@ import numpy as np
 import argparse
 import matplotlib.pyplot as plt
 import seaborn as sns
+import os
 
-def run_scrublet(sample_id, matrix_dir, min_genes, min_cells, max_mito, mito_prefixes, mito_gene_list=None):
+def run_scrublet(
+    sample_id,
+    matrix_dir,
+    min_genes,
+    min_cells,
+    max_mito,
+    mito_prefixes,
+    mito_gene_list=None,
+    summary_csv=None,
+):
     adata = sc.read_10x_mtx(matrix_dir, var_names='gene_symbols')
     adata.var_names_make_unique()
 
@@ -101,11 +111,33 @@ def run_scrublet(sample_id, matrix_dir, min_genes, min_cells, max_mito, mito_pre
     with open(f"{sample_id}_cells_mqc.tsv", "w") as f:
         f.write("# plot_type: 'table'\n")
         f.write("# section_name: 'Cells QC Metrics'\n")
-        f.write("# description: 'Cell counts at different filtering steps'\n")
+        f.write(
+            "# description: 'Median genes at different filtering steps and sequencing saturation'\n"
+        )
         f.write("# pconfig:\n")
         f.write("#     sortRows: false\n")
-        f.write("Sample\tcells_initial\tcells_after_Doublet_Removal\tcells_after_MT_Removal\n")
-        f.write(f"{sample_id}\t{number_cells}\t{number_cells_QC1}\t{number_cells_QC2}\n")
+        f.write(
+            "Sample\tmedian_genes_initial\tmedian_genes_Doublet_Removal\tmedian_genes_MT_Removal\tsequencing_saturation\n"
+        )
+        f.write(
+            f"{sample_id}\t{median_genes}\t{median_genes_QC1}\t{median_genes_QC2}\t{sequencing_saturation}\n"
+        )
+  
+    sequencing_saturation = ""
+    if summary_csv and os.path.exists(summary_csv):
+        try:
+            summary_df = pd.read_csv(
+                summary_csv,
+                header=None,
+                names=["metric", "value"],
+            )
+            sequencing_saturation = summary_df.loc[
+                summary_df["metric"] == "Sequencing Saturation", "value"
+            ]
+            if not sequencing_saturation.empty:
+                sequencing_saturation = round(float(sequencing_saturation.iloc[0]), 4)
+        except Exception:
+            sequencing_saturation = ""
 
     with open(f"{sample_id}_counts_mqc.tsv", "w") as f:
         f.write("# plot_type: 'table'\n")
@@ -134,6 +166,7 @@ if __name__ == '__main__':
     parser.add_argument('--max_mito', type=float, default=0.2, help="Max mitochondrial percentage (fraction)")
     parser.add_argument('--mito_prefixes', nargs='+', default=['mt-'], help="Prefix(es) for mitochondrial genes")
     parser.add_argument('--mito_gene_list', type=str, default=None, help="Path to text file listing mitochondrial genes (one per line)")
+    parser.add_argument('--summary_csv', type=str, default=None, help="Path to STARsolo Summary.csv for sequencing saturation")
     args = parser.parse_args()
 
     run_scrublet(
@@ -144,4 +177,5 @@ if __name__ == '__main__':
         args.max_mito,
         args.mito_prefixes,
         args.mito_gene_list,
+        args.summary_csv,
     )
