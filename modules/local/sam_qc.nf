@@ -9,6 +9,7 @@ process SAM_QC {
 
     output:
     tuple val(meta), path("*.png"), emit: qc_plots
+    tuple val(meta), path("*.csv"), emit: qc_tables
     tuple val(meta), path("*.h5ad"), emit: filtered_adata
 
     script:
