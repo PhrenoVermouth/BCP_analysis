@@ -41,6 +41,7 @@ process STAR_SOLO {
     path "${meta.id}.Aligned.sortedByCoord.out.bam", emit: bam
 
     script:
+    def solo_features = params.run_mode.toLowerCase() == 'velocity' ? 'Velocyto' : 'GeneFull'
     """
     STAR \
         --runThreadN ${task.cpus} \
@@ -58,7 +59,7 @@ process STAR_SOLO {
         --outFilterScoreMin 30 \
         --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
         --soloCellFilter EmptyDrops_CR 10000 0.99 10 45000 90000 500 0.01 20000 0.01 10000 \
-        --soloFeatures GeneFull Velocyto \
+        --soloFeatures ${solo_features} \
         --soloMultiMappers EM \
         --outSAMattributes NH HI nM AS CR UR CB UB GX GN sS sQ sM \
         --outFilterMultimapNmax 20

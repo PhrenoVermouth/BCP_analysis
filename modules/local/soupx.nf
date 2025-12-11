@@ -9,19 +9,14 @@ process SOUPX {
     tuple val(meta), path(gzipped_dir)
     output:
     tuple val(meta), path("${meta.id}_corrected.h5ad"), emit: corrected_h5ad
-    tuple val(meta), path("${meta.id}_velocity_ready.h5ad"), emit: velocity_h5ad
     path("0.${meta.id}_ambient_RNA_removed.png"), emit: ambient_plot
     path("0.${meta.id}_soupx_contamination_estimation.png"), emit: contamination_plot
     script:
     """
-    Rscript ${baseDir}/bin/run_soupx.R \\
-        --raw_dir ${gzipped_dir}/GeneFull/raw \\
-        --filtered_dir ${gzipped_dir}/GeneFull/filtered \\
+    Rscript ${baseDir}/bin/run_soupx.R \
+        --raw_dir ${gzipped_dir}/GeneFull/raw \
+        --filtered_dir ${gzipped_dir}/GeneFull/filtered \
         --sample_id ${meta.id}
 
-    bin/add_velocity_layers.py \\
-        --counts_h5ad ${meta.id}_corrected.h5ad \\
-        --velo_dir ${gzipped_dir}/Velocyto/filtered \\
-        --output ${meta.id}_velocity_ready.h5ad
     """
 }

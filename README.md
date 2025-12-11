@@ -42,6 +42,17 @@ mamba env create -f bin/environment.yml
 # Run the pipeline
 nextflow run ~/BCP_analysis/main.nf -profile standard
 ```
+### Run modes
+
+- **Genefull only** (default):
+  ```bash
+  nextflow run ~/BCP_analysis/main.nf --run_mode genefull
+  ```
+- **Velocity only with existing GeneFull AnnData**: provide a `counts_h5ad` column in `samples.csv` pointing to the precomputed
+  GeneFull `.h5ad` for each sample, then run:
+  ```bash
+  nextflow run ~/BCP_analysis/main.nf --run_mode velocity
+  ```
 
 ## Output
 
