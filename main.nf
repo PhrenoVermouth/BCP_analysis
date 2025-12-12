@@ -40,7 +40,7 @@ workflow {
 
     // 2.1 gyang0721:gzip STARsolo output
     GZIP_SOLO_OUTPUT(STAR_SOLO.out.solo_out_dir)
-        def ch_for_multiqc = Channel.empty().mix(STAR_SOLO.out.log)
+        def ch_for_multiqc = STAR_SOLO.out.log
 
     if (runMode == 'genefull') {
         // 2.2 Run Scrublet before SoupX
