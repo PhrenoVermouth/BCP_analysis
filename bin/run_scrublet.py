@@ -108,21 +108,6 @@ def run_scrublet(
     median_genes_QC2 = int(np.median(adata_QC2.obs['n_genes_by_counts']))
     median_counts_QC2 = int(np.median(adata_QC2.obs['total_counts']))
 
-    with open(f"{sample_id}_cells_mqc.tsv", "w") as f:
-        f.write("# plot_type: 'table'\n")
-        f.write("# section_name: 'Cells QC Metrics'\n")
-        f.write(
-            "# description: 'Median genes at different filtering steps and sequencing saturation'\n"
-        )
-        f.write("# pconfig:\n")
-        f.write("#     sortRows: false\n")
-        f.write(
-            "Sample\tmedian_genes_initial\tmedian_genes_Doublet_Removal\tmedian_genes_MT_Removal\tsequencing_saturation\n"
-        )
-        f.write(
-            f"{sample_id}\t{median_genes}\t{median_genes_QC1}\t{median_genes_QC2}\t{sequencing_saturation}\n"
-        )
-  
     sequencing_saturation = ""
     if summary_csv and os.path.exists(summary_csv):
         try:
@@ -138,6 +123,21 @@ def run_scrublet(
                 sequencing_saturation = round(float(sequencing_saturation.iloc[0]), 4)
         except Exception:
             sequencing_saturation = ""
+            
+    with open(f"{sample_id}_cells_mqc.tsv", "w") as f:
+        f.write("# plot_type: 'table'\n")
+        f.write("# section_name: 'Cells QC Metrics'\n")
+        f.write(
+            "# description: 'Median genes at different filtering steps and sequencing saturation'\n"
+        )
+        f.write("# pconfig:\n")
+        f.write("#     sortRows: false\n")
+        f.write(
+            "Sample\tmedian_genes_initial\tmedian_genes_Doublet_Removal\tmedian_genes_MT_Removal\tsequencing_saturation\n"
+        )
+        f.write(
+            f"{sample_id}\t{median_genes}\t{median_genes_QC1}\t{median_genes_QC2}\t{sequencing_saturation}\n"
+        )
 
     with open(f"{sample_id}_counts_mqc.tsv", "w") as f:
         f.write("# plot_type: 'table'\n")
