@@ -20,8 +20,8 @@ process GZIP_SOLO_OUTPUT {
     def dirs_to_zip = feature_dirs.collect { "\"${it}\"" }.join(' ')
     """
     for dir in ${dirs_to_zip}; do
-        if [[ -d ${dir} ]]; then
-            find ${dir} -type f \\( -name "*.tsv" -o -name "*.mtx" \\) -print0 | xargs -0 -r gzip
+        if [[ -d \${dir} ]]; then
+            find \${dir} -type f \\( -name "*.tsv" -o -name "*.mtx" \\) -print0 | xargs -0 -r gzip
         fi
     done
     """
