@@ -43,14 +43,15 @@ cat("Contamination estimation plot saved to:", contamination_plot_file, "\n")
 
 # write uncorrected h5ad for comparison
 pre_soupx_file <- paste0(args$sample_id, "_pre_soupx.h5ad")
-sce_pre <- SingleCellExperiment(assays = list(counts = sc$tod))
+raw_counts_mat <- as(sc$tod, "dgCMatrix")
+sce_pre <- SingleCellExperiment(assays = list(counts = raw_counts_mat))
 writeH5AD(sce_pre, file = pre_soupx_file)
 cat("Uncorrected matrix saved to:", pre_soupx_file, "\n")
 
 
-adj_counts <- adjustCounts(sc)
+adj_counts <- as(adjustCounts(sc), "dgCMatrix")
 
-raw_counts <- Matrix::colSums(sc$toc)
+raw_counts <- Matrix::colSums(raw_counts_mat)
 corr_counts <- Matrix::colSums(adj_counts)
 removed_fraction <- (raw_counts - corr_counts) / raw_counts
 plot_df <- data.frame(fraction_removed = removed_fraction)
