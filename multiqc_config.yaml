@@ -77,6 +77,20 @@ custom_data:
     file_format: "png"
     plot_type: "image"
 
+  img_umap:
+    section_name: "UMAP and QC per cluster"
+    description: "UMAP and QC per cluster"
+    file_format: "png"
+    plot_type: "image"
+    
+  img_dotplot:
+    section_name: "Markers identified per cluster"
+    description: "Markers identified per cluster"
+    file_format: "png"
+    plot_type: "image"
+  
+
+    
 ignore_images: false
 
 # Search patterns: keys must match the custom_data IDs
@@ -108,7 +122,13 @@ sp:
   img_soupx_progress:
     fn: "*_contamination_estimation.png"
     name_re: "^[0-9]+\\.(.+)_contamination_estimation\\.png"
-
+  img_umap:
+    fn: "*_umap_leiden_QC2.png"
+    name_re: "^[0-9]+\\.(.+)_umap_leiden_QC2\\.png"
+  img_dotplot:
+    fn: "*_marker_genes_dotplot.png"
+    name_re: "^[0-9]+\\.(.+)_marker_genes_dotplot\\.png"
+    
 custom_content:
   order:
     - cells_metrics
@@ -121,6 +141,8 @@ custom_content:
     - img_violin_mito_qc2
     - img_umap_leiden_qc2
     - img_marker_genes_heatmap
+    - img_umap
+    - img_dotplot
 
 # Must be a mapping (dict), not a list, in MultiQC v1.21
 report_section_order:
@@ -134,5 +156,5 @@ report_section_order:
   "custom_content:img_scatter_doublet_qc1": 80
   "custom_content:img_violin_comparison_qc1": 90
   "custom_content:img_violin_mito_qc2": 100
-  "custom_content:img_umap_leiden_qc2": 110
-  "custom_content:img_marker_genes_heatmap": 120
+  "custom_content:img_umap": 110
+  "custom_content:img_dotplot": 120
