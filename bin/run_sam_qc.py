@@ -80,6 +80,9 @@ def run_qc2(
     sc.pp.pca(adata, n_comps=n_pcs)
     sc.pp.neighbors(adata, n_neighbors=n_neighbors, n_pcs=n_pcs)
 
+    sc.pp.calculate_qc_metrics(adata, percent_top=None, log1p=False, inplace=True)
+    adata.obs.rename(columns={'total_counts': 'n_counts', 'n_genes_by_counts': 'n_genes'}, inplace=True)
+
     adata.raw = adata.copy()
     sam = SAM(adata)
     sam.run(
@@ -101,14 +104,9 @@ def run_qc2(
         .loc[clusters_sorted]
     )
 
-    fig, axes = plt.subplots(1, 2, figsize=(14, 6))
-    sc.pl.umap(
-        sam.adata,
-        color='leiden_clusters',
-        show=False,
-        ax=axes[0],
-        title=f'{sample_id} - Leiden Clustering (UMAP) - QC2'
-    )
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5), gridspec_kw={'width_ratios': [3, 1]})
+    
+    sc.pl.umap(sam.adata,color=['leiden_clusters'],legend_loc='on data',s = 40, ax=axes[0])
 
     y_pos = np.arange(len(clusters_sorted))
     bar_height = 0.35
