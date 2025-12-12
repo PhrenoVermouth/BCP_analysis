@@ -43,7 +43,7 @@ cat("Contamination estimation plot saved to:", contamination_plot_file, "\n")
 
 # write uncorrected h5ad for comparison
 pre_soupx_file <- paste0(args$sample_id, "_pre_soupx.h5ad")
-raw_counts_mat <- as(sc$tod, "dgCMatrix")
+raw_counts_mat <- as(tod, "dgCMatrix")
 sce_pre <- SingleCellExperiment(assays = list(counts = raw_counts_mat))
 writeH5AD(sce_pre, file = pre_soupx_file)
 cat("Uncorrected matrix saved to:", pre_soupx_file, "\n")

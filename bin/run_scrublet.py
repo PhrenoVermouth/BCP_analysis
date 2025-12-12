@@ -161,7 +161,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Run Scrublet doublet detection")
     parser.add_argument('--sample_id', required=True, help="Sample identifier")
     parser.add_argument('--matrix_dir', required=True, help="Path to raw count matrix directory")
-    parser.add_argument('--min_genes', type=int, default=600, help="Min genes per cell")
+    parser.add_argument('--min_genes', type=int, default=200, help="Min genes per cell")
     parser.add_argument('--min_cells', type=int, default=3, help="Min cells per gene")
     parser.add_argument('--max_mito', type=float, default=0.2, help="Max mitochondrial percentage (fraction)")
     parser.add_argument('--mito_prefixes', nargs='+', default=['mt-'], help="Prefix(es) for mitochondrial genes")
