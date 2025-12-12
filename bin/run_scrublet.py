@@ -123,7 +123,7 @@ def run_scrublet(
                 sequencing_saturation = round(float(sequencing_saturation.iloc[0]), 4)
         except Exception:
             sequencing_saturation = ""
-            
+
     with open(f"{sample_id}_cells_mqc.tsv", "w") as f:
         f.write("# plot_type: 'table'\n")
         f.write("# section_name: 'Cells QC Metrics'\n")

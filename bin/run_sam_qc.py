@@ -106,10 +106,10 @@ def run_qc2(
 
     fig, axes = plt.subplots(1, 2, figsize=(12, 5), gridspec_kw={'width_ratios': [3, 1]})
     
-    sc.pl.umap(sam.adata,color=['leiden_clusters'],legend_loc='on data',s = 40, ax=axes[0])
+    sc.pl.umap(sam.adata,color=['leiden_clusters'],legend_loc='on data',s = 40, ax=axes[0],show=False, title=f'{sample_id} - Leiden Clustering (UMAP) - QC2')
 
     y_pos = np.arange(len(clusters_sorted))
-    bar_height = 0.35
+    bar_height = 0.2
     axes[1].barh(
         y_pos - bar_height / 2,
         cluster_stats['n_counts'],
