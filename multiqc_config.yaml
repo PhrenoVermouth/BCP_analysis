@@ -103,31 +103,22 @@ sp:
     fn: "*_genes_mqc.tsv"
   img_marker_genes_heatmap:
     fn: "*_marker_genes_heatmap.png"
-    name_re: "^[0-9]+\\.(.+)_marker_genes_heatmap\\.png"
   img_umap_leiden_qc2:
     fn: "*_umap_leiden_QC2.png"
-    name_re: "^[0-9]+\\.(.+)_umap_leiden_QC2\\.png"
   img_scatter_doublet_qc1:
     fn: "*_scatter_doublet_highlight_QC1.png"
-    name_re: "^[0-9]+\\.(.+)_scatter_doublet_highlight_QC1\\.png"
   img_violin_comparison_qc1:
     fn: "*_violin_comparison_QC1.png"
-    name_re: "^[0-9]+\\.(.+)_violin_comparison_QC1\\.png"
   img_violin_mito_qc2:
     fn: "*_violin_mito_filtering_QC2.png"
-    name_re: "^[0-9]+\\.(.+)_violin_mito_filtering_QC2\\.png"
   img_soupx_result:
     fn: "*_ambient_RNA_removed.png"
-    name_re: "^[0-9]+\\.(.+)_ambient_RNA_removed\\.png"
   img_soupx_progress:
     fn: "*_contamination_estimation.png"
-    name_re: "^[0-9]+\\.(.+)_contamination_estimation\\.png"
   img_umap:
     fn: "*_umap_leiden_QC2.png"
-    name_re: "^[0-9]+\\.(.+)_umap_leiden_QC2\\.png"
   img_dotplot:
     fn: "*_marker_genes_dotplot.png"
-    name_re: "^[0-9]+\\.(.+)_marker_genes_dotplot\\.png"
     
 custom_content:
   order:

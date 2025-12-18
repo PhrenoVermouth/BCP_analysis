@@ -135,7 +135,7 @@ def run_qc2(
 
 
     strategy_one_markers_raw, strategy_one_scores = sam.identify_marker_genes_rf(
-        labels='leiden_clusters', clusters=clusters_sorted, n_genes=10
+        labels='leiden_clusters', clusters=clusters_sorted, n_genes=500
     )
     strategy_one_markers = _ensure_marker_dict(strategy_one_markers_raw, clusters_sorted)
     for cluster in clusters_sorted:
