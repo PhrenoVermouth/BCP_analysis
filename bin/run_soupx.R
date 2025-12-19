@@ -35,7 +35,7 @@ names(seurat_clusters) <- rownames(srat_tmp@meta.data)
 sc <- setClusters(sc, clusters = seurat_clusters)
 
 # 5. auto-correction
-contamination_plot_file <- paste0('0.',args$sample_id, "_soupx_contamination_estimation.png")
+contamination_plot_file <- paste0('0.',args$sample_id, "_soupx_contamination_estimation_mqc.png")
 png(contamination_plot_file, width = 600, height = 400)
 sc <- autoEstCont(sc)
 dev.off()
@@ -55,7 +55,7 @@ raw_counts <- Matrix::colSums(raw_counts_mat)
 corr_counts <- Matrix::colSums(adj_counts)
 removed_fraction <- (raw_counts - corr_counts) / raw_counts
 plot_df <- data.frame(fraction_removed = removed_fraction)
-plot_file <- paste0("0.",args$sample_id, "_ambient_RNA_removed.png")
+plot_file <- paste0("0.",args$sample_id, "_ambient_RNA_removed_mqc.png")
 p <- ggplot(plot_df, aes(x = fraction_removed)) +
   geom_histogram(binwidth = 0.01, fill = "steelblue", color = "black") +
   labs(title = "Fraction of Counts Removed by SoupX",
