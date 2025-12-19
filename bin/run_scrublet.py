@@ -60,7 +60,7 @@ def run_scrublet(
         title=f'{sample_id} - Predicted Doublets Highlighted - QC1',
     )
     fig0.savefig(
-        f'1.{sample_id}_scatter_doublet_highlight_QC1.png',
+        f'1.{sample_id}_scatter_doublet_highlight_QC1_mqc.png',
         dpi=300,
         bbox_inches='tight')
     plt.close(fig0)
@@ -80,7 +80,7 @@ def run_scrublet(
     sc.pl.violin(adata_QC1, 'total_counts', jitter=0.4, ax=axes[1, 1], show=False)
 
     fig1.tight_layout(rect=[0, 0.03, 1, 0.95])
-    fig1.savefig(f'2.{sample_id}_violin_comparison_QC1.png')
+    fig1.savefig(f'2.{sample_id}_violin_comparison_QC1_mqc.png')
     plt.close(fig1)
 
     # Fig 2: Mitochondria removal
@@ -89,7 +89,7 @@ def run_scrublet(
     sc.pl.violin(adata_QC2, 'pct_counts_mito', jitter=0.4, ax=axes[1], show=False)
     fig2.suptitle(f'{sample_id} - Mito Filtering - QC2')
     fig2.tight_layout()
-    fig2.savefig(f'3.{sample_id}_violin_mito_filtering_QC2.png')
+    fig2.savefig(f'3.{sample_id}_violin_mito_filtering_QC2_mqc.png')
     plt.close(fig2)
 
     # Save whitelist

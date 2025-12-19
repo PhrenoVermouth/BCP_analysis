@@ -12,27 +12,39 @@ from samalg import SAM
 from scipy import stats
 
 
-def bs_mean_diff(x: np.ndarray, y: np.ndarray, alpha: float = 0.1, n_bs: int = 500):
-    """Bootstrap the mean difference between two vectors."""
-    if x.size == 0 or y.size == 0:
-        return 0.0, 0.0, 0.0
-    rng = np.random.default_rng()
-    diffs = np.empty(n_bs)
+def vectorized_bs_mean_diff(
+    X_target, X_next, alpha: float = 0.1, n_bs: int = 500, rng: np.random.Generator | None = None
+):
+    """Bootstrap mean differences for all genes at once using vectorized resampling."""
+    target = _to_dense_matrix(X_target)
+    next_cluster = _to_dense_matrix(X_next)
+
+    n_genes = target.shape[1] if target.size else next_cluster.shape[1]
+    if target.size == 0 or next_cluster.size == 0 or n_genes == 0:
+        zeros = np.zeros(n_genes)
+        return zeros, zeros, zeros
+
+    rng = rng or np.random.default_rng()
+    n_cells_t, n_cells_n = target.shape[0], next_cluster.shape[0]
+    means_target_bs = np.empty((n_genes, n_bs))
+    means_next_bs = np.empty_like(means_target_bs)
+
     for i in range(n_bs):
-        diffs[i] = rng.choice(x, size=x.size, replace=True).mean() - rng.choice(
-            y, size=y.size, replace=True
-        ).mean()
+        idx_t = rng.integers(0, n_cells_t, size=n_cells_t)
+        idx_n = rng.integers(0, n_cells_n, size=n_cells_n)
+        means_target_bs[:, i] = target[idx_t].mean(axis=0)
+        means_next_bs[:, i] = next_cluster[idx_n].mean(axis=0)
 
-    mean_diff = x.mean() - y.mean()
-    lower = np.percentile(diffs, (alpha / 2) * 100)
-    upper = np.percentile(diffs, (1 - alpha / 2) * 100)
-    return mean_diff, lower, upper
+    diffs = means_target_bs - means_next_bs
+    real_diff = target.mean(axis=0) - next_cluster.mean(axis=0)
+    lower = np.percentile(diffs, (alpha / 2) * 100, axis=1)
+    upper = np.percentile(diffs, (1 - alpha / 2) * 100, axis=1)
+    return real_diff, lower, upper
 
-
-def _to_dense_vector(array_like) -> np.ndarray:
+def _to_dense_matrix(array_like) -> np.ndarray:
     if sps.issparse(array_like):
-        return array_like.toarray().ravel()
-    return np.asarray(array_like).ravel()
+        return array_like.toarray()
+    return np.asarray(array_like)
 
 
 def _sort_cluster_labels(labels: List[str]) -> List[str]:
@@ -130,7 +142,9 @@ def run_qc2(
     axes[1].legend()
 
     plt.tight_layout()
-    plt.savefig(f'4.{sample_id}_umap_leiden_QC2.png', dpi=300, bbox_inches='tight')
+    plt.savefig(
+        f'4.{sample_id}_umap_leiden_QC2_mqc.png', dpi=300, bbox_inches='tight'
+    )
     plt.close(fig)
 
 
@@ -147,6 +161,13 @@ def run_qc2(
     cluster_means = np.vstack(
         [np.asarray(X[labels == c].mean(axis=0)).ravel() for c in clusters_sorted]
     )
+    second_best_cluster_idx = (
+        np.argsort(cluster_means, axis=0)[-2, :]
+        if len(clusters_sorted) > 1
+        else np.zeros(n_genes_total, dtype=int)
+    )
+
+    rng = np.random.default_rng()
 
     strategy_two_results: Dict[str, pd.DataFrame] = {}
     for idx, cluster in enumerate(clusters_sorted):
@@ -155,16 +176,30 @@ def run_qc2(
         b = np.zeros(n_genes_total)
         c_ci = np.zeros(n_genes_total)
         p_values = np.ones(n_genes_total)
+
+        target_data = _to_dense_matrix(X[y_mask, :])
+        rival_cluster_data: Dict[int, np.ndarray] = {}
+        bs_results: Dict[int, tuple[np.ndarray, np.ndarray, np.ndarray]] = {}
+
+        for rival_idx in np.unique(second_best_cluster_idx):
+            rival_mask = labels == clusters_sorted[rival_idx]
+            rival_data = _to_dense_matrix(X[rival_mask, :])
+            rival_cluster_data[rival_idx] = rival_data
+            bs_results[rival_idx] = vectorized_bs_mean_diff(
+                target_data, rival_data, alpha=0.1, n_bs=500, rng=rng
+            )
+
         for j in range(n_genes_total):
-            gene_means = cluster_means[:, j]
-            order = np.argsort(gene_means)
-            second_idx = order[-2] if len(clusters_sorted) > 1 else idx
-            y_next_mask = labels == clusters_sorted[second_idx]
+            rival_idx = second_best_cluster_idx[j]
+            rival_data = rival_cluster_data[rival_idx]
 
-            x_target = _to_dense_vector(X[y_mask, j])
-            x_next = _to_dense_vector(X[y_next_mask, j])
+            real_diff, lower, upper = bs_results[rival_idx]
+            a[j] = real_diff[j]
+            b[j] = lower[j]
+            c_ci[j] = upper[j]
 
-            a[j], b[j], c_ci[j] = bs_mean_diff(x_target, x_next, alpha=0.1, n_bs=500)
+            x_target = target_data[:, j]
+            x_next = rival_data[:, j]
             if x_target.size > 0 and x_next.size > 0:
                 _, p_values[j] = stats.mannwhitneyu(
                     x_target, x_next, alternative="two-sided"
@@ -257,7 +292,9 @@ def run_qc2(
             show=False,
         )
         plt.savefig(
-            f'5.{sample_id}_marker_genes_dotplot.png', dpi=300, bbox_inches='tight'
+            f'5.{sample_id}_marker_genes_dotplot_mqc.png',
+            dpi=300,
+            bbox_inches='tight'
         )
         plt.close()
 
