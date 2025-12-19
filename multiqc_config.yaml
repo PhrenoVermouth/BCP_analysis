@@ -102,23 +102,23 @@ sp:
   genes_metrics:
     fn: "*_genes_mqc.tsv"
   img_marker_genes_heatmap:
-    fn: "*_marker_genes_heatmap.png"
+    fn: "*_marker_genes_heatmap_mqc.png"
   img_umap_leiden_qc2:
-    fn: "*_umap_leiden_QC2.png"
+    fn: "*_umap_leiden_QC2_mqc.png"
   img_scatter_doublet_qc1:
-    fn: "*_scatter_doublet_highlight_QC1.png"
+    fn: "*_scatter_doublet_highlight_QC1_mqc.png"
   img_violin_comparison_qc1:
-    fn: "*_violin_comparison_QC1.png"
+    fn: "*_violin_comparison_QC1_mqc.png"
   img_violin_mito_qc2:
-    fn: "*_violin_mito_filtering_QC2.png"
+    fn: "*_violin_mito_filtering_QC2_mqc.png"
   img_soupx_result:
-    fn: "*_ambient_RNA_removed.png"
+    fn: "*_ambient_RNA_removed_mqc.png"
   img_soupx_progress:
-    fn: "*_contamination_estimation.png"
+    fn: "*_contamination_estimation_mqc.png"
   img_umap:
-    fn: "*_umap_leiden_QC2.png"
+    fn: "*_umap_leiden_QC2_mqc.png"
   img_dotplot:
-    fn: "*_marker_genes_dotplot.png"
+    fn: "*_marker_genes_dotplot_mqc.png"
     
 custom_content:
   order:
