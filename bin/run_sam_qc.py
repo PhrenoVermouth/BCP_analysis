@@ -202,12 +202,11 @@ def run_qc2(
     plt.close(fig)
 
 
-    strategy_one_markers_raw, strategy_one_scores = sam.identify_marker_genes_rf(
-        labels='leiden_clusters', clusters=clusters_sorted, n_genes=500
-    )
-    strategy_one_markers = _ensure_marker_dict(strategy_one_markers_raw, clusters_sorted)
-    for cluster in clusters_sorted:
-        strategy_one_markers[cluster] = strategy_one_markers[cluster][:10]
+    ranked_genes = list(sam.adata.uns['ranked_genes'])
+    strategy_one_genes = ranked_genes[:500]
+    strategy_one_markers = {
+        cluster: strategy_one_genes for cluster in clusters_sorted
+    }
 
     X = sam.adata.X
     labels = cluster_labels.values
@@ -272,48 +271,36 @@ def run_qc2(
 
     strategy_two_markers: Dict[str, List[str]] = {}
     for cluster, anchor in strategy_two_results.items():
-        top_genes = anchor.sort_values(by='b', ascending=False).head(10).index.tolist()
-        strategy_two_markers[cluster] = top_genes
+        ranked = anchor.sort_values(by=['p', 'b'], ascending=[True, False])
+        strategy_two_results[cluster] = ranked
+        strategy_two_markers[cluster] = ranked.index.tolist()
 
     intersection_markers: Dict[str, List[str]] = {}
+    strategy_one_gene_set = set(strategy_one_genes)
     for cluster in clusters_sorted:
-        primary = strategy_one_markers[cluster]
         secondary = strategy_two_markers[cluster]
-        intersection = [g for g in secondary if g in primary][:10]
+        intersection = [g for g in secondary if g in strategy_one_gene_set]
         intersection_markers[cluster] = intersection
 
-    marker_rows = []
+    intersection_rows = []
     for cluster in clusters_sorted:
-        for rank, gene in enumerate(strategy_one_markers[cluster], start=1):
-            marker_rows.append(
-                {
-                    'cluster': cluster,
-                    'strategy': 'strategy_one',
-                    'rank': rank,
-                    'gene': gene,
-                }
-            )
-        for rank, gene in enumerate(strategy_two_markers[cluster], start=1):
-            marker_rows.append(
-                {
-                    'cluster': cluster,
-                    'strategy': 'strategy_two',
-                    'rank': rank,
-                    'gene': gene,
-                }
-            )
-        for rank, gene in enumerate(intersection_markers[cluster], start=1):
-            marker_rows.append(
+        anchor = strategy_two_results[cluster]
+        cluster_intersection = intersection_markers[cluster]
+        for rank, gene in enumerate(cluster_intersection, start=1):
+            intersection_rows.append(
                 {
                     'cluster': cluster,
                     'strategy': 'intersection',
                     'rank': rank,
                     'gene': gene,
+                    'p_value': anchor.loc[gene, 'p'],
+                    'b_value': anchor.loc[gene, 'b'],
                 }
             )
 
-    markers_df = pd.DataFrame(marker_rows)
-    markers_df.to_csv(f'{sample_id}_markers.csv', index=False)
+    if intersection_rows:
+        markers_df = pd.DataFrame(intersection_rows)
+        markers_df.to_csv(f'{sample_id}_markers.csv', index=False)
 
     sam.adata.uns['marker_genes'] = {
         'strategy_one': strategy_one_markers,
@@ -330,8 +317,6 @@ def run_qc2(
     genes_for_dotplot: List[str] = []
     for cluster in clusters_sorted:
         candidate_genes = intersection_markers[cluster][:3]
-        if len(candidate_genes) < 3:
-            candidate_genes = strategy_one_markers[cluster][:3]
         for gene in candidate_genes:
             if gene not in genes_for_dotplot:
                 genes_for_dotplot.append(gene)
