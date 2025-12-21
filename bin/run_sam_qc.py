@@ -11,11 +11,15 @@ import scipy.sparse as sps
 from samalg import SAM
 from scipy import stats
 
-
 def vectorized_bs_mean_diff(
     X_target, X_next, alpha: float = 0.1, n_bs: int = 500, rng: np.random.Generator | None = None
 ):
-    """Bootstrap mean differences for all genes at once using vectorized resampling."""
+    """
+    Update: Optimized Bootstrap using Matrix Multiplication (Weighted Sums).
+    Avoids memory copying of the large expression matrix.
+    """
+
+    # 1. Preprocessing
     target = _to_dense_matrix(X_target)
     next_cluster = _to_dense_matrix(X_next)
 
@@ -25,21 +29,71 @@ def vectorized_bs_mean_diff(
         return zeros, zeros, zeros
 
     rng = rng or np.random.default_rng()
-    n_cells_t, n_cells_n = target.shape[0], next_cluster.shape[0]
-    means_target_bs = np.empty((n_genes, n_bs))
-    means_next_bs = np.empty_like(means_target_bs)
+    n_cells_t = target.shape[0]
+    n_cells_n = next_cluster.shape[0]
 
+    # 2. Generate weight matrix (Weights Matrix)
+    # Instead of "moving" the data, generate a count matrix of shape (n_bs, n_cells).
+    
+    # Target weight
+    w_t = np.zeros((n_bs, n_cells_t), dtype=np.float32)
     for i in range(n_bs):
-        idx_t = rng.integers(0, n_cells_t, size=n_cells_t)
-        idx_n = rng.integers(0, n_cells_n, size=n_cells_n)
-        means_target_bs[:, i] = target[idx_t].mean(axis=0)
-        means_next_bs[:, i] = next_cluster[idx_n].mean(axis=0)
+        # current_datetime = datetime.now()
+        # print('Finish n_bs ' + str(i))
+        # print(current_datetime)
+        indices = rng.integers(0, n_cells_t, size=n_cells_t)
+        # Count the occurrences of each index.
+        w_t[i, :] = np.bincount(indices, minlength=n_cells_t)
 
+    # Next Cluster weight
+    w_n = np.zeros((n_bs, n_cells_n), dtype=np.float32)
+    for i in range(n_bs):
+        indices = rng.integers(0, n_cells_n, size=n_cells_n)
+        w_n[i, :] = np.bincount(indices, minlength=n_cells_n)
+
+    # 3. Core: Matrix Multiplication
+    # Bootstrap mean = (Weight matrix x Original expression matrix) / Total number of cells 
+    # dimensions: (n_bs, n_cells) @ (n_cells, n_genes) -> (n_bs, n_genes)
+    means_target_bs = (w_t @ target) / n_cells_t
+    means_next_bs = (w_n @ next_cluster) / n_cells_n
+
+    # 4. Calculate differences and confidence intervals.
     diffs = means_target_bs - means_next_bs
     real_diff = target.mean(axis=0) - next_cluster.mean(axis=0)
-    lower = np.percentile(diffs, (alpha / 2) * 100, axis=1)
-    upper = np.percentile(diffs, (1 - alpha / 2) * 100, axis=1)
+    
+    lower = np.percentile(diffs, (alpha / 2) * 100, axis=0)
+    upper = np.percentile(diffs, (1 - alpha / 2) * 100, axis=0)
+    
     return real_diff, lower, upper
+
+# def vectorized_bs_mean_diff(
+#     X_target, X_next, alpha: float = 0.1, n_bs: int = 500, rng: np.random.Generator | None = None
+# ):
+#     """Bootstrap mean differences for all genes at once using vectorized resampling."""
+#     target = _to_dense_matrix(X_target)
+#     next_cluster = _to_dense_matrix(X_next)
+
+#     n_genes = target.shape[1] if target.size else next_cluster.shape[1]
+#     if target.size == 0 or next_cluster.size == 0 or n_genes == 0:
+#         zeros = np.zeros(n_genes)
+#         return zeros, zeros, zeros
+
+#     rng = rng or np.random.default_rng()
+#     n_cells_t, n_cells_n = target.shape[0], next_cluster.shape[0]
+#     means_target_bs = np.empty((n_genes, n_bs))
+#     means_next_bs = np.empty_like(means_target_bs)
+
+#     for i in range(n_bs):
+#         idx_t = rng.integers(0, n_cells_t, size=n_cells_t)
+#         idx_n = rng.integers(0, n_cells_n, size=n_cells_n)
+#         means_target_bs[:, i] = target[idx_t].mean(axis=0)
+#         means_next_bs[:, i] = next_cluster[idx_n].mean(axis=0)
+
+#     diffs = means_target_bs - means_next_bs
+#     real_diff = target.mean(axis=0) - next_cluster.mean(axis=0)
+#     lower = np.percentile(diffs, (alpha / 2) * 100, axis=1)
+#     upper = np.percentile(diffs, (1 - alpha / 2) * 100, axis=1)
+#     return real_diff, lower, upper
 
 def _to_dense_matrix(array_like) -> np.ndarray:
     if sps.issparse(array_like):
