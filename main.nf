@@ -9,6 +9,7 @@ include { SOUPX } from './modules/local/soupx'
 include { SAM_QC } from './modules/local/sam_qc'
 include { ADD_VELOCITY_LAYERS } from './modules/local/add_velocity_layers'
 include { MULTIQC } from './modules/local/multiqc'
+include { METAQC_MERGE } from './modules/local/metaqc_merge'
 
 workflow {
     def runMode = params.run_mode.toLowerCase()
@@ -48,14 +49,14 @@ workflow {
         // 2.3 SoupX ambient RNA removal
         SOUPX(GZIP_SOLO_OUTPUT.out.gzipped_dir)
 
+        METAQC_MERGE(SCRUBLET.out.metaqc_partial.join(SOUPX.out.rho))
+
         // 3. Run SAM QC using whitelist from Scrublet
         def soupx_h5ad_output = params.bypass_soupX ? SOUPX.out.pre_h5ad : SOUPX.out.corrected_h5ad
         SAM_QC(soupx_h5ad_output.join(SCRUBLET.out.whitelist))
-        
+
         ch_for_multiqc = ch_for_multiqc
-            .mix(SCRUBLET.out.qc_cells_metrics)
-            .mix(SCRUBLET.out.qc_counts_metrics)
-            .mix(SCRUBLET.out.qc_genes_metrics)
+            .mix(METAQC_MERGE.out.metaqc_table.map { it[1] })
             .mix(SCRUBLET.out.qc_plots.map { it[1] })
             .mix(SAM_QC.out.qc_plots.map { it[1] })
             .mix(SOUPX.out.ambient_plot)
