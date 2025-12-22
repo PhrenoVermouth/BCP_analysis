@@ -15,22 +15,23 @@ process METAQC_MERGE {
     python - <<'PY'
 import pandas as pd
 
-partial = pd.read_csv("${partial_table}", sep='\t', comment='#')
-rho_df = pd.read_csv("${rho_file}", sep='\t')
+partial = pd.read_csv("${partial_table}", sep=r"\s+", comment="#")
+rho_df = pd.read_csv("${rho_file}", sep=r"\s+")
 
 rho_value = rho_df['Rho'].iloc[0] if not rho_df.empty and 'Rho' in rho_df else ''
 partial['Rho'] = rho_value
 
 out_file = f"${meta.id}_total_metaqc.tsv"
-header_lines = [
-    "# plot_type: 'table'\n",
-    "# section_name: 'Total_metaQC'\n",
-    "# description: 'Combined QC metrics including ambient RNA correction'\n",
-    "# pconfig:\n",
-    "#     sortRows: false\n",
-]
+header_text = "\n".join([
+    "# plot_type: 'table'",
+    "# section_name: 'Total_metaQC'",
+    "# description: 'Combined QC metrics including ambient RNA correction'",
+    "# pconfig:",
+    "#     sortRows: false",
+]) + "\n"
+
 with open(out_file, 'w') as fh:
-    fh.writelines(header_lines)
+    fh.write(header_text)
     partial.to_csv(fh, sep='\t', index=False)
 PY
     """
