@@ -26,7 +26,7 @@ workflow {
             meta.id = row.sample
 
             def reads = [ file(row.fastq_1), file(row.fastq_2) ]
-            def defaultCounts = file("${params.outdir}/soupx/${row.sample}/${row.sample}_corrected.h5ad")
+            def defaultCounts = file("${params.outdir}/soupx/${row.sample}/${row.sample}_rm_ambient.h5ad")
             def countsAdata = row.counts_h5ad ? file(row.counts_h5ad) : defaultCounts
             return [ meta, reads, file(row.genomeDir), countsAdata ]
         }
@@ -52,7 +52,7 @@ workflow {
         METAQC_MERGE(SCRUBLET.out.metaqc_partial.join(SOUPX.out.rho))
 
         // 3. Run SAM QC using whitelist from Scrublet
-        def soupx_h5ad_output = params.bypass_soupX ? SOUPX.out.pre_h5ad : SOUPX.out.corrected_h5ad
+        def soupx_h5ad_output = params.bypass_soupX ? SOUPX.out.pre_h5ad : SOUPX.out.ambient_h5ad
         SAM_QC(soupx_h5ad_output.join(SCRUBLET.out.whitelist))
 
         ch_for_multiqc = ch_for_multiqc
@@ -69,7 +69,7 @@ workflow {
                     throw new IllegalArgumentException(
                         "counts_h5ad is required for velocity mode for sample ${meta.id}. " +
                         "Provide counts_h5ad in samples.csv or ensure GeneFull output exists at " +
-                        "${params.outdir}/soupx/${meta.id}/${meta.id}_corrected.h5ad"
+                        "${params.outdir}/soupx/${meta.id}/${meta.id}_rm_ambient.h5ad"
                     )
                 }
                 [ meta, countsAdata ]
