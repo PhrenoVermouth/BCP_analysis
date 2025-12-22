@@ -8,7 +8,6 @@ process SOUPX {
     input:
     tuple val(meta), path(gzipped_dir)
     output:
-    tuple val(meta), path("${meta.id}_corrected.h5ad"), emit: corrected_h5ad
     tuple val(meta), path("${meta.id}_pre_soupx.h5ad"), emit: pre_h5ad
     tuple val(meta), path("${meta.id}_rm_ambient.h5ad"), emit: ambient_h5ad
     tuple val(meta), path("${meta.id}_soupx_rho.tsv"), emit: rho
