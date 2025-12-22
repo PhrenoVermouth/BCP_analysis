@@ -30,13 +30,13 @@ custom_data:
     description: "Ambient RNA removel profile by cells"
     file_format: "png"
     plot_type: "image"
-  
+
   img_soupx_progress:
     section_name: "SoupX ambient RNA identification"
     description: "Ambient RNA estimation profile by cells"
     file_format: "png"
     plot_type: "image"
-    
+
   img_umap_leiden_qc2:
     section_name: "UMAP leiden QC2"
     description: "UMAP colored by Leiden clusters after QC2 filtering; parameters: resolution=1.0."
@@ -71,15 +71,15 @@ custom_data:
     description: "UMAP and QC per cluster"
     file_format: "png"
     plot_type: "image"
-    
+
   img_dotplot:
     section_name: "Markers identified per cluster"
     description: "Markers identified per cluster"
     file_format: "png"
     plot_type: "image"
-  
 
-    
+
+
 ignore_images: false
 
 # Search patterns: keys must match the custom_data IDs
@@ -87,26 +87,28 @@ sp:
   total_metaqc:
     fn: "*_total_metaqc.tsv"
   img_marker_genes_heatmap:
-    fn: "*_marker_genes_heatmap_mqc.png"
+    fn: "*_marker_genes_heatmap.png"
   img_umap_leiden_qc2:
-    fn: "*_umap_leiden_QC2_mqc.png"
+    fn: "*_umap_leiden_QC2.png"
   img_scatter_doublet_qc1:
-    fn: "*_scatter_doublet_highlight_QC1_mqc.png"
+    fn: "*_scatter_doublet_highlight_QC1.png"
   img_knee_plot:
-    fn: "*_knee_plot_mqc.png"
+    fn: "*_knee_plot.png"
   img_violin_comparison_qc1:
-    fn: "*_violin_comparison_QC1_mqc.png"
+    fn: "*_violin_comparison_QC1.png"
   img_violin_mito_qc2:
-    fn: "*_violin_mito_filtering_QC2_mqc.png"
+    fn: "*_violin_mito_filtering_QC2.png"
   img_soupx_result:
-    fn: "*_ambient_RNA_removed_mqc.png"
+    fn: "*_ambient_RNA_removed.png"
   img_soupx_progress:
-    fn: "*_contamination_estimation_mqc.png"
+    fn: "*_contamination_estimation.png"
   img_umap:
-    fn: "*_umap_leiden_QC2_mqc.png"
+    fn: "*_umap_leiden_QC2.png"
   img_dotplot:
-    fn: "*_marker_genes_dotplot_mqc.png"
-    
+    fn: "*_marker_genes_dotplot.png"
+
+
+
 custom_content:
   order:
     - total_metaqc
