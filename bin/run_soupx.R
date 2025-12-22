@@ -70,8 +70,6 @@ output_file <- paste0(args$sample_id, "_corrected.h5ad")
 sce_to_write <- SingleCellExperiment(assays = list(counts = adj_counts))
 writeH5AD(sce_to_write, file = output_file)
 
-ambient_output_file <- paste0(args$sample_id, "_rm_ambient.h5ad")
-writeH5AD(sce_to_write, file = ambient_output_file)
 
 rho_file <- paste0(args$sample_id, "_soupx_rho.tsv")
 rho_df <- data.frame(Sample=args$sample_id, Rho=sc$rho)
