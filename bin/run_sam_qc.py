@@ -458,7 +458,7 @@ def run_qc2(
             genes_for_dotplot,
             cluster_key,
             standard_scale='var',
-            dendrogram=True,
+            dendrogram=False,
             show=False,
         )
         plt.savefig(
