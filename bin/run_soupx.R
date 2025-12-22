@@ -65,9 +65,18 @@ ggsave(plot_file, plot = p, width = 6, height = 4)
 cat("Ambient RNA removal plot saved to:", plot_file, "\n")
 
 
-# 6. output .h5ad
+# 6. output .h5ad and rho
 output_file <- paste0(args$sample_id, "_corrected.h5ad")
 sce_to_write <- SingleCellExperiment(assays = list(counts = adj_counts))
 writeH5AD(sce_to_write, file = output_file)
 
+ambient_output_file <- paste0(args$sample_id, "_rm_ambient.h5ad")
+writeH5AD(sce_to_write, file = ambient_output_file)
+
+rho_file <- paste0(args$sample_id, "_soupx_rho.tsv")
+rho_df <- data.frame(Sample=args$sample_id, Rho=sc$rho)
+write.table(rho_df, file = rho_file, sep='\t', row.names = FALSE, quote = FALSE)
+
 cat("SoupX correction complete. Corrected matrix saved to:", output_file, "\n")
+cat("Ambient-removed matrix saved to:", ambient_output_file, "\n")
+cat("SoupX rho saved to:", rho_file, "\n")

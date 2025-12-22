@@ -10,9 +10,8 @@ process SCRUBLET {
     output:
     tuple val(meta), path("${meta.id}_whitelist.txt"), emit: whitelist
     tuple val(meta), path("*.png"), emit: qc_plots
-    path "*_cells_mqc.tsv", emit: qc_cells_metrics
-    path "*_counts_mqc.tsv", emit: qc_counts_metrics
-    path "*_genes_mqc.tsv", emit: qc_genes_metrics
+    tuple val(meta), path("*_total_metaqc_partial.tsv"), emit: metaqc_partial
+    tuple val(meta), path("*.h5ad"), emit: scrublet_h5ads
 
     script:
     def mito_prefixes = params.mito_prefixes.join(' ')
@@ -21,7 +20,7 @@ process SCRUBLET {
     """
     run_scrublet.py \
         --sample_id ${meta.id} \
-        --matrix_dir ${gzipped_dir}/GeneFull/raw \
+        --matrix_dir ${gzipped_dir}/GeneFull/filtered \
         --min_genes ${params.min_genes_per_cell} \
         --min_cells ${params.min_cells_per_gene} \
         --max_mito ${params.max_mito} \
