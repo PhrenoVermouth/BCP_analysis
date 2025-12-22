@@ -8,7 +8,7 @@ process METAQC_MERGE {
     tuple val(meta), path(partial_table), path(rho_file)
 
     output:
-    tuple val(meta), path("${meta.id}_total_metaqc.tsv"), emit: metaqc_table
+    tuple val(meta), path("${meta.id}_total_metaqc_mqc.tsv"), emit: metaqc_table
 
     script:
     """
@@ -21,7 +21,15 @@ process METAQC_MERGE {
     rho_value = rho_df['Rho'].iloc[0] if not rho_df.empty and 'Rho' in rho_df else ''
     partial['Rho'] = rho_value
 
-    partial.to_csv(f"${meta.id}_total_metaqc.tsv", sep=' ', index=False)
+    output_path = f"${meta.id}_total_metaqc_mqc.tsv"
+
+    with open(output_path, "w") as handle:
+        handle.write("# plot_type: 'table'\n")
+        handle.write("# section_name: 'Total_metaQC'\n")
+        handle.write("# description: 'Integrated QC metrics across Scrublet, filtering, and SoupX'\n")
+        handle.write("# pconfig:\n")
+        handle.write("#     sortRows: false\n")
+        partial.to_csv(handle, sep=' ', index=False)
     PY
     """
 }
