@@ -175,25 +175,39 @@ def run_qc2(
     sc.pl.umap(sam.adata,color=['leiden_clusters'],legend_loc='on data',s = 40, ax=axes[0],show=False, title=f'{sample_id} - Leiden Clustering (UMAP) - QC2')
 
     y_pos = np.arange(len(clusters_sorted))
-    bar_height = 0.2
-    axes[1].barh(
-        y_pos - bar_height / 2,
+    bar_height = 0.35
+    y_counts = y_pos - bar_height / 2
+    y_genes = y_pos + bar_height / 2
+    ax_counts = axes[1]
+    ax_genes = ax_counts.twiny()
+
+    counts_bars = ax_counts.barh(
+        y_counts,
         cluster_stats['n_counts'],
         height=bar_height,
-        label='n_counts'
+        color='steelblue',
+        label='n_counts',
+        align='center'
     )
-    axes[1].barh(
-        y_pos + bar_height / 2,
+    genes_bars = ax_genes.barh(
+        y_genes,
         cluster_stats['n_genes'],
         height=bar_height,
-        label='n_genes'
+        color='orange',
+        alpha=0.7,
+        label='n_genes',
+        align='center'
     )
-    axes[1].set_yticks(y_pos)
-    axes[1].set_yticklabels(clusters_sorted)
-    axes[1].invert_yaxis()
-    axes[1].set_xlabel('Median value')
-    axes[1].set_title('Median n_counts and n_genes by Leiden cluster')
-    axes[1].legend()
+
+    ax_counts.set_yticks(y_pos)
+    ax_counts.set_yticklabels(clusters_sorted)
+    ax_counts.invert_yaxis()
+    ax_counts.set_xlabel('Median n_counts')
+    ax_counts.set_title('Median n_counts and n_genes by Leiden cluster')
+
+    ax_genes.set_xlabel('Median n_genes')
+    ax_genes.grid(False)
+    ax_counts.legend(handles=[counts_bars, genes_bars], loc='lower right')
 
     plt.tight_layout()
     plt.savefig(
