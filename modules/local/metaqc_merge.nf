@@ -24,11 +24,11 @@ process METAQC_MERGE {
     output_path = f"${meta.id}_total_metaqc_mqc.tsv"
 
     with open(output_path, "w") as handle:
-        handle.write("# plot_type: 'table'\n")
-        handle.write("# section_name: 'Total_metaQC'\n")
-        handle.write("# description: 'Integrated QC metrics across Scrublet, filtering, and SoupX'\n")
-        handle.write("# pconfig:\n")
-        handle.write("#     sortRows: false\n")
+        handle.write("# plot_type: 'table'\\n")
+        handle.write("# section_name: 'Total_metaQC'\\n")
+        handle.write("# description: 'Integrated QC metrics across Scrublet, filtering, and SoupX'\\n")
+        handle.write("# pconfig:\\n")
+        handle.write("#     sortRows: false\\n")
         partial.to_csv(handle, sep=' ', index=False)
     PY
     """
