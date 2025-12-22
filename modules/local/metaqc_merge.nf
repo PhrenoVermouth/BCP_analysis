@@ -29,7 +29,7 @@ process METAQC_MERGE {
         handle.write("# description: 'Integrated QC metrics across Scrublet, filtering, and SoupX'\\n")
         handle.write("# pconfig:\\n")
         handle.write("#     sortRows: false\\n")
-        partial.to_csv(handle, sep=' ', index=False)
+        partial.to_csv(handle, sep='\\t', index=False)
     PY
     """
 }
