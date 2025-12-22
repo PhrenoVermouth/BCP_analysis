@@ -21,19 +21,7 @@ process METAQC_MERGE {
     rho_value = rho_df['Rho'].iloc[0] if not rho_df.empty and 'Rho' in rho_df else ''
     partial['Rho'] = rho_value
 
-    out_file = f"${meta.id}_total_metaqc.tsv"
-    
-    header_text = "\\n".join([
-        "# plot_type: 'table'",
-        "# section_name: 'Total_metaQC'",
-        "# description: 'Combined QC metrics including ambient RNA correction'",
-        "# pconfig:",
-        "# sortRows: false",
-    ]) + "\\n"
-
-    with open(out_file, 'w') as fh:
-        fh.write(header_text)
-        partial.to_csv(fh, sep=' ', index=False)
+    partial.to_csv(f"${meta.id}_total_metaqc.tsv", sep=' ', index=False)
     PY
     """
 }
