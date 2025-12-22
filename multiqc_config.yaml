@@ -85,7 +85,7 @@ ignore_images: false
 # Search patterns: keys must match the custom_data IDs
 sp:
   total_metaqc:
-    fn: "*_total_metaqc.tsv"
+    fn: "*_total_metaqc_mqc.tsv"
   img_marker_genes_heatmap:
     fn: "*_marker_genes_heatmap.png"
   img_umap_leiden_qc2:
