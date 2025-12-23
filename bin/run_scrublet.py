@@ -64,6 +64,12 @@ def _apply_mingene_filter(adata, min_gene_threshold: int):
     return filtered, min_gene_threshold
 
 
+def _load_matrix(matrix_dir):
+    adata = sc.read_10x_mtx(matrix_dir, var_names='gene_symbols')
+    adata.var_names_make_unique()
+    return adata
+
+
 def run_scrublet(
     sample_id,
     matrix_dir,
@@ -73,9 +79,9 @@ def run_scrublet(
     mito_prefixes,
     mito_gene_list=None,
     summary_csv=None,
+    knee_matrix_dir=None,
 ):
-    adata = sc.read_10x_mtx(matrix_dir, var_names='gene_symbols')
-    adata.var_names_make_unique()
+    adata = _load_matrix(matrix_dir)
 
     sc.pp.filter_genes(adata, min_cells=min_cells)
 
@@ -87,7 +93,9 @@ def run_scrublet(
         adata.var['mito'] = adata.var_names.str.startswith(tuple(mito_prefixes))
     sc.pp.calculate_qc_metrics(adata, qc_vars=['mito'], percent_top=None, log1p=False, inplace=True)
 
-    knee = np.sort((np.array(adata.X.sum(axis=1))).flatten())[::-1]
+    knee_source = knee_matrix_dir or matrix_dir
+    knee_data = _load_matrix(knee_source)
+    knee = np.sort((np.array(knee_data.X.sum(axis=1))).flatten())[::-1]
     expected_num_cells, sequencing_saturation = _load_summary(summary_csv)
     _plot_knee(knee, expected_num_cells, sample_id)
 
@@ -196,7 +204,8 @@ def run_scrublet(
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Run Scrublet doublet detection")
     parser.add_argument('--sample_id', required=True, help="Sample identifier")
-    parser.add_argument('--matrix_dir', required=True, help="Path to raw count matrix directory")
+    parser.add_argument('--matrix_dir', required=True, help="Path to filtered count matrix directory")
+    parser.add_argument('--knee_matrix_dir', required=False, help="Path to raw count matrix directory for knee plot")
     parser.add_argument('--min_genes', type=int, default=500, help="Min genes per cell before relaxation")
     parser.add_argument('--min_cells', type=int, default=3, help="Min cells per gene")
     parser.add_argument('--max_mito', type=float, default=0.2, help="Max mitochondrial percentage (fraction)")
@@ -214,4 +223,5 @@ if __name__ == '__main__':
         args.mito_prefixes,
         args.mito_gene_list,
         args.summary_csv,
+        args.knee_matrix_dir,
     )
