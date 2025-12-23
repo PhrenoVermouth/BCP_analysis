@@ -17,10 +17,12 @@ process SCRUBLET {
     def mito_prefixes = params.mito_prefixes.join(' ')
     def mito_list_arg = params.mito_gene_list ? "\\\n        --mito_gene_list ${params.mito_gene_list}" : ""
     def summary_csv = "${gzipped_dir}/GeneFull/Summary.csv"
+    def knee_matrix_dir = "${gzipped_dir}/GeneFull/raw"
     """
     run_scrublet.py \
         --sample_id ${meta.id} \
         --matrix_dir ${gzipped_dir}/GeneFull/filtered \
+        --knee_matrix_dir ${knee_matrix_dir} \
         --min_genes ${params.min_genes_per_cell} \
         --min_cells ${params.min_cells_per_gene} \
         --max_mito ${params.max_mito} \
