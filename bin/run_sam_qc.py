@@ -260,7 +260,7 @@ def run_qc2(
         .loc[clusters_sorted]
     )
 
-    fig, axes = plt.subplots(1, 2, figsize=(12, 5), gridspec_kw={'width_ratios': [3, 1]})
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5), gridspec_kw={'width_ratios': [2, 1]})
     
     sc.pl.umap(sam.adata,color=[cluster_key],legend_loc='on data',s = 40, ax=axes[0],show=False, title=f'{sample_id} - Leiden Clustering (UMAP) - QC2')
 
@@ -298,6 +298,12 @@ def run_qc2(
     ax_genes.set_xlabel('Median n_genes')
     ax_genes.grid(False)
     ax_counts.legend(handles=[counts_bars, genes_bars], loc='lower right')
+
+    ### Added 12/23 waiting to be tested
+    ax_counts.xaxis.set_ticks_position('top')
+    ax_counts.xaxis.set_label_position('top')
+    ax_genes.xaxis.set_ticks_position('bottom')
+    ax_genes.xaxis.set_label_position('bottom')
 
     plt.tight_layout()
     plt.savefig(
