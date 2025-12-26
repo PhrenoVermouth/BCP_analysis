@@ -240,13 +240,17 @@ def run_qc2(
 
     adata.raw = adata.copy()
     sam = SAM(adata)
+    ## 20251225 added
+    sam.preprocess_data()
     sam.run(
         projection='umap',
         preprocessing='StandardScaler',
+        weight_mode = 'rms',
         k=n_neighbors,
         npcs=n_pcs,
         n_genes=n_hvg,
     )
+    ###
     sam.leiden_clustering(res=0.5)
 
     cluster_order = enforce_numeric_cluster_order(sam.adata, cluster_key=cluster_key)
