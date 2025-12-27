@@ -6,7 +6,7 @@ process SOUPX {
     publishDir "$params.outdir/soupx/${meta.id}", mode: 'copy'
 
     input:
-    tuple val(meta), path(gzipped_dir)
+    tuple val(meta), path(gzipped_dir), path(whitelist)
     output:
     tuple val(meta), path("${meta.id}_pre_soupx.h5ad"), emit: pre_h5ad
     tuple val(meta), path("${meta.id}_rm_ambient.h5ad"), emit: ambient_h5ad
@@ -18,6 +18,7 @@ process SOUPX {
     Rscript ${baseDir}/bin/run_soupx.R \
         --raw_dir ${gzipped_dir}/GeneFull/raw \
         --filtered_dir ${gzipped_dir}/GeneFull/filtered \
+        --whitelist ${whitelist} \
         --sample_id ${meta.id}
 
     """

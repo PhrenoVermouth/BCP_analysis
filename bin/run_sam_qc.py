@@ -52,6 +52,39 @@ def get_gene_vector(Xmat, gene_idx):
     return np.asarray(col).ravel()
 
 
+def compute_gap_to_second_cluster(X, labels, clusters, gene_idx):
+    """
+    For each gene in gene_idx, compute mean_by_cluster, best_other mean, and gap.
+    Returns mean_by_cluster, best_other, gap aligned to provided gene_idx order.
+    """
+    gene_idx = np.asarray(gene_idx, dtype=int)
+    C = len(clusters)
+    G = len(gene_idx)
+
+    mean_by_cluster = np.zeros((C, G), dtype=float)
+
+    masks = [(labels == cl) for cl in clusters]
+
+    for gi, j in enumerate(gene_idx):
+        x = get_gene_vector(X, j)
+        for ci, m in enumerate(masks):
+            n = int(m.sum())
+            if n == 0:
+                mean_by_cluster[ci, :] = np.nan
+                continue
+            mean_by_cluster[ci, gi] = x[m].mean()
+
+    best_other = np.zeros((C, G), dtype=float)
+    gap = np.zeros((C, G), dtype=float)
+
+    for ci in range(C):
+        others = np.delete(mean_by_cluster, ci, axis=0)
+        best_other[ci, :] = np.nanmax(others, axis=0)
+        gap[ci, :] = mean_by_cluster[ci, :] - best_other[ci, :]
+
+    return mean_by_cluster, best_other, gap
+
+
 def preselect_topK_candidates_scanpy_wilcoxon(
     adata,
     *,
@@ -322,6 +355,7 @@ def run_qc2(
 
     X, labels, genes = get_X_labels_genes(sam.adata, cluster_key=cluster_key)
     clusters = np.asarray(cluster_order, dtype=object)
+    cluster_to_ci = {c: i for i, c in enumerate(clusters)}
 
     t_total_start = time.perf_counter()
 
@@ -345,6 +379,7 @@ def run_qc2(
 
     all_ranked_candidates: Dict[str, pd.DataFrame] = {}
     all_strict_markers: Dict[str, pd.DataFrame] = {}
+    all_ranked_concat: List[pd.DataFrame] = []
     top5_rows = []
     cluster_times: Dict[str, float] = {}
 
@@ -371,6 +406,7 @@ def run_qc2(
 
         all_ranked_candidates[cl] = res_cand
         all_strict_markers[cl] = res_cand.loc[res_cand["passes_filter"]].copy()
+        all_ranked_concat.append(res_cand.reset_index(drop=True))
 
         strict_ranked = (
             res_cand.loc[res_cand["passes_filter"]]
@@ -384,12 +420,27 @@ def run_qc2(
 
         if len(top5) < 5:
             need = 5 - len(top5)
-            filler = (
-                res_cand.sort_values("bs_mean_diff", ascending=False)
-                .loc[~res_cand["gene"].isin(top5["gene"])]
-                .head(need)
-            )
-            top5 = pd.concat([top5, filler], ignore_index=True)
+            remaining = res_cand.loc[~res_cand["gene"].isin(top5["gene"])].copy()
+            if len(remaining) > 0:
+                ci = cluster_to_ci[cl]
+                cand_gene_idx = remaining["gene_idx"].to_numpy(dtype=int)
+
+                mean_by_cluster, best_other, gap = compute_gap_to_second_cluster(
+                    X, labels, clusters, cand_gene_idx
+                )
+
+                remaining["mean_best_other_cluster"] = best_other[ci, :]
+                remaining["gap_to_2nd_cluster"] = gap[ci, :]
+
+                filler = (
+                    remaining.sort_values(
+                        ["gap_to_2nd_cluster", "pct_out", "p_value", "bs_mean_diff"],
+                        ascending=[False, True, True, False],
+                    )
+                    .head(need)
+                )
+
+                top5 = pd.concat([top5, filler], ignore_index=True)
 
         top5["rank_in_cluster"] = np.arange(1, len(top5) + 1)
         top5["passed_strict_filter"] = top5["passes_filter"].values
@@ -408,16 +459,17 @@ def run_qc2(
             .drop(columns="_cluster_num")
         )
 
-        top5_markers_by_cluster = top5_markers_by_cluster[
-            [
-                "cluster", "rank_in_cluster", "gene",
-                "bs_mean_diff", "bs_ci_lo", "bs_ci_hi",
-                "p_value", "-log10_p",
-                "pct_in", "pct_out",
-                "mean_in", "mean_out", "ratio_mean_in_over_out",
-                "passes_filter", "passed_strict_filter",
-            ]
+        cols = [
+            "cluster", "rank_in_cluster", "gene",
+            "bs_mean_diff", "bs_ci_lo", "bs_ci_hi",
+            "p_value", "-log10_p",
+            "pct_in", "pct_out",
+            "mean_in", "mean_out", "ratio_mean_in_over_out",
+            "mean_best_other_cluster", "gap_to_2nd_cluster",
+            "passes_filter", "passed_strict_filter",
         ]
+        cols = [c for c in cols if c in top5_markers_by_cluster.columns]
+        top5_markers_by_cluster = top5_markers_by_cluster[cols]
     else:
         top5_markers_by_cluster = pd.DataFrame()
 
@@ -437,6 +489,10 @@ def run_qc2(
 
     if len(top5_rows) > 0:
         top5_markers_by_cluster.to_csv(f"{sample_id}_markers.csv", index=False)
+
+    if len(all_ranked_concat) > 0:
+        all_ranked_df = pd.concat(all_ranked_concat, ignore_index=True)
+        all_ranked_df.to_csv(f"{sample_id}_all_ranked_candidates.csv", index=False)
 
     sam.adata.uns['marker_genes'] = {
         'top5_markers_by_cluster': top5_markers_by_cluster.to_dict(orient='list') if len(top5_rows) > 0 else {},
