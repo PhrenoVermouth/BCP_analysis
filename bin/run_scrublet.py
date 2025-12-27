@@ -10,6 +10,20 @@ import pandas as pd
 import scanpy as sc
 import scrublet as scr
 
+
+def _calculate_expected_doublet_rate(expected_num_cells: Optional[int]) -> float:
+    """Scale expected doublet rate with expected_num_cells using piecewise linear rules."""
+    if expected_num_cells is None:
+        return 0.06
+
+    if expected_num_cells <= 0:
+        return 0.01
+    if expected_num_cells <= 20000:
+        return 0.01 + (0.08 - 0.01) * (expected_num_cells / 20000)
+    if expected_num_cells <= 40000:
+        return 0.08 + (0.2 - 0.08) * ((expected_num_cells - 20000) / 20000)
+    return 0.2
+
 def _load_summary(summary_csv: Optional[str]):
     estimated_cells = None
     sequencing_saturation = ""
@@ -102,7 +116,8 @@ def run_scrublet(
     adata.write_h5ad(f"{sample_id}_initial.h5ad")
 
     raw_matrix = adata.X.todense()
-    scrub = scr.Scrublet(raw_matrix, expected_doublet_rate=0.06)
+    expected_doublet_rate = _calculate_expected_doublet_rate(expected_num_cells)
+    scrub = scr.Scrublet(raw_matrix, expected_doublet_rate=expected_doublet_rate)
     doublet_score, predicted_doublets = scrub.scrub_doublets(
         min_counts=2,
         min_cells=3,
