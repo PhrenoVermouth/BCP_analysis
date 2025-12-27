@@ -47,7 +47,7 @@ workflow {
         // 2.2 Run Scrublet before SoupX
         SCRUBLET(GZIP_SOLO_OUTPUT.out.gzipped_dir)
         // 2.3 SoupX ambient RNA removal
-        SOUPX(GZIP_SOLO_OUTPUT.out.gzipped_dir)
+        SOUPX(GZIP_SOLO_OUTPUT.out.gzipped_dir.join(SCRUBLET.out.whitelist))
 
         METAQC_MERGE(SCRUBLET.out.metaqc_partial.join(SOUPX.out.rho))
 
