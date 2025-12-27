@@ -14,11 +14,19 @@ parser <- ArgumentParser(description="Run SoupX to correct ambient RNA")
 parser$add_argument("--raw_dir", required=TRUE, help="Path to the raw matrix directory")
 parser$add_argument("--filtered_dir", required=TRUE, help="Path to the filtered matrix directory")
 parser$add_argument("--sample_id", required=TRUE, help="Sample identifier")
+parser$add_argument("--whitelist", required=TRUE, help="Path to whitelist barcodes")
 args <- parser$parse_args()
 
 # 3. load input
 toc <- Read10X(data.dir = args$raw_dir)
 tod <- Read10X(data.dir = args$filtered_dir)
+
+whitelist_barcode <- readLines(args$whitelist, warn = FALSE)
+whitelist_barcode <- whitelist_barcode[whitelist_barcode %in% colnames(tod)]
+if (length(whitelist_barcode) == 0) {
+  stop("No whitelist barcodes found in filtered matrix.")
+}
+tod <- tod[, whitelist_barcode, drop = FALSE]
 sc <- SoupChannel(toc, tod)
 
 # 4. clustering
