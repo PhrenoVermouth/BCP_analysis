@@ -114,8 +114,11 @@ def run_scrublet(
     _plot_knee(knee, expected_num_cells, sample_id)
 
     adata.write_h5ad(f"{sample_id}_initial.h5ad")
-
-    raw_matrix = adata.X.todense()
+######################################
+    
+    adata_QC_min, min_gene_threshold = _apply_mingene_filter(adata, min_genes)
+       
+    raw_matrix = adata_QC_min.X.todense()
     expected_doublet_rate = _calculate_expected_doublet_rate(expected_num_cells)
     scrub = scr.Scrublet(raw_matrix, expected_doublet_rate=expected_doublet_rate)
     doublet_score, predicted_doublets = scrub.scrub_doublets(
@@ -124,18 +127,33 @@ def run_scrublet(
         min_gene_variability_pctl=85,
         n_prin_comps=30,
     )
-    adata.obs['predicted_doublet'] = predicted_doublets
-    adata_QC1 = adata[~predicted_doublets, :]
+    adata_QC_min.obs['predicted_doublet'] = predicted_doublets
+    adata_QC1 = adata_QC_min[~predicted_doublets, :]
 
-    adata_QC_min, min_gene_threshold = _apply_mingene_filter(adata_QC1, min_genes)
-    adata_QC2 = adata_QC_min[adata_QC_min.obs.pct_counts_mito < max_mito, :]
+    adata_QC2 = adata_QC1[adata_QC1.obs.pct_counts_mito < max_mito, :] 
 
+###################################### Saved region
+#    raw_matrix = adata.X.todense()
+#    expected_doublet_rate = _calculate_expected_doublet_rate(expected_num_cells)
+#    scrub = scr.Scrublet(raw_matrix, expected_doublet_rate=expected_doublet_rate)
+#    doublet_score, predicted_doublets = scrub.scrub_doublets(
+#        min_counts=2,
+#        min_cells=3,
+#        min_gene_variability_pctl=85,
+#        n_prin_comps=30,
+#    )
+#    adata.obs['predicted_doublet'] = predicted_doublets
+#    adata_QC1 = adata[~predicted_doublets, :]
+
+#   adata_QC_min, min_gene_threshold = _apply_mingene_filter(adata_QC1, min_genes)
+#   adata_QC2 = adata_QC_min[adata_QC_min.obs.pct_counts_mito < max_mito, :]
+######################################
     # Fig 0: Doublet scatter
-    adata.obs['predicted_doublet'] = adata.obs['predicted_doublet'].astype('category')
+    adata_QC_min.obs['predicted_doublet'] = adata_QC_min.obs['predicted_doublet'].astype('category')
     custom_palette = ['#DDDDDD', 'red']
     fig0, ax = plt.subplots()
     sc.pl.scatter(
-        adata,
+        adata_min,
         x='total_counts',
         y='n_genes_by_counts',
         color='predicted_doublet',
@@ -155,9 +173,9 @@ def run_scrublet(
     fig1.suptitle(f'{sample_id} - QC Metrics: Before vs. After Doublet Removal', fontsize=16)
 
     axes[0, 0].set_title('Genes per Cell (Before)')
-    sc.pl.violin(adata, 'n_genes_by_counts', jitter=0.4, ax=axes[0, 0], show=False)
+    sc.pl.violin(adata_QC_min, 'n_genes_by_counts', jitter=0.4, ax=axes[0, 0], show=False)
     axes[0, 1].set_title('Counts per Cell (Before)')
-    sc.pl.violin(adata, 'total_counts', jitter=0.4, ax=axes[0, 1], show=False)
+    sc.pl.violin(adata_QC_min, 'total_counts', jitter=0.4, ax=axes[0, 1], show=False)
 
     axes[1, 0].set_title('Genes per Cell (After Doublet Removal)')
     sc.pl.violin(adata_QC1, 'n_genes_by_counts', jitter=0.4, ax=axes[1, 0], show=False)
@@ -170,7 +188,7 @@ def run_scrublet(
 
     # Fig 2: Mitochondria removal
     fig2, axes = plt.subplots(1, 2, figsize=(15, 5))
-    sc.pl.violin(adata_QC_min, 'pct_counts_mito', jitter=0.4, ax=axes[0], show=False)
+    sc.pl.violin(adata_QC1, 'pct_counts_mito', jitter=0.4, ax=axes[0], show=False)
     sc.pl.violin(adata_QC2, 'pct_counts_mito', jitter=0.4, ax=axes[1], show=False)
     fig2.suptitle(f'{sample_id} - Mito Filtering - QC2 (min_genes={min_gene_threshold})')
     fig2.tight_layout()
@@ -181,15 +199,16 @@ def run_scrublet(
     adata_QC2.obs_names.to_series().to_csv(f'{sample_id}_whitelist.txt', index=False, header=False)
 
     # Save metrics for MultiQC
+    # adata: STAR-filtered; adata_min: min200/500; adata_QC1: rm doublet; adata_QC2: rm high MT
     number_cells = adata.n_obs
     median_genes = int(np.median(adata.obs['n_genes_by_counts']))
     median_counts = int(np.median(adata.obs['total_counts']))
 
-    number_cells_QC1 = adata_QC1.n_obs
-
     number_cells_QC_min = adata_QC_min.n_obs
     median_genes_QC_min = int(np.median(adata_QC_min.obs['n_genes_by_counts']))
     median_counts_QC_min = int(np.median(adata_QC_min.obs['total_counts']))
+    
+    number_cells_QC1 = adata_QC1.n_obs
 
     number_cells_QC2 = adata_QC2.n_obs
     median_genes_QC2 = int(np.median(adata_QC2.obs['n_genes_by_counts']))
@@ -206,14 +225,14 @@ def run_scrublet(
         f.write("# pconfig:\n")
         f.write("#     sortRows: false\n")
         f.write(
-            "Sample\tInitial_n_cells\tInitial_median_genes\tInitial_median_counts\tDoublet_fraction\tQC_db_min_n_cells\tQC_db_min_median_genes\tQC_db_min_median_counts\tQC_db_min_mt_n_cells\tQC_db_min_mt_median_genes\tQC_db_min_mt_median_counts\tSequencing_saturation\tRho\n"
+            "Sample\tInitial_n_cells\tInitial_median_genes\tInitial_median_counts\tQC_db_min_n_cells\tQC_db_min_median_genes\tQC_db_min_median_counts\tDoublet_fraction\tQC_db_min_mt_n_cells\tQC_db_min_mt_median_genes\tQC_db_min_mt_median_counts\tSequencing_saturation\tRho\n"
         )
         f.write(
-            f"{sample_id}\t{number_cells}\t{median_genes}\t{median_counts}\t{doublet_fraction}\t{number_cells_QC_min}\t{median_genes_QC_min}\t{median_counts_QC_min}\t{number_cells_QC2}\t{median_genes_QC2}\t{median_counts_QC2}\t{sequencing_saturation}\t\n"
+            f"{sample_id}\t{number_cells}\t{median_genes}\t{median_counts}\t{number_cells_QC_min}\t{median_genes_QC_min}\t{median_counts_QC_min}\t{doublet_fraction}\t{number_cells_QC2}\t{median_genes_QC2}\t{median_counts_QC2}\t{sequencing_saturation}\t\n"
         )
-
-    adata_QC1.write_h5ad(f"{sample_id}_rmdoublet.h5ad")
+   
     adata_QC_min.write_h5ad(f"{sample_id}_rmdoublet_mingene{min_gene_threshold}.h5ad")
+    adata_QC1.write_h5ad(f"{sample_id}_rmdoublet.h5ad")
     adata_QC2.write_h5ad(f"{sample_id}_rmMT{max_mito}.h5ad")
 
 if __name__ == '__main__':
