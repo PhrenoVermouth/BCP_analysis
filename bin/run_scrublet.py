@@ -132,7 +132,7 @@ def run_scrublet(
 
     adata_QC2 = adata_QC1[adata_QC1.obs.pct_counts_mito < max_mito, :] 
 
-###################################### Saved region
+###################################### Archive 1228
 #    raw_matrix = adata.X.todense()
 #    expected_doublet_rate = _calculate_expected_doublet_rate(expected_num_cells)
 #    scrub = scr.Scrublet(raw_matrix, expected_doublet_rate=expected_doublet_rate)
