@@ -14,7 +14,7 @@ process SCRUBLET {
     tuple val(meta), path("*.h5ad"), emit: scrublet_h5ads
 
     script:
-    def mito_prefixes = params.mito_prefixes.join(' ')
+    def mito_prefixes_str = params.mito_prefixes instanceof List ? params.mito_prefixes.join(' ') : params.mito_prefixes
     def mito_list_arg = params.mito_gene_list ? "\\\n        --mito_gene_list ${params.mito_gene_list}" : ""
     def summary_csv = "${gzipped_dir}/GeneFull/Summary.csv"
     def knee_matrix_dir = "${gzipped_dir}/GeneFull/raw"
@@ -27,6 +27,6 @@ process SCRUBLET {
         --min_cells ${params.min_cells_per_gene} \
         --max_mito ${params.max_mito} \
         --summary_csv ${summary_csv} \
-        --mito_prefixes ${mito_prefixes} ${mito_list_arg}
+        --mito_prefixes ${mito_prefixes_str} ${mito_list_arg}
     """
 }

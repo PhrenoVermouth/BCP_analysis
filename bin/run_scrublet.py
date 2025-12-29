@@ -153,7 +153,7 @@ def run_scrublet(
     custom_palette = ['#DDDDDD', 'red']
     fig0, ax = plt.subplots()
     sc.pl.scatter(
-        adata_min,
+        adata_QC_min,
         x='total_counts',
         y='n_genes_by_counts',
         color='predicted_doublet',
