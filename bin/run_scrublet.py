@@ -115,22 +115,31 @@ def run_scrublet(
 
     adata.write_h5ad(f"{sample_id}_initial.h5ad")
 ######################################
-    
+
     adata_QC_min, min_gene_threshold = _apply_mingene_filter(adata, min_genes)
-       
+
     raw_matrix = adata_QC_min.X.todense()
     expected_doublet_rate = _calculate_expected_doublet_rate(expected_num_cells)
     scrub = scr.Scrublet(raw_matrix, expected_doublet_rate=expected_doublet_rate)
-    doublet_score, predicted_doublets = scrub.scrub_doublets(
+    result = scrub.scrub_doublets(
         min_counts=2,
         min_cells=3,
         min_gene_variability_pctl=85,
         n_prin_comps=30,
     )
+
+    if result is None or not isinstance(result, tuple) or len(result) != 2:
+        raise RuntimeError(f"scrub_doublets returned unexpected result: {result}")
+
+    doublet_score, predicted_doublets = result
+
+    if predicted_doublets is None:
+        raise RuntimeError("scrub_doublets returned None for predicted_doublets")
+
     adata_QC_min.obs['predicted_doublet'] = predicted_doublets
     adata_QC1 = adata_QC_min[~predicted_doublets, :]
 
-    adata_QC2 = adata_QC1[adata_QC1.obs.pct_counts_mito < max_mito, :] 
+    adata_QC2 = adata_QC1[adata_QC1.obs.pct_counts_mito < max_mito, :]
 
 ###################################### Archive 1228
 #    raw_matrix = adata.X.todense()
@@ -207,7 +216,7 @@ def run_scrublet(
     number_cells_QC_min = adata_QC_min.n_obs
     median_genes_QC_min = int(np.median(adata_QC_min.obs['n_genes_by_counts']))
     median_counts_QC_min = int(np.median(adata_QC_min.obs['total_counts']))
-    
+
     number_cells_QC1 = adata_QC1.n_obs
 
     number_cells_QC2 = adata_QC2.n_obs
@@ -225,12 +234,12 @@ def run_scrublet(
         f.write("# pconfig:\n")
         f.write("#     sortRows: false\n")
         f.write(
-            "Sample\tInitial_n_cells\tInitial_median_genes\tInitial_median_counts\tQC_db_min_n_cells\tQC_db_min_median_genes\tQC_db_min_median_counts\tDoublet_fraction\tQC_db_min_mt_n_cells\tQC_db_min_mt_median_genes\tQC_db_min_mt_median_counts\tSequencing_saturation\tRho\n"
+            "Sample\tInitial_n_cells\tInitial_median_genes\tInitial_median_counts\tQC_min_n_cells\tQC_min_median_genes\tQC_min_median_counts\tDoublet_fraction\tQC_min_db_mt_n_cells\tQC_min_db_mt_median_genes\tQC_min_db_mt_median_counts\tSequencing_saturation\tRho\n"
         )
         f.write(
             f"{sample_id}\t{number_cells}\t{median_genes}\t{median_counts}\t{number_cells_QC_min}\t{median_genes_QC_min}\t{median_counts_QC_min}\t{doublet_fraction}\t{number_cells_QC2}\t{median_genes_QC2}\t{median_counts_QC2}\t{sequencing_saturation}\t\n"
         )
-   
+
     adata_QC_min.write_h5ad(f"{sample_id}_rmdoublet_mingene{min_gene_threshold}.h5ad")
     adata_QC1.write_h5ad(f"{sample_id}_rmdoublet.h5ad")
     adata_QC2.write_h5ad(f"{sample_id}_rmMT{max_mito}.h5ad")
