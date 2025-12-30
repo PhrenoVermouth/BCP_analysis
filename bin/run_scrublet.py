@@ -216,7 +216,7 @@ def run_scrublet(
 
     doublet_fraction = 0
     if number_cells > 0:
-        doublet_fraction = round((number_cells - number_cells_QC1) / number_cells, 4)
+        doublet_fraction = round((number_cells_QC_min - number_cells_QC1) / number_cells_QC_min, 4)
 
     with open(f"{sample_id}_total_metaqc_partial.tsv", "w") as f:
         f.write("# plot_type: 'table'\n")
