@@ -89,7 +89,7 @@ def preselect_topK_candidates_scanpy_wilcoxon(
     adata,
     *,
     cluster_key="leiden_clusters",
-    topK=200,
+    topK=500,
     min_cells_in_cluster=10,
     use_raw=False,
     layer=None,
