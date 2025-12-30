@@ -273,11 +273,11 @@ def run_qc2(
 
     adata.raw = adata.copy()
     sam = SAM(adata)
-    ## 20251225 added
+    ## 20251225 added, 1230 changed to None
     sam.preprocess_data()
     sam.run(
         projection='umap',
-        preprocessing='StandardScaler',
+        preprocessing=None,
         weight_mode = 'rms',
         k=n_neighbors,
         npcs=n_pcs,
