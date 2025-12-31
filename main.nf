@@ -11,12 +11,59 @@ include { ADD_VELOCITY_LAYERS } from './modules/local/add_velocity_layers'
 include { MULTIQC } from './modules/local/multiqc'
 include { METAQC_MERGE } from './modules/local/metaqc_merge'
 
+def loadMitoMaxOverrides(String mitoMapPath) {
+    def overrides = [:]
+    if (!mitoMapPath) {
+        return overrides
+    }
+
+    def mitoFile = new File(mitoMapPath)
+    if (!mitoFile.exists()) {
+        log.error "mito_max_map file not found: ${mitoFile}"
+        System.exit(1)
+    }
+
+    mitoFile.text.readLines().eachWithIndex { line, idx ->
+        def trimmed = line.trim()
+        if (!trimmed || trimmed.startsWith('#')) {
+            return
+        }
+
+        def parts = trimmed.split('=', 2)
+        if (parts.size() != 2) {
+            log.warn "Skipping malformed mito_max_map line ${idx + 1}: ${line}"
+            return
+        }
+
+        def valueStr = parts[1].trim()
+        Double mitoValue
+        try {
+            mitoValue = valueStr.toDouble()
+        } catch (Exception e) {
+            log.warn "Skipping mito_max_map line ${idx + 1}: invalid mito max '${valueStr}'"
+            return
+        }
+
+        parts[0].split(',').each { token ->
+            def sampleName = token.trim()
+            if (sampleName) {
+                overrides[sampleName] = mitoValue
+            }
+        }
+    }
+
+    log.info "Loaded mito_max overrides for ${overrides.size()} sample IDs from ${mitoFile}."
+    return overrides
+}
+
 workflow {
     def runMode = params.run_mode.toLowerCase()
     if (!['genefull', 'velocity'].contains(runMode)) {
         log.error "Invalid params.run_mode: ${runMode}. Choose either 'genefull' or 'velocity'."
         System.exit(1)
     }
+
+    def mitoMaxOverrides = loadMitoMaxOverrides(params.mito_max_map as String)
     // 1. Sample input
     Channel
         .fromPath(params.input)
@@ -24,6 +71,11 @@ workflow {
         .map { row ->
             def meta = [:]
             meta.id = row.sample
+            def sampleMaxMito = mitoMaxOverrides.containsKey(meta.id) ? mitoMaxOverrides[meta.id] : params.max_mito
+            meta.max_mito = sampleMaxMito
+            if (mitoMaxOverrides.containsKey(meta.id)) {
+                log.info "Using mito_max ${sampleMaxMito} for sample ${meta.id} from mito_max_map."
+            }
 
             def reads = [ file(row.fastq_1), file(row.fastq_2) ]
             def defaultCounts = file("${params.outdir}/soupx/${row.sample}/${row.sample}_rm_ambient.h5ad")
