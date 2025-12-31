@@ -111,8 +111,7 @@ workflow {
             .mix(METAQC_MERGE.out.metaqc_table.map { it[1] })
             .mix(SCRUBLET.out.qc_plots.map { it[1] })
             .mix(SAM_QC.out.qc_plots.map { it[1] })
-            .mix(SOUPX.out.ambient_plot)
-            .mix(SOUPX.out.contamination_plot)
+            .mix(SOUPX.out.combined_plot)
 
     } else {
         ch_samples
