@@ -56,6 +56,20 @@ nextflow run ~/BCP_analysis/main.nf -profile standard
   If GeneFull outputs live elsewhere, optionally add a `counts_h5ad` column in `samples.csv` to point to custom `.h5ad`
   locations.
 
+### Mitochondrial filtering
+
+- **Global threshold** (default): `--max_mito` sets a single mitochondrial percentage cutoff for all samples (default: `0.2`).
+- **Per-sample overrides**: provide `--mito_max_map /path/to/file` where each line maps one or more sample IDs to a cutoff using
+  the format `sample1, sample2 = value`. Blank lines and lines starting with `#` are ignored. Any sample not listed will fall back
+  to `--max_mito`.
+
+  Example (`resource/AC.mito`):
+  ```text
+  efm, em, fatfm, fatm, fbfm, fbm, hbfm, hbm, kdfm, kdm, lvfm, lvm, mbfm, mbm = 0.2
+  hfm, hm, ifm, im, pcf, pcm, skfm, skm = 0.6
+  lf, lm, smf, smm, spm, spfm = 0.4
+  ```
+
 ## Output
 
 The pipeline generates:
