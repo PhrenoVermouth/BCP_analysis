@@ -28,6 +28,12 @@ custom_data:
     file_format: "png"
     plot_type: "image"
 
+  img_soupx_combined:
+    section_name: "SoupX Analysis"
+    description: "Contamination estimation and ambient RNA removal side-by-side"
+    file_format: "png"
+    plot_type: "image"
+
   img_soupx_result:
     section_name: "SoupX ambient RNA removal"
     description: "Ambient RNA removel profile by cells"
@@ -101,6 +107,8 @@ sp:
     fn: "*_violin_comparison_QC1.png"
   img_violin_mito_qc2:
     fn: "*_violin_mito_filtering_QC2.png"
+  img_soupx_combined:
+    fn: "*_soupx_combined.png"
   img_soupx_result:
     fn: "*_ambient_RNA_removed.png"
   img_soupx_progress:
@@ -115,10 +123,11 @@ sp:
 custom_content:
   order:
     - total_metaqc
-    - img_soupx_result
-    - img_soupx_progress
-    - img_scatter_doublet_qc1
     - img_knee_plot
+    - img_soupx_combined
+    - img_soupx_progress
+    - img_soupx_result
+    - img_scatter_doublet_qc1
     - img_violin_comparison_qc1
     - img_violin_mito_qc2
     - img_umap_leiden_qc2
@@ -131,10 +140,11 @@ report_section_order:
   "general_stats": 10
   "star": 20
   "custom_content:total_metaqc": 30
-  "custom_content:img_soupx_result": 60
+  "custom_content:img_knee_plot": 60
+  "custom_content:img_soupx_combined": 65
   "custom_content:img_soupx_progress": 70
-  "custom_content:img_scatter_doublet_qc1": 80
-  "custom_content:img_knee_plot": 85
+  "custom_content:img_soupx_result": 80
+  "custom_content:img_scatter_doublet_qc1": 85
   "custom_content:img_violin_comparison_qc1": 90
   "custom_content:img_violin_mito_qc2": 100
   "custom_content:img_umap": 110
