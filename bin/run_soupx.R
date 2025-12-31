@@ -43,6 +43,7 @@ names(seurat_clusters) <- rownames(srat_tmp@meta.data)
 sc <- setClusters(sc, clusters = seurat_clusters)
 
 # 5. auto-correction
+# Capture contamination estimation plot
 contamination_plot_file <- paste0('0.',args$sample_id, "_soupx_contamination_estimation_mqc.png")
 png(contamination_plot_file, width = 600, height = 400)
 sc <- autoEstCont(sc)
@@ -63,14 +64,34 @@ raw_counts <- Matrix::colSums(raw_counts_mat)
 corr_counts <- Matrix::colSums(adj_counts)
 removed_fraction <- (raw_counts - corr_counts) / raw_counts
 plot_df <- data.frame(fraction_removed = removed_fraction)
-plot_file <- paste0("0.",args$sample_id, "_ambient_RNA_removed_mqc.png")
-p <- ggplot(plot_df, aes(x = fraction_removed)) +
+
+# Create ambient RNA removal plot as ggplot object
+p_ambient <- ggplot(plot_df, aes(x = fraction_removed)) +
   geom_histogram(binwidth = 0.01, fill = "steelblue", color = "black") +
   labs(title = "Fraction of Counts Removed by SoupX",
        x = "Fraction Removed",
        y = "Number of Cells")
-ggsave(plot_file, plot = p, width = 6, height = 4)
+
+# Save individual ambient RNA removal plot
+plot_file <- paste0("0.",args$sample_id, "_ambient_RNA_removed_mqc.png")
+ggsave(plot_file, plot = p_ambient, width = 6, height = 4)
 cat("Ambient RNA removal plot saved to:", plot_file, "\n")
+
+# Create combined side-by-side plot using gridExtra
+suppressPackageStartupMessages(library(gridExtra))
+suppressPackageStartupMessages(library(png))
+suppressPackageStartupMessages(library(grid))
+
+# Read the contamination estimation plot as an image
+img_contam <- readPNG(contamination_plot_file)
+g_contam <- rasterGrob(img_contam, interpolate = TRUE)
+
+# Combine both plots side by side
+combined_plot_file <- paste0("0.",args$sample_id, "_soupx_combined_mqc.png")
+png(combined_plot_file, width = 1200, height = 400)
+grid.arrange(g_contam, ggplotGrob(p_ambient), ncol = 2)
+dev.off()
+cat("Combined SoupX plot saved to:", combined_plot_file, "\n")
 
 
 # 6. output .h5ad and rho
