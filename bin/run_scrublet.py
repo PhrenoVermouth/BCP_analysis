@@ -126,7 +126,8 @@ def run_scrublet(
     adata_QC_min, min_gene_threshold = _apply_mingene_filter(adata, min_genes)
 
     raw_matrix = adata_QC_min.X.todense()
-    expected_doublet_rate = _calculate_expected_doublet_rate(expected_num_cells)
+    expected_doublet_rate = _calculate_expected_doublet_rate(adata_QC_min.n_obs) #Update 260101
+    #expected_doublet_rate = _calculate_expected_doublet_rate(expected_num_cells)
     scrub = scr.Scrublet(raw_matrix, expected_doublet_rate=expected_doublet_rate)
     result = scrub.scrub_doublets(
         min_counts=2,
