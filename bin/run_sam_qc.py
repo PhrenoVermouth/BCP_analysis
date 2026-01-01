@@ -256,7 +256,7 @@ def run_qc2(
     # New marker detection parameters
     expr_thresh=0.25,       # threshold for "expressed"
     min_frac_in=0.20,       # gene must be expressed in >= this fraction of cells in target cluster
-    max_clusters=5,         # gene can be expressed (>= min_frac_in) in at most this many clusters
+    max_clusters=2,         # gene can be expressed (>= min_frac_in) in at most this many clusters
     diff_thresh=1.0,        # mean_ct - mean_bg threshold (prefilter)
     frac_gain_thresh=0.7,   # (fct - fbg)/fct threshold (prefilter)
     test_top=5000,          # candidates per cluster to test
@@ -475,7 +475,7 @@ def run_qc2(
             var_names=var_names_dict,
             groupby=cluster_key,
             standard_scale="var",
-            dot_max=0.8,
+            dot_max=1,
             show=False,
         )
         plt.savefig(
@@ -507,7 +507,7 @@ if __name__ == '__main__':
     # New marker detection parameters
     parser.add_argument('--expr_thresh', type=float, default=0.25, help="Expression threshold for considering a gene 'expressed'")
     parser.add_argument('--min_frac_in', type=float, default=0.20, help="Gene must be expressed in >= this fraction of cells in target cluster")
-    parser.add_argument('--max_clusters', type=int, default=5, help="Gene can be expressed (>= min_frac_in) in at most this many clusters")
+    parser.add_argument('--max_clusters', type=int, default=2, help="Gene can be expressed (>= min_frac_in) in at most this many clusters")
     parser.add_argument('--diff_thresh', type=float, default=1.0, help="mean_ct - mean_bg threshold (prefilter)")
     parser.add_argument('--frac_gain_thresh', type=float, default=0.7, help="(fct - fbg)/fct threshold (prefilter)")
     parser.add_argument('--test_top', type=int, default=5000, help="Candidates per cluster to test from Wilcoxon prescreen")
