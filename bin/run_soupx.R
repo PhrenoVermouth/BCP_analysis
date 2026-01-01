@@ -46,7 +46,7 @@ sc <- setClusters(sc, clusters = seurat_clusters)
 # Capture contamination estimation plot
 contamination_plot_file <- paste0('0.',args$sample_id, "_soupx_contamination_estimation_mqc.png")
 png(contamination_plot_file, width = 600, height = 400)
-sc <- autoEstCont(sc)
+sc <- autoEstCont(sc,forceAccept = FALSE)
 dev.off()
 cat("Contamination estimation plot saved to:", contamination_plot_file, "\n")
 
