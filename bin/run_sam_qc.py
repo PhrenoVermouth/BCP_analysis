@@ -266,15 +266,17 @@ def run_qc2(
     """Run single-cell data QC after SoupX correction using precomputed whitelist."""
     adata = sc.read_h5ad(input_h5ad)
     adata.var_names_make_unique()
-    sc.pp.normalize_total(adata, target_sum=1e6)
-    sc.pp.log1p(adata)
 
-    keep_cells = pd.read_csv(whitelist, header=None)[0].tolist()
-    adata = adata[adata.obs_names.isin(keep_cells), :]
+    # Comment on 260101 to avoid double logging
+    # sc.pp.normalize_total(adata, target_sum=1e6)
+    # sc.pp.log1p(adata)
 
-    sc.pp.highly_variable_genes(adata, n_top_genes=n_hvg)
-    sc.pp.pca(adata, n_comps=n_pcs)
-    sc.pp.neighbors(adata, n_neighbors=n_neighbors, n_pcs=n_pcs)
+    # keep_cells = pd.read_csv(whitelist, header=None)[0].tolist()
+    # adata = adata[adata.obs_names.isin(keep_cells), :]
+
+    # sc.pp.highly_variable_genes(adata, n_top_genes=n_hvg)
+    # sc.pp.pca(adata, n_comps=n_pcs)
+    # sc.pp.neighbors(adata, n_neighbors=n_neighbors, n_pcs=n_pcs)
 
     sc.pp.calculate_qc_metrics(adata, percent_top=None, log1p=False, inplace=True)
     adata.obs.rename(columns={'total_counts': 'n_counts', 'n_genes_by_counts': 'n_genes'}, inplace=True)
