@@ -62,6 +62,6 @@ process STAR_SOLO {
         --soloFeatures ${solo_features} \
         --soloMultiMappers EM \
         --outSAMattributes NH HI nM AS CR UR CB UB GX GN sS sQ sM \
-        --outFilterMultimapNmax 20
+        --outFilterMultimapNmax 20 --outBAMsortingBinsN 200
     """
 }
