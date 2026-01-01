@@ -121,6 +121,7 @@ def run_scrublet(
     _plot_knee(knee, expected_num_cells, sample_id)
 
     adata.write_h5ad(f"{sample_id}_initial.h5ad")
+    
 ######################################
 
     adata_QC_min, min_gene_threshold = _apply_mingene_filter(adata, min_genes)
@@ -148,7 +149,52 @@ def run_scrublet(
     adata_QC1 = adata_QC_min[~predicted_doublets, :]
 
     adata_QC2 = adata_QC1[adata_QC1.obs.pct_counts_mito < max_mito, :]
+    
+   
+    # Save metrics for MultiQC
+    # adata: STAR-filtered; adata_min: min200/500; adata_QC1: rm doublet; adata_QC2: rm high MT
+    number_cells = adata.n_obs
+    median_genes = int(np.median(adata.obs['n_genes_by_counts']))
+    median_counts = int(np.median(adata.obs['total_counts']))
 
+    number_cells_QC_min = adata_QC_min.n_obs
+    median_genes_QC_min = int(np.median(adata_QC_min.obs['n_genes_by_counts']))
+    median_counts_QC_min = int(np.median(adata_QC_min.obs['total_counts']))
+
+    number_cells_QC1 = adata_QC1.n_obs
+
+    number_cells_QC2 = adata_QC2.n_obs
+    median_genes_QC2 = int(np.median(adata_QC2.obs['n_genes_by_counts']))
+    median_counts_QC2 = int(np.median(adata_QC2.obs['total_counts']))
+
+    doublet_fraction = 0
+    if number_cells > 0:
+        doublet_fraction = round((number_cells_QC_min - number_cells_QC1) / number_cells_QC_min, 4)
+
+######################################## if statement the ratio is too extreme
+    if doublet_fraction > 0.4:
+        scrub = scr.Scrublet(raw_matrix, expected_doublet_rate=expected_doublet_rate)
+        result = scrub.scrub_doublets(
+            min_counts=2,
+            min_cells=3,
+            min_gene_variability_pctl=85,
+            n_prin_comps=30,
+        )
+    
+        if result is None or not isinstance(result, tuple) or len(result) != 2:
+            raise RuntimeError(f"scrub_doublets returned unexpected result: {result}")
+    
+        doublet_score, predicted_doublets = result
+        predicted_doublets = scrub.call_doublets(threshold=0.4)
+        
+        if predicted_doublets is None:
+            raise RuntimeError("scrub_doublets returned None for predicted_doublets")
+    
+        adata_QC_min.obs['predicted_doublet'] = predicted_doublets
+        adata_QC1 = adata_QC_min[~predicted_doublets, :]
+    
+        adata_QC2 = adata_QC1[adata_QC1.obs.pct_counts_mito < max_mito, :]
+                
 ###################################### Archive 1228
 #    raw_matrix = adata.X.todense()
 #    expected_doublet_rate = _calculate_expected_doublet_rate(expected_num_cells)
@@ -214,26 +260,6 @@ def run_scrublet(
 
     # Save whitelist
     adata_QC2.obs_names.to_series().to_csv(f'{sample_id}_whitelist.txt', index=False, header=False)
-
-    # Save metrics for MultiQC
-    # adata: STAR-filtered; adata_min: min200/500; adata_QC1: rm doublet; adata_QC2: rm high MT
-    number_cells = adata.n_obs
-    median_genes = int(np.median(adata.obs['n_genes_by_counts']))
-    median_counts = int(np.median(adata.obs['total_counts']))
-
-    number_cells_QC_min = adata_QC_min.n_obs
-    median_genes_QC_min = int(np.median(adata_QC_min.obs['n_genes_by_counts']))
-    median_counts_QC_min = int(np.median(adata_QC_min.obs['total_counts']))
-
-    number_cells_QC1 = adata_QC1.n_obs
-
-    number_cells_QC2 = adata_QC2.n_obs
-    median_genes_QC2 = int(np.median(adata_QC2.obs['n_genes_by_counts']))
-    median_counts_QC2 = int(np.median(adata_QC2.obs['total_counts']))
-
-    doublet_fraction = 0
-    if number_cells > 0:
-        doublet_fraction = round((number_cells_QC_min - number_cells_QC1) / number_cells_QC_min, 4)
 
     with open(f"{sample_id}_total_metaqc_partial.tsv", "w") as f:
         f.write("# plot_type: 'table'\n")
