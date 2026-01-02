@@ -486,6 +486,7 @@ def run_qc2(
             standard_scale="var",
             dot_max=1,
             show=False,
+            use_raw=False,
         )
         plt.savefig(
             f'5.{sample_id}_marker_genes_dotplot_mqc.png',
