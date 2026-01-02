@@ -278,8 +278,11 @@ def run_qc2(
     # sc.pp.pca(adata, n_comps=n_pcs)
     # sc.pp.neighbors(adata, n_neighbors=n_neighbors, n_pcs=n_pcs)
 
-    sc.pp.calculate_qc_metrics(adata, percent_top=None, log1p=False, inplace=True)
-    adata.obs.rename(columns={'total_counts': 'n_counts', 'n_genes_by_counts': 'n_genes'}, inplace=True)
+    ##### 260101 to change this maunally, unknown bug in compatibility between scanpy/soupx/SAM
+    #sc.pp.calculate_qc_metrics(adata, percent_top=None, log1p=False, inplace=True)
+    #adata.obs.rename(columns={'total_counts': 'n_counts', 'n_genes_by_counts': 'n_genes'}, inplace=True)
+    sc.pp.filter_cells(adata, min_genes=0)
+    adata.obs['n_counts'] = adata.X.sum(axis=1)
 
     adata.raw = adata.copy()
     sam = SAM(adata)
@@ -287,14 +290,18 @@ def run_qc2(
     sam.preprocess_data()
     sam.run(
         projection='umap',
-        preprocessing=None,
+     #   preprocessing=None,
         weight_mode = 'rms',
         k=n_neighbors,
         npcs=n_pcs,
         n_genes=n_hvg,
     )
     ###
+    print("------------------",flush=True)
+    print(sam.adata.X.max(),flush=True)
     sam.leiden_clustering(res=0.5)
+    print("------------------",flush=True)
+    print(sam.adata.obs.leiden_clusters.unique(),flush=True)
 
     cluster_order = enforce_numeric_cluster_order(sam.adata, cluster_key=cluster_key)
     cluster_labels = sam.adata.obs[cluster_key].astype(str)

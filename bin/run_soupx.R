@@ -9,7 +9,7 @@ suppressPackageStartupMessages(library(SingleCellExperiment))
 suppressPackageStartupMessages(library(argparse))
 suppressPackageStartupMessages(library(ggplot2))
 
-# 2. parse paras 
+# 2. parse paras
 parser <- ArgumentParser(description="Run SoupX to correct ambient RNA")
 parser$add_argument("--raw_dir", required=TRUE, help="Path to the raw matrix directory")
 parser$add_argument("--filtered_dir", required=TRUE, help="Path to the filtered matrix directory")
@@ -46,8 +46,15 @@ sc <- setClusters(sc, clusters = seurat_clusters)
 # Capture contamination estimation plot
 contamination_plot_file <- paste0('0.',args$sample_id, "_soupx_contamination_estimation_mqc.png")
 png(contamination_plot_file, width = 600, height = 400)
-sc <- autoEstCont(sc,forceAccept = FALSE)
+
+#Hard code 260101
+if (args$sample_id == 'q_em') {
+    sc <- setContaminationFraction(sc, 0.2)
+} else {
+    sc <- autoEstCont(sc, forceAccept = FALSE)
+}
 dev.off()
+
 cat("Contamination estimation plot saved to:", contamination_plot_file, "\n")
 
 # write uncorrected h5ad for comparison
