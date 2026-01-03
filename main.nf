@@ -10,6 +10,7 @@ include { SAM_QC } from './modules/local/sam_qc'
 include { ADD_VELOCITY_LAYERS } from './modules/local/add_velocity_layers'
 include { MULTIQC } from './modules/local/multiqc'
 include { METAQC_MERGE } from './modules/local/metaqc_merge'
+include { QC_PANEL } from './modules/local/qc_panel'
 
 def loadMitoMaxOverrides(String mitoMapPath) {
     def overrides = [:]
@@ -107,11 +108,47 @@ workflow {
         def soupx_h5ad_output = params.bypass_soupX ? SOUPX.out.pre_h5ad : SOUPX.out.ambient_h5ad
         SAM_QC(soupx_h5ad_output.join(SCRUBLET.out.whitelist))
 
+        // 3.1 Build consolidated QC panel for MultiQC visualization
+        def ch_scrublet_plots = SCRUBLET.out.qc_plots.groupTuple().map { meta, plots ->
+            def finder = { List plotList, String token ->
+                def match = plotList.find { it.getName().toString().contains(token) }
+                if (!match) {
+                    throw new IllegalStateException(\"Missing ${token} plot for sample ${meta.id}\")
+                }
+                return match
+            }
+            def knee = finder(plots, '_knee_plot_mqc')
+            def histogram = finder(plots, '_doublet_score_histogram_QC1_mqc')
+            def violin = finder(plots, '_violin_comparison_QC1_mqc')
+            def mito = finder(plots, '_violin_mito_filtering_QC2_mqc')
+            [ meta, knee, histogram, violin, mito ]
+        }
+
+        def ch_samqc_plots = SAM_QC.out.qc_plots.groupTuple().map { meta, plots ->
+            def finder = { List plotList, String token ->
+                def match = plotList.find { it.getName().toString().contains(token) }
+                if (!match) {
+                    throw new IllegalStateException(\"Missing ${token} plot for sample ${meta.id}\")
+                }
+                return match
+            }
+            def umap = finder(plots, '_umap_leiden_QC2_mqc')
+            def dotplot = finder(plots, '_marker_genes_dotplot_mqc')
+            [ meta, umap, dotplot ]
+        }
+
+        QC_PANEL(
+            ch_scrublet_plots
+                .join(SOUPX.out.combined_plot)
+                .join(ch_samqc_plots)
+                .map { meta, knee, histogram, violin, mito, soupx_combined, umap, dotplot ->
+                    [ meta, knee, histogram, violin, mito, soupx_combined, umap, dotplot ]
+                }
+        )
+
         ch_for_multiqc = ch_for_multiqc
             .mix(METAQC_MERGE.out.metaqc_table.map { it[1] })
-            .mix(SCRUBLET.out.qc_plots.map { it[1] })
-            .mix(SAM_QC.out.qc_plots.map { it[1] })
-            .mix(SOUPX.out.combined_plot)
+            .mix(QC_PANEL.out.panel.map { it[1] })
 
     } else {
         ch_samples
