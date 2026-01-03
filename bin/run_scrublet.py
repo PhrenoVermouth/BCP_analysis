@@ -233,6 +233,30 @@ def run_scrublet(
 #   adata_QC_min, min_gene_threshold = _apply_mingene_filter(adata_QC1, min_genes)
 #   adata_QC2 = adata_QC_min[adata_QC_min.obs.pct_counts_mito < max_mito, :]
 ######################################
+    histogram_plot = scrub.plot_histogram(score_threshold=getattr(scrub, "threshold_", None))
+    histogram_figure = None
+    if hasattr(histogram_plot, "get_figure"):
+        histogram_figure = histogram_plot.get_figure()
+    elif hasattr(histogram_plot, "savefig"):
+        histogram_figure = histogram_plot
+    elif isinstance(histogram_plot, (list, tuple)):
+        for plot_obj in histogram_plot:
+            if hasattr(plot_obj, "get_figure"):
+                histogram_figure = plot_obj.get_figure()
+                break
+            if hasattr(plot_obj, "savefig"):
+                histogram_figure = plot_obj
+                break
+    if histogram_figure is None:
+        histogram_figure = plt.gcf()
+
+    histogram_figure.savefig(
+        f"4.{sample_id}_doublet_score_histogram_QC1_mqc.png",
+        dpi=300,
+        bbox_inches="tight",
+    )
+    plt.close(histogram_figure)
+
     # Fig 0: Doublet scatter
     adata_QC_min.obs['predicted_doublet'] = adata_QC_min.obs['predicted_doublet'].astype('category')
     custom_palette = ['#DDDDDD', 'red']
