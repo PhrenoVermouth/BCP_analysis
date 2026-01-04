@@ -191,15 +191,15 @@ def soupxOutputsFromPublish(ch_samples) {
 }
 
 def runGenefullFromGzip(gzippedDir, ch_for_multiqc) {
-    def scrubletResults = SCRUBLET(gzippedDir)
-    def soupxResults = SOUPX(gzippedDir.join(scrubletResults.out.whitelist))
+    SCRUBLET(gzippedDir)
+    SOUPX(gzippedDir.join(SCRUBLET.out.whitelist))
 
-    def metaqcMergeResults = METAQC_MERGE(scrubletResults.out.metaqc_partial.join(soupxResults.out.rho))
+    METAQC_MERGE(SCRUBLET.out.metaqc_partial.join(SOUPX.out.rho))
 
-    def soupx_h5ad_output = params.bypass_soupX ? soupxResults.out.pre_h5ad : soupxResults.out.ambient_h5ad
-    def samQcResults = SAM_QC(soupx_h5ad_output.join(scrubletResults.out.whitelist))
+    def soupx_h5ad_output = params.bypass_soupX ? SOUPX.out.pre_h5ad : SOUPX.out.ambient_h5ad
+    SAM_QC(soupx_h5ad_output.join(SCRUBLET.out.whitelist))
 
-    def ch_scrublet_plots = scrubletResults.out.qc_plots.groupTuple().map { meta, plots ->
+    def ch_scrublet_plots = SCRUBLET.out.qc_plots.groupTuple().map { meta, plots ->
         def finder = { List plotList, String token ->
             def match = plotList.find { it.getName().toString().contains(token) }
             if (!match) {
@@ -214,7 +214,7 @@ def runGenefullFromGzip(gzippedDir, ch_for_multiqc) {
         [ meta, knee, histogram, violin, mito ]
     }
 
-    def ch_samqc_plots = samQcResults.out.qc_plots.groupTuple().map { meta, plots ->
+    def ch_samqc_plots = SAM_QC.out.qc_plots.groupTuple().map { meta, plots ->
         def finder = { List plotList, String token ->
             def match = plotList.find { it.getName().toString().contains(token) }
             if (!match) {
@@ -229,7 +229,7 @@ def runGenefullFromGzip(gzippedDir, ch_for_multiqc) {
 
     QC_PANEL(
         ch_scrublet_plots
-            .join(soupxResults.out.combined_plot)
+            .join(SOUPX.out.combined_plot)
             .join(ch_samqc_plots)
             .map { meta, knee, histogram, violin, mito, soupx_combined, umap, dotplot ->
                 [ meta, knee, histogram, violin, mito, soupx_combined, umap, dotplot ]
@@ -237,7 +237,7 @@ def runGenefullFromGzip(gzippedDir, ch_for_multiqc) {
     )
 
     ch_for_multiqc
-        .mix(metaqcMergeResults.out.metaqc_table.map { it[1] })
+        .mix(METAQC_MERGE.out.metaqc_table.map { it[1] })
         .mix(QC_PANEL.out.panel.map { it[1] })
 }
 
