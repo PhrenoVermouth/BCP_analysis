@@ -11,6 +11,7 @@ include { ADD_VELOCITY_LAYERS } from './modules/local/add_velocity_layers'
 include { MULTIQC } from './modules/local/multiqc'
 include { METAQC_MERGE } from './modules/local/metaqc_merge'
 include { QC_PANEL } from './modules/local/qc_panel'
+include { DEBUG_ANALYSIS } from './modules/local/debug_analysis'
 import java.io.FilenameFilter
 
 def loadMitoMaxOverrides(String mitoMapPath) {
@@ -248,6 +249,31 @@ def finalizeMultiqc(Channel ch_for_multiqc) {
         collected,
         ch_multiqc_config
     )
+
+    [
+        report: MULTIQC.out.report,
+        data: MULTIQC.out.data
+    ]
+}
+
+def runDebugAnalysis(Channel ch_multiqc_report) {
+    if (params.debug_off) {
+        log.info "Skipping debug and AI analysis because --debug_off is set."
+        return
+    }
+
+    def ch_trace = Channel.value(file(params.trace_file))
+    def ch_workdir = Channel.value(workflow.workDir.toString())
+    def ch_base_url = Channel.value(params.debug_base_url)
+    def ch_api_key = Channel.value(params.debug_api_key ?: '')
+
+    DEBUG_ANALYSIS(
+        ch_multiqc_report,
+        ch_trace,
+        ch_workdir,
+        ch_base_url,
+        ch_api_key
+    )
 }
 
 workflow {
@@ -272,7 +298,8 @@ workflow run_from_start {
         ADD_VELOCITY_LAYERS(GZIP_SOLO_OUTPUT.out.gzipped_dir.join(ch_counts_h5ad))
     }
 
-    finalizeMultiqc(ch_for_multiqc)
+    def multiqcOutputs = finalizeMultiqc(ch_for_multiqc)
+    runDebugAnalysis(multiqcOutputs.report)
 }
 
 workflow post_gzip_entry {
@@ -290,7 +317,8 @@ workflow post_gzip_entry {
         ADD_VELOCITY_LAYERS(ch_gzipped.join(ch_counts_h5ad))
     }
 
-    finalizeMultiqc(ch_for_multiqc)
+    def multiqcOutputs = finalizeMultiqc(ch_for_multiqc)
+    runDebugAnalysis(multiqcOutputs.report)
 }
 
 workflow post_soupx_entry {
@@ -353,5 +381,6 @@ workflow post_soupx_entry {
         .mix(METAQC_MERGE.out.metaqc_table.map { it[1] })
         .mix(QC_PANEL.out.panel.map { it[1] })
 
-    finalizeMultiqc(ch_for_multiqc)
+    def multiqcOutputs = finalizeMultiqc(ch_for_multiqc)
+    runDebugAnalysis(multiqcOutputs.report)
 }
