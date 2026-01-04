@@ -19,7 +19,7 @@ process DEBUG_ANALYSIS {
     path "ai_analysis.html"
 
     script:
-    def apiKeyExport = api_key ? "export OPENAI_API_KEY='${api_key.replace(\"'\", \"'\\\\''\")}'" : "true"
+    def apiKeyExport = api_key ? """export OPENAI_API_KEY='${api_key.replace("'", "'\"'\"'")}'""" : "true"
     """
     set -euo pipefail
 
