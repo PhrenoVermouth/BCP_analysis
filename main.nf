@@ -190,55 +190,63 @@ def soupxOutputsFromPublish(ch_samples) {
     ]
 }
 
-def runGenefullFromGzip(gzippedDir, ch_for_multiqc) {
-    SCRUBLET(gzippedDir)
-    SOUPX(gzippedDir.join(SCRUBLET.out.whitelist))
+workflow runGenefullFromGzip {
+    take:
+        ch_gzipped
+        ch_for_multiqc
 
-    METAQC_MERGE(SCRUBLET.out.metaqc_partial.join(SOUPX.out.rho))
+    main:
+        SCRUBLET(ch_gzipped)
+        SOUPX(ch_gzipped.join(SCRUBLET.out.whitelist))
 
-    def soupx_h5ad_output = params.bypass_soupX ? SOUPX.out.pre_h5ad : SOUPX.out.ambient_h5ad
-    SAM_QC(soupx_h5ad_output.join(SCRUBLET.out.whitelist))
+        METAQC_MERGE(SCRUBLET.out.metaqc_partial.join(SOUPX.out.rho))
 
-    def ch_scrublet_plots = SCRUBLET.out.qc_plots.groupTuple().map { meta, plots ->
-        def finder = { List plotList, String token ->
-            def match = plotList.find { it.getName().toString().contains(token) }
-            if (!match) {
-                throw new IllegalStateException("Missing ${token} plot for sample ${meta.id}")
+        def soupx_h5ad_output = params.bypass_soupX ? SOUPX.out.pre_h5ad : SOUPX.out.ambient_h5ad
+        SAM_QC(soupx_h5ad_output.join(SCRUBLET.out.whitelist))
+
+        ch_scrublet_plots = SCRUBLET.out.qc_plots.groupTuple().map { meta, plots ->
+            def finder = { List plotList, String token ->
+                def match = plotList.find { it.getName().toString().contains(token) }
+                if (!match) {
+                    throw new IllegalStateException("Missing ${token} plot for sample ${meta.id}")
+                }
+                match
             }
-            match
+            def knee = finder(plots, '_knee_plot_mqc')
+            def histogram = finder(plots, '_doublet_score_histogram_QC1_mqc')
+            def violin = finder(plots, '_violin_comparison_QC1_mqc')
+            def mito = finder(plots, '_violin_mito_filtering_QC2_mqc')
+            [ meta, knee, histogram, violin, mito ]
         }
-        def knee = finder(plots, '_knee_plot_mqc')
-        def histogram = finder(plots, '_doublet_score_histogram_QC1_mqc')
-        def violin = finder(plots, '_violin_comparison_QC1_mqc')
-        def mito = finder(plots, '_violin_mito_filtering_QC2_mqc')
-        [ meta, knee, histogram, violin, mito ]
-    }
 
-    def ch_samqc_plots = SAM_QC.out.qc_plots.groupTuple().map { meta, plots ->
-        def finder = { List plotList, String token ->
-            def match = plotList.find { it.getName().toString().contains(token) }
-            if (!match) {
-                throw new IllegalStateException("Missing ${token} plot for sample ${meta.id}")
+        ch_samqc_plots = SAM_QC.out.qc_plots.groupTuple().map { meta, plots ->
+            def finder = { List plotList, String token ->
+                def match = plotList.find { it.getName().toString().contains(token) }
+                if (!match) {
+                    throw new IllegalStateException("Missing ${token} plot for sample ${meta.id}")
+                }
+                match
             }
-            match
+            def umap = finder(plots, '_umap_leiden_QC2_mqc')
+            def dotplot = finder(plots, '_marker_genes_dotplot_mqc')
+            [ meta, umap, dotplot ]
         }
-        def umap = finder(plots, '_umap_leiden_QC2_mqc')
-        def dotplot = finder(plots, '_marker_genes_dotplot_mqc')
-        [ meta, umap, dotplot ]
-    }
 
-    QC_PANEL(
-        ch_scrublet_plots
-            .join(SOUPX.out.combined_plot)
-            .join(ch_samqc_plots)
-            .map { meta, knee, histogram, violin, mito, soupx_combined, umap, dotplot ->
-                [ meta, knee, histogram, violin, mito, soupx_combined, umap, dotplot ]
-            }
-    )
+        QC_PANEL(
+            ch_scrublet_plots
+                .join(SOUPX.out.combined_plot)
+                .join(ch_samqc_plots)
+                .map { meta, knee, histogram, violin, mito, soupx_combined, umap, dotplot ->
+                    [ meta, knee, histogram, violin, mito, soupx_combined, umap, dotplot ]
+                }
+        )
 
-    ch_for_multiqc
-        .mix(METAQC_MERGE.out.metaqc_table.map { it[1] })
-        .mix(QC_PANEL.out.panel.map { it[1] })
+        ch_multiqc_out = ch_for_multiqc
+            .mix(METAQC_MERGE.out.metaqc_table.map { it[1] })
+            .mix(QC_PANEL.out.panel.map { it[1] })
+
+    emit:
+        ch_multiqc = ch_multiqc_out
 }
 
 def finalizeMultiqc(ch_for_multiqc) {
@@ -289,10 +297,11 @@ workflow run_from_start {
 
     STAR_SOLO(ch_input_reads)
     GZIP_SOLO_OUTPUT(STAR_SOLO.out.solo_out_dir)
-    def ch_for_multiqc = STAR_SOLO.out.log
+    ch_for_multiqc = STAR_SOLO.out.log
 
     if (runMode == 'genefull') {
-        ch_for_multiqc = runGenefullFromGzip(GZIP_SOLO_OUTPUT.out.gzipped_dir, ch_for_multiqc)
+        runGenefullFromGzip(GZIP_SOLO_OUTPUT.out.gzipped_dir, ch_for_multiqc)
+        ch_for_multiqc = runGenefullFromGzip.out.ch_multiqc
     } else {
         def ch_counts_h5ad = createCountsH5ad(ch_samples)
         ADD_VELOCITY_LAYERS(GZIP_SOLO_OUTPUT.out.gzipped_dir.join(ch_counts_h5ad))
@@ -307,11 +316,12 @@ workflow post_gzip_entry {
     def ch_samples = context.ch_samples
     def runMode = context.runMode
 
-    def ch_for_multiqc = starLogsFromPublish(ch_samples)
+    ch_for_multiqc = starLogsFromPublish(ch_samples)
     def ch_gzipped = gzippedDirsFromPublish(ch_samples)
 
     if (runMode == 'genefull') {
-        ch_for_multiqc = runGenefullFromGzip(ch_gzipped, ch_for_multiqc)
+        runGenefullFromGzip(ch_gzipped, ch_for_multiqc)
+        ch_for_multiqc = runGenefullFromGzip.out.ch_multiqc
     } else {
         def ch_counts_h5ad = createCountsH5ad(ch_samples)
         ADD_VELOCITY_LAYERS(ch_gzipped.join(ch_counts_h5ad))
