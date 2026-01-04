@@ -93,11 +93,11 @@ def prepareSamples() {
     [ runMode: runMode, ch_samples: ch_samples ]
 }
 
-def createInputReads(Channel ch_samples) {
+def createInputReads(ch_samples) {
     ch_samples.map { meta, reads, genomeDir, countsAdata -> [ meta, reads, genomeDir ] }
 }
 
-def createCountsH5ad(Channel ch_samples) {
+def createCountsH5ad(ch_samples) {
     ch_samples.map { meta, reads, genomeDir, countsAdata ->
         if (!countsAdata.exists()) {
             throw new IllegalArgumentException(
@@ -110,7 +110,7 @@ def createCountsH5ad(Channel ch_samples) {
     }
 }
 
-def starLogsFromPublish(Channel ch_samples) {
+def starLogsFromPublish(ch_samples) {
     ch_samples.map { meta, reads, genomeDir, countsAdata ->
         def logPath = file("${params.outdir}/starsolo/${meta.id}/logs/${meta.id}.Log.final.out")
         if (!logPath.exists()) {
@@ -120,7 +120,7 @@ def starLogsFromPublish(Channel ch_samples) {
     }
 }
 
-def gzippedDirsFromPublish(Channel ch_samples) {
+def gzippedDirsFromPublish(ch_samples) {
     ch_samples.map { meta, reads, genomeDir, countsAdata ->
         def gzDir = file("${params.outdir}/gzipped_matrix/${meta.id}/${meta.id}.Solo.out")
         def fallback = file("${params.outdir}/gzipped_matrix/${meta.id}")
@@ -132,7 +132,7 @@ def gzippedDirsFromPublish(Channel ch_samples) {
     }
 }
 
-def scrubletOutputsFromPublish(Channel ch_samples) {
+def scrubletOutputsFromPublish(ch_samples) {
     def ch_whitelist = ch_samples.map { meta, reads, genomeDir, countsAdata ->
         def whitelist = file("${params.outdir}/scrublet/${meta.id}/${meta.id}_whitelist.txt")
         if (!whitelist.exists()) {
@@ -164,7 +164,7 @@ def scrubletOutputsFromPublish(Channel ch_samples) {
     [ whitelist: ch_whitelist, metaqc_partial: ch_metaqc_partial, qc_plots: ch_qc_plots ]
 }
 
-def soupxOutputsFromPublish(Channel ch_samples) {
+def soupxOutputsFromPublish(ch_samples) {
     def buildPath = { meta, suffix ->
         def path = file("${params.outdir}/soupx/${meta.id}/${suffix}")
         if (!path.exists()) {
@@ -190,7 +190,7 @@ def soupxOutputsFromPublish(Channel ch_samples) {
     ]
 }
 
-def runGenefullFromGzip(Channel gzippedDir, Channel ch_for_multiqc) {
+def runGenefullFromGzip(gzippedDir, ch_for_multiqc) {
     SCRUBLET(gzippedDir)
     SOUPX(gzippedDir.join(SCRUBLET.out.whitelist))
 
@@ -241,7 +241,7 @@ def runGenefullFromGzip(Channel gzippedDir, Channel ch_for_multiqc) {
         .mix(QC_PANEL.out.panel.map { it[1] })
 }
 
-def finalizeMultiqc(Channel ch_for_multiqc) {
+def finalizeMultiqc(ch_for_multiqc) {
     def collected = ch_for_multiqc.collect()
     def ch_multiqc_config = Channel.fromPath("${baseDir}/multiqc_config.yaml")
 
@@ -256,7 +256,7 @@ def finalizeMultiqc(Channel ch_for_multiqc) {
     ]
 }
 
-def runDebugAnalysis(Channel ch_multiqc_report) {
+def runDebugAnalysis(ch_multiqc_report) {
     if (params.debug_off) {
         log.info "Skipping debug and AI analysis because --debug_off is set."
         return
