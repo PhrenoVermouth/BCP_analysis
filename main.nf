@@ -178,7 +178,7 @@ def soupxOutputsFromPublish(ch_samples) {
     def ch_rho = ch_samples.map { meta, reads, genomeDir, countsAdata -> [ meta, buildPath(meta, "${meta.id}_soupx_rho.tsv") ] }
     def ch_ambient_plot = ch_samples.map { meta, reads, genomeDir, countsAdata -> buildPath(meta, "0.${meta.id}_ambient_RNA_removed_mqc.png") }
     def ch_contamination_plot = ch_samples.map { meta, reads, genomeDir, countsAdata -> buildPath(meta, "0.${meta.id}_soupx_contamination_estimation_mqc.png") }
-    def ch_combined_plot = ch_samples.map { meta, reads, genomeDir, countsAdata -> buildPath(meta, "0.${meta.id}_soupx_combined_mqc.png") }
+    def ch_combined_plot = ch_samples.map { meta, reads, genomeDir, countsAdata -> [ meta, buildPath(meta, "0.${meta.id}_soupx_combined_mqc.png") ] }
 
     [
         pre_h5ad: ch_pre_h5ad,
