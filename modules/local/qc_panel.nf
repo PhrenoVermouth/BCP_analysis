@@ -12,7 +12,7 @@ process QC_PANEL {
 
     script:
     """
-    bin/assemble_qc_panel.R \
+    assemble_qc_panel.R \
         --sample_id ${meta.id} \
         --knee_plot ${knee_plot} \
         --histogram ${histogram} \
