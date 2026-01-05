@@ -55,14 +55,14 @@ sc <- setClusters(sc, clusters = seurat_clusters)
 # Capture contamination estimation plot
 contamination_plot_file <- paste0('0.',args$sample_id, "_soupx_contamination_estimation_mqc.png")
 png(contamination_plot_file, width = 600, height = 400)
-
+sc <- autoEstCont(sc, forceAccept = TRUE)
+dev.off()
 #Hard code 260101
 if (args$sample_id == 'q_em') {
     sc <- setContaminationFraction(sc, 0.2)
-} else {
-    sc <- autoEstCont(sc, forceAccept = FALSE)
-}
-dev.off()
+    warning("Hard-coded for sample ", args$sample_id, "Fraction = 0.2")
+} 
+
 
 cat("Contamination estimation plot saved to:", contamination_plot_file, "\n")
 
