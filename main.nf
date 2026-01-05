@@ -206,7 +206,11 @@ workflow runGenefullFromGzip {
 
         ch_scrublet_plots = SCRUBLET.out.qc_plots.groupTuple().map { meta, plots ->
             def finder = { List plotList, String token ->
-                def match = plotList.find { it.getName().toString().contains(token) }
+                def flattened = plotList.flatten()
+                def match = flattened.find { plot ->
+                    def name = plot.respondsTo('getFileName') ? plot.getFileName().toString() : plot.toString()
+                    name.contains(token)
+                }
                 if (!match) {
                     throw new IllegalStateException("Missing ${token} plot for sample ${meta.id}")
                 }
@@ -221,7 +225,11 @@ workflow runGenefullFromGzip {
 
         ch_samqc_plots = SAM_QC.out.qc_plots.groupTuple().map { meta, plots ->
             def finder = { List plotList, String token ->
-                def match = plotList.find { it.getName().toString().contains(token) }
+                def flattened = plotList.flatten()
+                def match = flattened.find { plot ->
+                    def name = plot.respondsTo('getFileName') ? plot.getFileName().toString() : plot.toString()
+                    name.contains(token)
+                }
                 if (!match) {
                     throw new IllegalStateException("Missing ${token} plot for sample ${meta.id}")
                 }
@@ -358,7 +366,11 @@ workflow post_soupx_entry {
 
         ch_scrublet_plots = scrubletChannels.qc_plots.groupTuple().map { meta, plots ->
             def finder = { List plotList, String token ->
-                def match = plotList.find { it.getName().toString().contains(token) }
+                def flattened = plotList.flatten()
+                def match = flattened.find { plot ->
+                    def name = plot.respondsTo('getFileName') ? plot.getFileName().toString() : plot.toString()
+                    name.contains(token)
+                }
                 if (!match) {
                     throw new IllegalStateException("Missing ${token} plot for sample ${meta.id}")
                 }
@@ -373,7 +385,11 @@ workflow post_soupx_entry {
 
         ch_samqc_plots = SAM_QC.out.qc_plots.groupTuple().map { meta, plots ->
             def finder = { List plotList, String token ->
-                def match = plotList.find { it.getName().toString().contains(token) }
+                def flattened = plotList.flatten()
+                def match = flattened.find { plot ->
+                    def name = plot.respondsTo('getFileName') ? plot.getFileName().toString() : plot.toString()
+                    name.contains(token)
+                }
                 if (!match) {
                     throw new IllegalStateException("Missing ${token} plot for sample ${meta.id}")
                 }
