@@ -249,39 +249,43 @@ workflow runGenefullFromGzip {
         ch_multiqc = ch_multiqc_out
 }
 
-def finalizeMultiqc(ch_for_multiqc) {
-    def collected = ch_for_multiqc.collect()
-    def ch_multiqc_config = Channel.fromPath("${baseDir}/multiqc_config.yaml")
+workflow finalizeMultiqc {
+    take:
+        ch_for_multiqc
 
-    MULTIQC(
-        collected,
-        ch_multiqc_config
-    )
+    main:
+        collected = ch_for_multiqc.collect()
+        ch_multiqc_config = Channel.fromPath("${baseDir}/multiqc_config.yaml")
 
-    [
-        report: MULTIQC.out.report,
-        data: MULTIQC.out.data
-    ]
+        MULTIQC(
+            collected,
+            ch_multiqc_config
+        )
+
+    emit:
+        report = MULTIQC.out.report
+        data = MULTIQC.out.data
 }
 
-def runDebugAnalysis(ch_multiqc_report) {
-    if (params.debug_off) {
-        log.info "Skipping debug and AI analysis because --debug_off is set."
-        return
-    }
+workflow runDebugAnalysis {
+    take:
+        ch_multiqc_report
 
-    def ch_trace = Channel.value(file(params.trace_file))
-    def ch_workdir = Channel.value(workflow.workDir.toString())
-    def ch_base_url = Channel.value(params.debug_base_url)
-    def ch_api_key = Channel.value(params.debug_api_key ?: '')
+    main:
+        if (!params.debug_off) {
+            ch_trace = Channel.value(file(params.trace_file))
+            ch_workdir = Channel.value(workflow.workDir.toString())
+            ch_base_url = Channel.value(params.debug_base_url)
+            ch_api_key = Channel.value(params.debug_api_key ?: '')
 
-    DEBUG_ANALYSIS(
-        ch_multiqc_report,
-        ch_trace,
-        ch_workdir,
-        ch_base_url,
-        ch_api_key
-    )
+            DEBUG_ANALYSIS(
+                ch_multiqc_report,
+                ch_trace,
+                ch_workdir,
+                ch_base_url,
+                ch_api_key
+            )
+        }
 }
 
 workflow {
@@ -289,108 +293,110 @@ workflow {
 }
 
 workflow run_from_start {
-    def context = prepareSamples()
-    def ch_samples = context.ch_samples
-    def runMode = context.runMode
+    main:
+        context = prepareSamples()
+        ch_samples = context.ch_samples
+        runMode = context.runMode
 
-    def ch_input_reads = createInputReads(ch_samples)
+        ch_input_reads = createInputReads(ch_samples)
 
-    STAR_SOLO(ch_input_reads)
-    GZIP_SOLO_OUTPUT(STAR_SOLO.out.solo_out_dir)
-    ch_for_multiqc = STAR_SOLO.out.log
+        STAR_SOLO(ch_input_reads)
+        GZIP_SOLO_OUTPUT(STAR_SOLO.out.solo_out_dir)
 
-    if (runMode == 'genefull') {
-        runGenefullFromGzip(GZIP_SOLO_OUTPUT.out.gzipped_dir, ch_for_multiqc)
-        ch_for_multiqc = runGenefullFromGzip.out.ch_multiqc
-    } else {
-        def ch_counts_h5ad = createCountsH5ad(ch_samples)
-        ADD_VELOCITY_LAYERS(GZIP_SOLO_OUTPUT.out.gzipped_dir.join(ch_counts_h5ad))
-    }
+        if (runMode == 'genefull') {
+            runGenefullFromGzip(GZIP_SOLO_OUTPUT.out.gzipped_dir, STAR_SOLO.out.log)
+            finalizeMultiqc(runGenefullFromGzip.out.ch_multiqc)
+        } else {
+            ch_counts_h5ad = createCountsH5ad(ch_samples)
+            ADD_VELOCITY_LAYERS(GZIP_SOLO_OUTPUT.out.gzipped_dir.join(ch_counts_h5ad))
+            finalizeMultiqc(STAR_SOLO.out.log)
+        }
 
-    def multiqcOutputs = finalizeMultiqc(ch_for_multiqc)
-    runDebugAnalysis(multiqcOutputs.report)
+        runDebugAnalysis(finalizeMultiqc.out.report)
 }
 
 workflow post_gzip_entry {
-    def context = prepareSamples()
-    def ch_samples = context.ch_samples
-    def runMode = context.runMode
+    main:
+        context = prepareSamples()
+        ch_samples = context.ch_samples
+        runMode = context.runMode
 
-    ch_for_multiqc = starLogsFromPublish(ch_samples)
-    def ch_gzipped = gzippedDirsFromPublish(ch_samples)
+        ch_star_logs = starLogsFromPublish(ch_samples)
+        ch_gzipped = gzippedDirsFromPublish(ch_samples)
 
-    if (runMode == 'genefull') {
-        runGenefullFromGzip(ch_gzipped, ch_for_multiqc)
-        ch_for_multiqc = runGenefullFromGzip.out.ch_multiqc
-    } else {
-        def ch_counts_h5ad = createCountsH5ad(ch_samples)
-        ADD_VELOCITY_LAYERS(ch_gzipped.join(ch_counts_h5ad))
-    }
+        if (runMode == 'genefull') {
+            runGenefullFromGzip(ch_gzipped, ch_star_logs)
+            finalizeMultiqc(runGenefullFromGzip.out.ch_multiqc)
+        } else {
+            ch_counts_h5ad = createCountsH5ad(ch_samples)
+            ADD_VELOCITY_LAYERS(ch_gzipped.join(ch_counts_h5ad))
+            finalizeMultiqc(ch_star_logs)
+        }
 
-    def multiqcOutputs = finalizeMultiqc(ch_for_multiqc)
-    runDebugAnalysis(multiqcOutputs.report)
+        runDebugAnalysis(finalizeMultiqc.out.report)
 }
 
 workflow post_soupx_entry {
-    def context = prepareSamples()
-    def ch_samples = context.ch_samples
-    def runMode = context.runMode
+    main:
+        context = prepareSamples()
+        ch_samples = context.ch_samples
+        runMode = context.runMode
 
-    if (runMode != 'genefull') {
-        log.error "post_soupx_entry is only available in genefull run_mode."
-        System.exit(1)
-    }
-
-    def ch_for_multiqc = starLogsFromPublish(ch_samples)
-    def scrubletChannels = scrubletOutputsFromPublish(ch_samples)
-    def soupxChannels = soupxOutputsFromPublish(ch_samples)
-
-    METAQC_MERGE(scrubletChannels.metaqc_partial.join(soupxChannels.rho))
-
-    def soupx_h5ad_output = params.bypass_soupX ? soupxChannels.pre_h5ad : soupxChannels.ambient_h5ad
-    SAM_QC(soupx_h5ad_output.join(scrubletChannels.whitelist))
-
-    def ch_scrublet_plots = scrubletChannels.qc_plots.groupTuple().map { meta, plots ->
-        def finder = { List plotList, String token ->
-            def match = plotList.find { it.getName().toString().contains(token) }
-            if (!match) {
-                throw new IllegalStateException("Missing ${token} plot for sample ${meta.id}")
-            }
-            match
+        if (runMode != 'genefull') {
+            log.error "post_soupx_entry is only available in genefull run_mode."
+            System.exit(1)
         }
-        def knee = finder(plots, '_knee_plot_mqc')
-        def histogram = finder(plots, '_doublet_score_histogram_QC1_mqc')
-        def violin = finder(plots, '_violin_comparison_QC1_mqc')
-        def mito = finder(plots, '_violin_mito_filtering_QC2_mqc')
-        [ meta, knee, histogram, violin, mito ]
-    }
 
-    def ch_samqc_plots = SAM_QC.out.qc_plots.groupTuple().map { meta, plots ->
-        def finder = { List plotList, String token ->
-            def match = plotList.find { it.getName().toString().contains(token) }
-            if (!match) {
-                throw new IllegalStateException("Missing ${token} plot for sample ${meta.id}")
+        ch_star_logs = starLogsFromPublish(ch_samples)
+        scrubletChannels = scrubletOutputsFromPublish(ch_samples)
+        soupxChannels = soupxOutputsFromPublish(ch_samples)
+
+        METAQC_MERGE(scrubletChannels.metaqc_partial.join(soupxChannels.rho))
+
+        soupx_h5ad_output = params.bypass_soupX ? soupxChannels.pre_h5ad : soupxChannels.ambient_h5ad
+        SAM_QC(soupx_h5ad_output.join(scrubletChannels.whitelist))
+
+        ch_scrublet_plots = scrubletChannels.qc_plots.groupTuple().map { meta, plots ->
+            def finder = { List plotList, String token ->
+                def match = plotList.find { it.getName().toString().contains(token) }
+                if (!match) {
+                    throw new IllegalStateException("Missing ${token} plot for sample ${meta.id}")
+                }
+                match
             }
-            match
+            def knee = finder(plots, '_knee_plot_mqc')
+            def histogram = finder(plots, '_doublet_score_histogram_QC1_mqc')
+            def violin = finder(plots, '_violin_comparison_QC1_mqc')
+            def mito = finder(plots, '_violin_mito_filtering_QC2_mqc')
+            [ meta, knee, histogram, violin, mito ]
         }
-        def umap = finder(plots, '_umap_leiden_QC2_mqc')
-        def dotplot = finder(plots, '_marker_genes_dotplot_mqc')
-        [ meta, umap, dotplot ]
-    }
 
-    QC_PANEL(
-        ch_scrublet_plots
-            .join(soupxChannels.combined_plot)
-            .join(ch_samqc_plots)
-            .map { meta, knee, histogram, violin, mito, soupx_combined, umap, dotplot ->
-                [ meta, knee, histogram, violin, mito, soupx_combined, umap, dotplot ]
+        ch_samqc_plots = SAM_QC.out.qc_plots.groupTuple().map { meta, plots ->
+            def finder = { List plotList, String token ->
+                def match = plotList.find { it.getName().toString().contains(token) }
+                if (!match) {
+                    throw new IllegalStateException("Missing ${token} plot for sample ${meta.id}")
+                }
+                match
             }
-    )
+            def umap = finder(plots, '_umap_leiden_QC2_mqc')
+            def dotplot = finder(plots, '_marker_genes_dotplot_mqc')
+            [ meta, umap, dotplot ]
+        }
 
-    ch_for_multiqc
-        .mix(METAQC_MERGE.out.metaqc_table.map { it[1] })
-        .mix(QC_PANEL.out.panel.map { it[1] })
+        QC_PANEL(
+            ch_scrublet_plots
+                .join(soupxChannels.combined_plot)
+                .join(ch_samqc_plots)
+                .map { meta, knee, histogram, violin, mito, soupx_combined, umap, dotplot ->
+                    [ meta, knee, histogram, violin, mito, soupx_combined, umap, dotplot ]
+                }
+        )
 
-    def multiqcOutputs = finalizeMultiqc(ch_for_multiqc)
-    runDebugAnalysis(multiqcOutputs.report)
+        ch_final_multiqc = ch_star_logs
+            .mix(METAQC_MERGE.out.metaqc_table.map { it[1] })
+            .mix(QC_PANEL.out.panel.map { it[1] })
+
+        finalizeMultiqc(ch_final_multiqc)
+        runDebugAnalysis(finalizeMultiqc.out.report)
 }
