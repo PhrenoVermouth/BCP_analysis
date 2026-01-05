@@ -1,5 +1,14 @@
 #!/usr/bin/env Rscript
 
+if (Sys.getenv("BASILISK_USE_SYSTEM_BINARIES") == "") {
+  Sys.setenv(BASILISK_USE_SYSTEM_BINARIES = "TRUE")
+}
+
+python_bin <- Sys.which("python")
+if (Sys.getenv("RETICULATE_PYTHON") == "" && python_bin != "") {
+  Sys.setenv(RETICULATE_PYTHON = python_bin)
+}
+
 # 1. library loading
 suppressPackageStartupMessages(library(SoupX))
 suppressPackageStartupMessages(library(Seurat))
