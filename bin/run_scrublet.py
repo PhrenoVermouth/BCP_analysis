@@ -233,7 +233,7 @@ def run_scrublet(
 #   adata_QC_min, min_gene_threshold = _apply_mingene_filter(adata_QC1, min_genes)
 #   adata_QC2 = adata_QC_min[adata_QC_min.obs.pct_counts_mito < max_mito, :]
 ######################################
-    histogram_plot = scrub.plot_histogram(score_threshold=getattr(scrub, "threshold_", None))
+    histogram_plot = scrub.plot_histogram()
     histogram_figure = None
     if hasattr(histogram_plot, "get_figure"):
         histogram_figure = histogram_plot.get_figure()

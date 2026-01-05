@@ -30,7 +30,7 @@ tod <- tod[, whitelist_barcode, drop = FALSE]
 sc <- SoupChannel(toc, tod)
 
 # 4. clustering
-srat_tmp <- CreateSeuratObject(counts = sc$tod)
+srat_tmp <- CreateSeuratObject(counts = tod)
 srat_tmp <- NormalizeData(srat_tmp, verbose = FALSE)
 srat_tmp <- FindVariableFeatures(srat_tmp, verbose = FALSE)
 srat_tmp <- ScaleData(srat_tmp, verbose = FALSE)
