@@ -165,20 +165,34 @@ def scrubletOutputsFromPublish(ch_samples) {
 }
 
 def soupxOutputsFromPublish(ch_samples) {
-    def buildPath = { meta, suffix ->
-        def path = file("${params.outdir}/soupx/${meta.id}/${suffix}")
-        if (!path.exists()) {
-            throw new IllegalArgumentException("SoupX output ${suffix} not found for sample ${meta.id} at ${path}")
-        }
-        path
-    }
+    def ch_valid = ch_samples
+        .map { meta, reads, genomeDir, countsAdata ->
+            def base = file("${params.outdir}/soupx/${meta.id}")
+            def required = [
+                pre_h5ad           : file("${base}/${meta.id}_pre_soupx.h5ad"),
+                ambient_h5ad       : file("${base}/${meta.id}_rm_ambient.h5ad"),
+                rho                : file("${base}/${meta.id}_soupx_rho.tsv"),
+                ambient_plot       : file("${base}/0.${meta.id}_ambient_RNA_removed_mqc.png"),
+                contamination_plot : file("${base}/0.${meta.id}_soupx_contamination_estimation_mqc.png"),
+                combined_plot      : file("${base}/0.${meta.id}_soupx_combined_mqc.png")
+            ]
 
-    def ch_pre_h5ad = ch_samples.map { meta, reads, genomeDir, countsAdata -> [ meta, buildPath(meta, "${meta.id}_pre_soupx.h5ad") ] }
-    def ch_ambient_h5ad = ch_samples.map { meta, reads, genomeDir, countsAdata -> [ meta, buildPath(meta, "${meta.id}_rm_ambient.h5ad") ] }
-    def ch_rho = ch_samples.map { meta, reads, genomeDir, countsAdata -> [ meta, buildPath(meta, "${meta.id}_soupx_rho.tsv") ] }
-    def ch_ambient_plot = ch_samples.map { meta, reads, genomeDir, countsAdata -> buildPath(meta, "0.${meta.id}_ambient_RNA_removed_mqc.png") }
-    def ch_contamination_plot = ch_samples.map { meta, reads, genomeDir, countsAdata -> buildPath(meta, "0.${meta.id}_soupx_contamination_estimation_mqc.png") }
-    def ch_combined_plot = ch_samples.map { meta, reads, genomeDir, countsAdata -> [ meta, buildPath(meta, "0.${meta.id}_soupx_combined_mqc.png") ] }
+            def missing = required.findAll { _, path -> !path.exists() }.collect { key, _ -> key }
+            if (missing) {
+                log.warn "Skipping sample ${meta.id} in post_soupx_entry: missing SoupX outputs (${missing.join(', ')}) under ${base}"
+                return null
+            }
+
+            [ meta, required ]
+        }
+        .filter { it != null }
+
+    def ch_pre_h5ad = ch_valid.map { meta, required -> [ meta, required.pre_h5ad ] }
+    def ch_ambient_h5ad = ch_valid.map { meta, required -> [ meta, required.ambient_h5ad ] }
+    def ch_rho = ch_valid.map { meta, required -> [ meta, required.rho ] }
+    def ch_ambient_plot = ch_valid.map { meta, required -> required.ambient_plot }
+    def ch_contamination_plot = ch_valid.map { meta, required -> required.contamination_plot }
+    def ch_combined_plot = ch_valid.map { meta, required -> [ meta, required.combined_plot ] }
 
     [
         pre_h5ad: ch_pre_h5ad,
@@ -249,9 +263,11 @@ workflow runGenefullFromGzip {
                 }
         )
 
-        ch_multiqc_out = ch_for_multiqc
-            .mix(METAQC_MERGE.out.metaqc_table.map { it[1] })
-            .mix(QC_PANEL.out.panel.map { it[1] })
+        ch_multiqc_out = Channel.merge(
+            ch_for_multiqc,
+            METAQC_MERGE.out.metaqc_table.map { it[1] },
+            QC_PANEL.out.panel.map { it[1] }
+        )
 
     emit:
         ch_multiqc = ch_multiqc_out
@@ -262,7 +278,8 @@ workflow finalizeMultiqc {
         ch_for_multiqc
 
     main:
-        collected = ch_for_multiqc.collect()
+        ch_multiqc_files = Channel.from(ch_for_multiqc)
+        collected = ch_multiqc_files.collect()
         ch_multiqc_config = Channel.fromPath("${baseDir}/multiqc_config.yaml")
 
         MULTIQC(
@@ -409,9 +426,11 @@ workflow post_soupx_entry {
                 }
         )
 
-        ch_final_multiqc = ch_star_logs
-            .mix(METAQC_MERGE.out.metaqc_table.map { it[1] })
-            .mix(QC_PANEL.out.panel.map { it[1] })
+        ch_final_multiqc = Channel.merge(
+            ch_star_logs,
+            METAQC_MERGE.out.metaqc_table.map { it[1] },
+            QC_PANEL.out.panel.map { it[1] }
+        )
 
         finalizeMultiqc(ch_final_multiqc)
         runDebugAnalysis(finalizeMultiqc.out.report)
