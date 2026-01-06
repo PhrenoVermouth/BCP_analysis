@@ -15,9 +15,14 @@ read_image_grob <- function(path, label) {
 
   # Add border for visual separation
   grobTree(
-    rectGrob(gp = gpar(fill = NA, col = "grey50", lwd = 2)),
-    grob
-  )
+      rectGrob(gp = gpar(
+        fill = NA,
+        col = "NavyBlue",
+        lwd = 2,
+        lty = "dashed"
+      )),
+      grob
+    )
 }
 
 parser <- ArgumentParser(description = "Assemble QC plots into a single panel")
@@ -42,19 +47,64 @@ plots <- list(
   read_image_grob(args$dotplot, "Missing marker dotplot")
 )
 
-layout <- rbind(
-  c(1, 2),  # knee + histogram
-  c(3, 4),  # doublet removal vs QC2 (vertical) side-by-side
-  c(5, 5),  # SoupX
-  c(6, 6),  # UMAP + bars
-  c(7, 7)   # marker dotplot
+################
+
+row1 <- arrangeGrob(
+  plots[[1]], plots[[2]],
+  ncol = 2,
+  widths = c(2, 3)  # effective to this row only
 )
 
-png(args$output, width = 2200, height = 3200, res = 220)
-  grid.arrange(grobs = plots, layout_matrix = layout, widths = c(1, 1))
-  grid.text(paste0("QC Overview - ", args$sample_id),
-            x = unit(0.5, "npc"), y = unit(0.99, "npc"),
-            gp = gpar(fontface = "bold", cex = 1.2))
+row2 <- arrangeGrob(
+  plots[[3]], plots[[4]],
+  ncol = 2,
+  widths = c(2, 1)  # effective to this row only
+)
+
+final_grobs <- list(
+  row1,               # row1 col1
+  row2,               # row1 col2
+  plots[[5]], plots[[6]], plots[[7]]
+)
+
+
+dotplot_img <- readPNG(args$dotplot)
+
+
+################ 核心修改：精准控制高度 ################
+
+# 1. 计算 Dotplot 需要的真实物理高度（英寸）
+dotplot_img <- readPNG(args$dotplot)
+# 获取高宽比
+ratio <- dim(dotplot_img)[1] / dim(dotplot_img)[2]
+
+# 获取画布的宽度（英寸）
+# 你的设置是 width=2200, res=300，所以宽度是 2200/300 英寸
+canvas_width_in <- 2200 / 300
+
+# 计算 Dotplot 如果铺满宽度，它应该有多高（英寸）
+# 这样保证了 1:1 不变形
+dotplot_height_in <- canvas_width_in * ratio
+
+# 2. 定义高度列表
+# 使用 unit.c 组合不同单位
+layout_heights <- unit.c(
+  unit(1, "null"),   # Row 1: 权重 1 (瓜分剩余空间)
+  unit(1.5, "null"), # Row 2: 权重 1.5
+  unit(1.3, "null"), # Row 3: 权重 1.3
+  unit(1.8, "null"), # Row 4: 权重 1.8 (UMAP通常比较大，给多点)
+  unit(dotplot_height_in, "inch") # Row 5: 强制锁定为真实英寸高度！
+)
+
+# 3. 绘图
+png(args$output, width = 2200, height = 3200, res = 300)
+
+grid.arrange(
+  grobs = final_grobs,
+  ncol = 1,
+  heights = layout_heights # 使用混合单位的高度列表
+)
+
 dev.off()
 
 cat("Combined QC panel saved to", args$output, "\n")
