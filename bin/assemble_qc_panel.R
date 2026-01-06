@@ -8,10 +8,16 @@ suppressPackageStartupMessages(library(png))
 read_image_grob <- function(path, label) {
   if (!is.null(path) && file.exists(path)) {
     img <- readPNG(path)
-    rasterGrob(img, width = unit(1, "npc"), height = unit(1, "npc"))
+    grob <- rasterGrob(img, width = unit(1, "npc"), height = unit(1, "npc"))
   } else {
-    textGrob(label, gp = gpar(col = "red", cex = 1.5, fontface = "bold"))
+    grob <- textGrob(label, gp = gpar(col = "red", cex = 1.5, fontface = "bold"))
   }
+
+  # Add border for visual separation
+  grobTree(
+    rectGrob(gp = gpar(fill = NA, col = "grey50", lwd = 2)),
+    grob
+  )
 }
 
 parser <- ArgumentParser(description = "Assemble QC plots into a single panel")
@@ -37,12 +43,11 @@ plots <- list(
 )
 
 layout <- rbind(
-  c(1, 2),
-  c(3, 3),
-  c(4, 4),
-  c(5, 5),
-  c(6, 6),
-  c(7, 7)
+  c(1, 2),  # knee + histogram
+  c(3, 4),  # doublet removal vs QC2 (vertical) side-by-side
+  c(5, 5),  # SoupX
+  c(6, 6),  # UMAP + bars
+  c(7, 7)   # marker dotplot
 )
 
 png(args$output, width = 2200, height = 3200, res = 220)
