@@ -278,12 +278,10 @@ workflow finalizeMultiqc {
         ch_for_multiqc
 
     main:
-        ch_multiqc_files = Channel.from(ch_for_multiqc)
-        collected = ch_multiqc_files.collect()
         ch_multiqc_config = Channel.fromPath("${baseDir}/multiqc_config.yaml")
 
         MULTIQC(
-            collected,
+            ch_for_multiqc,
             ch_multiqc_config
         )
 

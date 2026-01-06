@@ -5,7 +5,7 @@ process MULTIQC {
     publishDir "$params.outdir/multiqc", mode: 'copy'
 
     input:
-    path files
+    path files collect: true
     path config
 
     output:
