@@ -295,12 +295,14 @@ def run_scrublet(
     fig1.savefig(f'2.{sample_id}_violin_comparison_QC1_mqc.png')
     plt.close(fig1)
 
-    # Fig 2: Mitochondria removal
-    fig2, axes = plt.subplots(1, 2, figsize=(15, 5))
+    # Fig 2: Mitochondria removal (vertical orientation for side-by-side panel placement)
+    fig2, axes = plt.subplots(2, 1, figsize=(7, 12))
     sc.pl.violin(adata_QC1, 'pct_counts_mito', jitter=0.4, ax=axes[0], show=False)
+    axes[0].set_title('pct_counts_mito (Before MT filtering)')
     sc.pl.violin(adata_QC2, 'pct_counts_mito', jitter=0.4, ax=axes[1], show=False)
+    axes[1].set_title('pct_counts_mito (After MT filtering)')
     fig2.suptitle(f'{sample_id} - Mito Filtering - QC2 (min_genes={min_gene_threshold})')
-    fig2.tight_layout()
+    fig2.tight_layout(rect=[0, 0.03, 1, 0.97])
     fig2.savefig(f'3.{sample_id}_violin_mito_filtering_QC2_mqc.png')
     plt.close(fig2)
 
