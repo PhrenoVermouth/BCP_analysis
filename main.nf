@@ -249,9 +249,11 @@ workflow runGenefullFromGzip {
                 }
         )
 
-        ch_multiqc_out = ch_for_multiqc
-            .mix(METAQC_MERGE.out.metaqc_table.map { it[1] })
-            .mix(QC_PANEL.out.panel.map { it[1] })
+        ch_multiqc_out = Channel.merge(
+            ch_for_multiqc,
+            METAQC_MERGE.out.metaqc_table.map { it[1] },
+            QC_PANEL.out.panel.map { it[1] }
+        )
 
     emit:
         ch_multiqc = ch_multiqc_out
@@ -409,9 +411,11 @@ workflow post_soupx_entry {
                 }
         )
 
-        ch_final_multiqc = ch_star_logs
-            .mix(METAQC_MERGE.out.metaqc_table.map { it[1] })
-            .mix(QC_PANEL.out.panel.map { it[1] })
+        ch_final_multiqc = Channel.merge(
+            ch_star_logs,
+            METAQC_MERGE.out.metaqc_table.map { it[1] },
+            QC_PANEL.out.panel.map { it[1] }
+        )
 
         finalizeMultiqc(ch_final_multiqc)
         runDebugAnalysis(finalizeMultiqc.out.report)
