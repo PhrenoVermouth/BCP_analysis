@@ -79,8 +79,8 @@ dotplot_img <- readPNG(args$dotplot)
 ratio <- dim(dotplot_img)[1] / dim(dotplot_img)[2]
 
 # 获取画布的宽度（英寸）
-# 你的设置是 width=2200, res=300，所以宽度是 2200/300 英寸
-canvas_width_in <- 2200 / 300
+# 你的设置是 width=2200, res=450，所以宽度是 2200/450 英寸
+canvas_width_in <- 2200 / 450
 
 # 计算 Dotplot 如果铺满宽度，它应该有多高（英寸）
 # 这样保证了 1:1 不变形
@@ -90,14 +90,14 @@ dotplot_height_in <- canvas_width_in * ratio
 # 使用 unit.c 组合不同单位
 layout_heights <- unit.c(
   unit(1, "null"),   # Row 1: 权重 1 (瓜分剩余空间)
-  unit(1.5, "null"), # Row 2: 权重 1.5
+  unit(2, "null"), # Row 2: 权重 2
   unit(1.3, "null"), # Row 3: 权重 1.3
   unit(1.8, "null"), # Row 4: 权重 1.8 (UMAP通常比较大，给多点)
   unit(dotplot_height_in, "inch") # Row 5: 强制锁定为真实英寸高度！
 )
 
 # 3. 绘图
-png(args$output, width = 2200, height = 3200, res = 300)
+png(args$output, width = 2200, height = 3200, res = 450)
 
 grid.arrange(
   grobs = final_grobs,
