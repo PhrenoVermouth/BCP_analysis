@@ -1,2 +1,2 @@
-f_fatf, f_fatm, f_fbf, f_fbm, f_hbf, f_hbm, f_if, f_im, f_kdf, f_kdm, f_lvf, f_lvm, f_mbf, f_mbm, f_pcm, f_pcf, f_spm, f_spf = 0.2
-f_hf, f_hm, f_lf, f_lm, f_skf, f_skm, f_smf, f_smm = 0.4
+f_fatf, f_fatm, f_fbf, f_fbm, f_hbf, f_hbm, f_if, f_im, f_kdf, f_kdm, f_lvf, f_lvm, f_mbf, f_mbm, f_pcm, f_pcf, f_spm, f_spf = 20
+f_hf, f_hm, f_lf, f_lm, f_skf, f_skm, f_smf, f_smm = 40
