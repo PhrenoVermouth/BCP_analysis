@@ -111,55 +111,59 @@ def createCountsH5ad(ch_samples) {
 }
 
 def starLogsFromPublish(ch_samples) {
-    ch_samples.map { meta, reads, genomeDir, countsAdata ->
+    ch_samples.flatMap { meta, reads, genomeDir, countsAdata ->
         def logPath = file("${params.outdir}/starsolo/${meta.id}/logs/${meta.id}.Log.final.out")
         if (!logPath.exists()) {
-            throw new IllegalArgumentException("STARsolo log not found for sample ${meta.id} at ${logPath}")
+            log.warn "STARsolo log not found for sample ${meta.id} at ${logPath}. Skipping..."
+            return []
         }
-        logPath
+        [ logPath ]
     }
 }
 
 def gzippedDirsFromPublish(ch_samples) {
-    ch_samples.map { meta, reads, genomeDir, countsAdata ->
+    ch_samples.flatMap { meta, reads, genomeDir, countsAdata ->
         def gzDir = file("${params.outdir}/gzipped_matrix/${meta.id}/${meta.id}.Solo.out")
         def fallback = file("${params.outdir}/gzipped_matrix/${meta.id}")
         def chosen = gzDir.exists() ? gzDir : fallback
         if (!chosen.exists()) {
-            throw new IllegalArgumentException("Gzipped STARsolo output not found for sample ${meta.id} under ${params.outdir}/gzipped_matrix")
+            log.warn "Gzipped STARsolo output not found for sample ${meta.id} under ${params.outdir}/gzipped_matrix. Skipping..."
+            return []
         }
-        [ meta, chosen ]
+        [ [ meta, chosen ] ]
     }
 }
 
 def scrubletOutputsFromPublish(ch_samples) {
-    def ch_whitelist = ch_samples.map { meta, reads, genomeDir, countsAdata ->
+    def ch_whitelist = ch_samples.flatMap { meta, reads, genomeDir, countsAdata ->
         def whitelist = file("${params.outdir}/scrublet/${meta.id}/${meta.id}_whitelist.txt")
         if (!whitelist.exists()) {
-            throw new IllegalArgumentException("Scrublet whitelist not found for sample ${meta.id} at ${whitelist}")
+            log.warn "Scrublet whitelist not found for sample ${meta.id} at ${whitelist}. Skipping..."
+            return []
         }
-        [ meta, whitelist ]
+        [ [ meta, whitelist ] ]
     }
 
-    def ch_metaqc_partial = ch_samples.map { meta, reads, genomeDir, countsAdata ->
+    def ch_metaqc_partial = ch_samples.flatMap { meta, reads, genomeDir, countsAdata ->
         def pattern = "${params.outdir}/scrublet/${meta.id}/${meta.id}_total_metaqc_partial.tsv"
         def metaqcPartial = file(pattern)
         if (!metaqcPartial.exists()) {
-            throw new IllegalArgumentException("Scrublet metaqc_partial not found for sample ${meta.id} at ${pattern}")
+            log.warn "Scrublet metaqc_partial not found for sample ${meta.id} at ${pattern}. Skipping..."
+            return []
         }
-        [ meta, metaqcPartial ]
+        [ [ meta, metaqcPartial ] ]
     }
 
     def ch_qc_plots = ch_samples
-        .map { meta, reads, genomeDir, countsAdata ->
+        .flatMap { meta, reads, genomeDir, countsAdata ->
             def plotDir = new File("${params.outdir}/scrublet/${meta.id}")
             def qcPlots = plotDir.listFiles({ d, name -> name.toLowerCase().endsWith('.png') } as FilenameFilter) ?: []
             if (!qcPlots) {
-                throw new IllegalArgumentException("Scrublet QC plots not found for sample ${meta.id} in ${plotDir}")
+                log.warn "Scrublet QC plots not found for sample ${meta.id} in ${plotDir}. Skipping..."
+                return []
             }
-            qcPlots.collect { plot -> [ meta, plot ] }
+            qcPlots.collect { plot -> [ meta, file(plot.absolutePath) ] }
         }
-        .flatten()
 
     [ whitelist: ch_whitelist, metaqc_partial: ch_metaqc_partial, qc_plots: ch_qc_plots ]
 }
@@ -168,17 +172,36 @@ def soupxOutputsFromPublish(ch_samples) {
     def buildPath = { meta, suffix ->
         def path = file("${params.outdir}/soupx/${meta.id}/${suffix}")
         if (!path.exists()) {
-            throw new IllegalArgumentException("SoupX output ${suffix} not found for sample ${meta.id} at ${path}")
+            log.warn "SoupX output ${suffix} not found for sample ${meta.id} at ${path}. Skipping..."
+            return null
         }
         path
     }
 
-    def ch_pre_h5ad = ch_samples.map { meta, reads, genomeDir, countsAdata -> [ meta, buildPath(meta, "${meta.id}_pre_soupx.h5ad") ] }
-    def ch_ambient_h5ad = ch_samples.map { meta, reads, genomeDir, countsAdata -> [ meta, buildPath(meta, "${meta.id}_rm_ambient.h5ad") ] }
-    def ch_rho = ch_samples.map { meta, reads, genomeDir, countsAdata -> [ meta, buildPath(meta, "${meta.id}_soupx_rho.tsv") ] }
-    def ch_ambient_plot = ch_samples.map { meta, reads, genomeDir, countsAdata -> buildPath(meta, "0.${meta.id}_ambient_RNA_removed_mqc.png") }
-    def ch_contamination_plot = ch_samples.map { meta, reads, genomeDir, countsAdata -> buildPath(meta, "0.${meta.id}_soupx_contamination_estimation_mqc.png") }
-    def ch_combined_plot = ch_samples.map { meta, reads, genomeDir, countsAdata -> [ meta, buildPath(meta, "0.${meta.id}_soupx_combined_mqc.png") ] }
+    def ch_pre_h5ad = ch_samples.flatMap { meta, reads, genomeDir, countsAdata ->
+            def p = buildPath(meta, "${meta.id}_pre_soupx.h5ad")
+            p ? [ [ meta, p ] ] : []
+        }
+    def ch_ambient_h5ad = ch_samples.flatMap { meta, reads, genomeDir, countsAdata ->
+            def p = buildPath(meta, "${meta.id}_rm_ambient.h5ad")
+            p ? [ [ meta, p ] ] : []
+        }
+    def ch_rho = ch_samples.flatMap { meta, reads, genomeDir, countsAdata ->
+            def p = buildPath(meta, "${meta.id}_soupx_rho.tsv")
+            p ? [ [ meta, p ] ] : []
+        }
+    def ch_ambient_plot = ch_samples.flatMap { meta, reads, genomeDir, countsAdata -> 
+            def p = buildPath(meta, "0.${meta.id}_ambient_RNA_removed_mqc.png") 
+            p ? [ p ] : []
+        }
+    def ch_contamination_plot = ch_samples.flatMap { meta, reads, genomeDir, countsAdata -> 
+            def p = buildPath(meta, "0.${meta.id}_soupx_contamination_estimation_mqc.png") 
+            p ? [ p ] : []
+        }
+    def ch_combined_plot = ch_samples.flatMap { meta, reads, genomeDir, countsAdata ->
+            def p = buildPath(meta, "0.${meta.id}_soupx_combined_mqc.png")
+            p ? [ [ meta, p ] ] : []
+        }
 
     [
         pre_h5ad: ch_pre_h5ad,

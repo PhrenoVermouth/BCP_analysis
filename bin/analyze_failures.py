@@ -138,7 +138,9 @@ def main():
 
     failures = report_data.get("failures", [])
     if not failures:
-        print("✅ No failures found. Report is clean.")
+        msg = "✅ No failures found. Report is clean."
+        print(msg)
+        save_html_report(f"# Analysis Result\n\n{msg}", args.html)
         sys.exit(0)
 
     print(f"🤖 Analyzing {len(failures)} failures using {MODEL_NAME}...\n" + "="*50 + "\n")
