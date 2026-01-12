@@ -14,11 +14,11 @@ import scipy.sparse as sp
 
 def load_velocity_layers(velo_dir: str):
     """Load spliced/unspliced matrices and their metadata from a Velocyto dir."""
-    spliced = sc.read_mtx(f"{velo_dir}/spliced.mtx").T
-    unspliced = sc.read_mtx(f"{velo_dir}/unspliced.mtx").T
+    spliced = sc.read_mtx(f"{velo_dir}/spliced.mtx.gz").T
+    unspliced = sc.read_mtx(f"{velo_dir}/unspliced.mtx.gz").T
 
-    barcodes = pd.read_csv(f"{velo_dir}/barcodes.tsv", header=None, sep="\t")[0].values
-    genes = pd.read_csv(f"{velo_dir}/features.tsv", header=None, sep="\t")[0].values
+    barcodes = pd.read_csv(f"{velo_dir}/barcodes.tsv.gz", header=None, sep="\t")[0].values
+    genes = pd.read_csv(f"{velo_dir}/features.tsv.gz", header=None, sep="\t")[0].values
 
     velo_adata = ad.AnnData(
         X=spliced.X,
