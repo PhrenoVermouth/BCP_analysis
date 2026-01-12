@@ -13,10 +13,10 @@ process DEBUG_ANALYSIS {
 
     output:
     path "debug_payload.json"
-    path "debug_report.md"
-    path "debug_report.html"
-    path "ai_analysis.md"
-    path "ai_analysis.html"
+    path "debug_report_*.md"
+    path "debug_report_*.html"
+    path "ai_analysis_*.md"
+    path "ai_analysis_*.html"
 
     script:
     def apiKeyExport = api_key ? """export OPENAI_API_KEY='${api_key.replace("'", "'\"'\"'")}'""" : "true"
@@ -39,8 +39,14 @@ process DEBUG_ANALYSIS {
       exit 1
     fi
 
-    python ${projectDir}/bin/nf_debug_agent.py --trace "\$TRACE_PATH" --work-dir "\$WORK_DIR" --report debug_report.md --html debug_report.html > debug_payload.json
+    timestamp="$(date +%Y%m%d_%H%M%S)"
+    debug_report_md="debug_report_${timestamp}.md"
+    debug_report_html="debug_report_${timestamp}.html"
+    ai_analysis_md="ai_analysis_${timestamp}.md"
+    ai_analysis_html="ai_analysis_${timestamp}.html"
 
-    python ${projectDir}/bin/analyze_failures.py debug_payload.json --html ai_analysis.html --base-url "\$BASE_URL" > ai_analysis.md
+    python ${projectDir}/bin/nf_debug_agent.py --trace "\$TRACE_PATH" --work-dir "\$WORK_DIR" --report "\$debug_report_md" --html "\$debug_report_html" > debug_payload.json
+
+    python ${projectDir}/bin/analyze_failures.py debug_payload.json --html "\$ai_analysis_html" --base-url "\$BASE_URL" > "\$ai_analysis_md"
     """
 }
