@@ -2,8 +2,8 @@
 
 A Nextflow-based pipeline for single-cell RNA sequencing data preprocessing, specifically designed for BCP (Billion Cell Program) analysis. The pipeline performs comprehensive single-cell data processing including alignment, ambient RNA removal, doublet detection, and basic quality control metrics.
 
+<img width="1436" height="1727" alt="pipeline_dag_2026-01-06_22-07-46" src="https://github.com/user-attachments/assets/e7fb4529-e5d6-42ad-831e-51797479684a" />
 
-<img width="790" height="1455" alt="output" src="https://github.com/user-attachments/assets/063c93c6-b59d-4ebe-adc2-faaa0fc93318" />
 
 ## Features
 
