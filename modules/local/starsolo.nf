@@ -16,7 +16,7 @@ process STAR_SOLO {
     publishDir "$params.outdir/starsolo/${meta.id}", \
         mode: 'copy', \
         pattern: "${meta.id}.Solo.out", \
-        enabled: false  
+        enabled: false
 
     // — send the STAR log to …/logs
    // publishDir "$params.outdir/starsolo/${meta.id}/logs", \
@@ -41,7 +41,7 @@ process STAR_SOLO {
     path "${meta.id}.Aligned.sortedByCoord.out.bam", emit: bam
 
     script:
-    def solo_features = params.run_mode.toLowerCase() == 'velocity' ? 'Velocyto' : 'GeneFull'
+    def solo_features = params.run_mode.toLowerCase() == 'velocity' ? 'Gene GeneFull Velocyto' : 'GeneFull'
     """
     STAR \
         --runThreadN ${task.cpus} \

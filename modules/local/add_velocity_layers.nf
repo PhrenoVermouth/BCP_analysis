@@ -12,7 +12,7 @@ process ADD_VELOCITY_LAYERS {
 
     script:
     """
-    bin/add_velocity_layers.py \
+    add_velocity_layers.py \
         --counts_h5ad ${counts_h5ad} \
         --velo_dir ${gzipped_dir}/Velocyto/filtered \
         --output ${meta.id}_velocity_ready.h5ad
