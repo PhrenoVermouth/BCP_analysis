@@ -85,7 +85,7 @@ def prepareSamples() {
             }
 
             def reads = [ file(row.fastq_1), file(row.fastq_2) ]
-            def defaultCounts = file("${params.outdir}/soupx/${row.sample}/${row.sample}_rm_ambient.h5ad")
+            def defaultCounts = file("${params.outdir}/sam_qc/${row.sample}/${row.sample}_filtered_QC2.h5ad")
             def countsAdata = row.counts_h5ad ? file(row.counts_h5ad) : defaultCounts
             [ meta, reads, file(row.genomeDir), countsAdata ]
         }
@@ -102,8 +102,8 @@ def createCountsH5ad(ch_samples) {
         if (!countsAdata.exists()) {
             throw new IllegalArgumentException(
                 "counts_h5ad is required for velocity mode for sample ${meta.id}. " +
-                "Provide counts_h5ad in samples.csv or ensure GeneFull output exists at " +
-                "${params.outdir}/soupx/${meta.id}/${meta.id}_rm_ambient.h5ad"
+                "Provide counts_h5ad in samples.csv or ensure SAM_QC output exists at " +
+                "${params.outdir}/sam_qc/${meta.id}/${meta.id}_filtered_QC2.h5ad"
             )
         }
         [ meta, countsAdata ]
@@ -340,7 +340,8 @@ workflow run_from_start {
         } else {
             ch_counts_h5ad = createCountsH5ad(ch_samples)
             ADD_VELOCITY_LAYERS(GZIP_SOLO_OUTPUT.out.gzipped_dir.join(ch_counts_h5ad))
-            finalizeMultiqc(STAR_SOLO.out.log)
+            ch_velocity_signal = ADD_VELOCITY_LAYERS.out.velocity_h5ad.map { it[1] }
+            finalizeMultiqc(STAR_SOLO.out.log.mix(ch_velocity_signal))
         }
 
         runDebugAnalysis(finalizeMultiqc.out.report)
@@ -361,7 +362,8 @@ workflow post_gzip_entry {
         } else {
             ch_counts_h5ad = createCountsH5ad(ch_samples)
             ADD_VELOCITY_LAYERS(ch_gzipped.join(ch_counts_h5ad))
-            finalizeMultiqc(ch_star_logs)
+            ch_velocity_signal = ADD_VELOCITY_LAYERS.out.velocity_h5ad.map { it[1] }
+            finalizeMultiqc(ch_star_logs.mix(ch_velocity_signal))
         }
 
         runDebugAnalysis(finalizeMultiqc.out.report)
