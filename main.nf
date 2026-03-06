@@ -84,17 +84,26 @@ def prepareSamples() {
                 log.info "Using mito_max ${sampleMaxMito} for sample ${meta.id} from mito_max_map."
             }
 
-            def reads = [ file(row.fastq_1), file(row.fastq_2) ]
             def defaultCounts = file("${params.outdir}/sam_qc/${row.sample}/${row.sample}_filtered_QC2.h5ad")
             def countsAdata = row.counts_h5ad ? file(row.counts_h5ad) : defaultCounts
-            [ meta, reads, file(row.genomeDir), countsAdata ]
+
+            //  260301 for re-sequencing
+            [ meta, file(row.fastq_1), file(row.fastq_2), file(row.genomeDir), countsAdata ]
+        }
+        .groupTuple(by: 0)
+        .map { meta, fq1s, fq2s, genomeDirs, countsAdatas ->
+            def reads = [ fq1s, fq2s ]
+            [ meta, reads, genomeDirs[0], countsAdatas[0] ]
         }
 
     [ runMode: runMode, ch_samples: ch_samples ]
 }
 
 def createInputReads(ch_samples) {
-    ch_samples.map { meta, reads, genomeDir, countsAdata -> [ meta, reads, genomeDir ] }
+    //  260301 for re-sequencing
+    ch_samples.map { meta, reads, genomeDir, countsAdata ->
+        [ meta, reads[0], reads[1], genomeDir ]
+    }
 }
 
 def createCountsH5ad(ch_samples) {
@@ -190,12 +199,12 @@ def soupxOutputsFromPublish(ch_samples) {
             def p = buildPath(meta, "${meta.id}_soupx_rho.tsv")
             p ? [ [ meta, p ] ] : []
         }
-    def ch_ambient_plot = ch_samples.flatMap { meta, reads, genomeDir, countsAdata -> 
-            def p = buildPath(meta, "0.${meta.id}_ambient_RNA_removed_mqc.png") 
+    def ch_ambient_plot = ch_samples.flatMap { meta, reads, genomeDir, countsAdata ->
+            def p = buildPath(meta, "0.${meta.id}_ambient_RNA_removed_mqc.png")
             p ? [ p ] : []
         }
-    def ch_contamination_plot = ch_samples.flatMap { meta, reads, genomeDir, countsAdata -> 
-            def p = buildPath(meta, "0.${meta.id}_soupx_contamination_estimation_mqc.png") 
+    def ch_contamination_plot = ch_samples.flatMap { meta, reads, genomeDir, countsAdata ->
+            def p = buildPath(meta, "0.${meta.id}_soupx_contamination_estimation_mqc.png")
             p ? [ p ] : []
         }
     def ch_combined_plot = ch_samples.flatMap { meta, reads, genomeDir, countsAdata ->
