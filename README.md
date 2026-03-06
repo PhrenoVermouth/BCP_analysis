@@ -57,6 +57,16 @@ nextflow run ~/BCP_analysis/main.nf -profile standard
   If GeneFull outputs live elsewhere, optionally add a `counts_h5ad` column in `samples.csv` to point to custom `.h5ad`
   locations.
 
+
+### Scrublet threshold override
+
+- By default, Scrublet uses its automatic threshold.
+- To force a manual cutoff, pass `--scrublet_manual_threshold` when launching Nextflow; this value is forwarded to `run_scrublet.py --manual_threshold`.
+
+  ```bash
+  nextflow run ~/BCP_analysis/main.nf --scrublet_manual_threshold 0.25
+  ```
+
 ### Mitochondrial filtering
 
 - **Global threshold** (default): `--max_mito` sets a single mitochondrial percentage cutoff for all samples (default: `0.2`).
