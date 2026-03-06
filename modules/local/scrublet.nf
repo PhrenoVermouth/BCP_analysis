@@ -16,6 +16,7 @@ process SCRUBLET {
     script:
     def mito_prefixes_str = params.mito_prefixes instanceof List ? params.mito_prefixes.join(' ') : params.mito_prefixes
     def mito_list_arg = params.mito_gene_list ? "\\\n        --mito_gene_list ${params.mito_gene_list}" : ""
+    def manual_threshold_arg = params.scrublet_manual_threshold != null ? "\\\n        --manual_threshold ${params.scrublet_manual_threshold}" : ""
     def mito_max = meta.containsKey('max_mito') ? meta.max_mito : params.max_mito
     def summary_csv = "${gzipped_dir}/GeneFull/Summary.csv"
     def knee_matrix_dir = "${gzipped_dir}/GeneFull/raw"
@@ -28,6 +29,6 @@ process SCRUBLET {
         --min_cells ${params.min_cells_per_gene} \
         --max_mito ${mito_max} \
         --summary_csv ${summary_csv} \
-        --mito_prefixes ${mito_prefixes_str} ${mito_list_arg}
+        --mito_prefixes ${mito_prefixes_str} ${mito_list_arg}${manual_threshold_arg}
     """
 }
