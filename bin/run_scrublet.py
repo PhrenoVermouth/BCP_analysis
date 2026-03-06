@@ -101,6 +101,7 @@ def run_scrublet(
     mito_gene_list=None,
     summary_csv=None,
     knee_matrix_dir=None,
+    manual_threshold=None,
 ):
     adata = _load_matrix(matrix_dir)
 
@@ -141,6 +142,9 @@ def run_scrublet(
         raise RuntimeError(f"scrub_doublets returned unexpected result: {result}")
 
     doublet_score, predicted_doublets = result
+
+    if manual_threshold is not None:
+        predicted_doublets = scrub.call_doublets(threshold=manual_threshold)
 
     if predicted_doublets is None:
         raise RuntimeError("scrub_doublets returned None for predicted_doublets")
@@ -337,6 +341,7 @@ if __name__ == '__main__':
     parser.add_argument('--mito_prefixes', nargs='+', default=['mt-'], help="Prefix(es) for mitochondrial genes")
     parser.add_argument('--mito_gene_list', type=str, default=None, help="Path to text file listing mitochondrial genes (one per line)")
     parser.add_argument('--summary_csv', type=str, default=None, help="Path to STARsolo Summary.csv for sequencing saturation")
+    parser.add_argument('--manual_threshold', type=float, default=None, help="Optional manual Scrublet threshold override")
     args = parser.parse_args()
 
     run_scrublet(
@@ -349,4 +354,5 @@ if __name__ == '__main__':
         args.mito_gene_list,
         args.summary_csv,
         args.knee_matrix_dir,
+        args.manual_threshold,
     )
