@@ -78,10 +78,32 @@ def prepareSamples() {
         .map { row ->
             def meta = [:]
             meta.id = row.sample
-            def sampleMaxMito = mitoMaxOverrides.containsKey(meta.id) ? mitoMaxOverrides[meta.id] : params.max_mito
-            meta.max_mito = sampleMaxMito
+
+            Double sampleMaxMito = null
+            String matchedKey = null
+
+            // 1) exact match first
             if (mitoMaxOverrides.containsKey(meta.id)) {
-                log.info "Using mito_max ${sampleMaxMito} for sample ${meta.id} from mito_max_map."
+                matchedKey = meta.id
+                sampleMaxMito = mitoMaxOverrides[meta.id]
+            } else {
+                // 2) contain match fallback: e.g., pcf_1/pcf_2 -> pcf
+                def containMatches = mitoMaxOverrides.findAll { k, v -> meta.id.contains(k) }
+                if (containMatches) {
+                    // choose the longest key to avoid short-prefix ambiguity
+                    matchedKey = containMatches.keySet().toList().sort { -it.size() }[0]
+                    sampleMaxMito = mitoMaxOverrides[matchedKey]
+                }
+            }
+
+            // 3) default fallback
+            if (sampleMaxMito == null) {
+                sampleMaxMito = params.max_mito
+            }
+
+            meta.max_mito = sampleMaxMito
+            if (matchedKey != null) {
+                log.info "Using mito_max ${sampleMaxMito} for sample ${meta.id} from mito_max_map key '${matchedKey}'."
             }
 
             def defaultCounts = file("${params.outdir}/sam_qc/${row.sample}/${row.sample}_filtered_QC2.h5ad")
