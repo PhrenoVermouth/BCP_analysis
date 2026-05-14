@@ -56,8 +56,7 @@ def build_prompt(report_data):
 
 def save_html_report(markdown_content, output_path):
     """
-    生成一个包含 Marked.js 的 HTML 文件，在浏览器端动态渲染 Markdown。
-    这样不需要 Python 安装 markdown 库，保持零依赖。
+    Generate an HTML file that includes Marked.js to dynamically render Markdown in the browser. This way, you don’t need to install a Markdown library in Python, keeping it zero-dependency.
     """
     html_template = f"""
 <!DOCTYPE html>
@@ -163,12 +162,12 @@ def main():
         for chunk in stream:
             if chunk.choices[0].delta.content is not None:
                 content = chunk.choices[0].delta.content
-                print(content, end="", flush=True) # 依然打印到屏幕
+                print(content, end="", flush=True) 
                 full_response += content
 
         print("\n\n" + "="*50 + "\nAnalysis Complete.")
 
-        # 保存 HTML 报告
+        # Save html report.
         save_html_report(full_response, args.html)
 
     except Exception as e:
