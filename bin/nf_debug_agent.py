@@ -153,6 +153,56 @@ def read_log_content(task_dir: Path) -> Dict[str, Optional[str]]:
     return {"source": None, "content": None}
 
 
+# Marker emitted by bin/run_scrublet.py when a fallback rule activates.
+# Format example:
+#   [FALLBACK] type=cell_count sample=Sample1 original_cells=51234 keep_top=30000 reason='...'
+#   [FALLBACK] type=threshold sample=Sample1 auto_threshold=0.5123 fallback_threshold=0.4 reason='...'
+FALLBACK_LINE_RE = re.compile(r"\[FALLBACK\]\s*(.+)")
+FALLBACK_KV_RE = re.compile(r"(\w+)=('[^']*'|\"[^\"]*\"|\S+)")
+
+
+def _parse_fallback_details(details: str) -> Dict[str, str]:
+    parsed: Dict[str, str] = {}
+    for key, value in FALLBACK_KV_RE.findall(details):
+        if (value.startswith("'") and value.endswith("'")) or (
+            value.startswith('"') and value.endswith('"')
+        ):
+            value = value[1:-1]
+        parsed[key] = value
+    return parsed
+
+
+def scan_for_fallback_events(task_dir: Path) -> List[Dict[str, str]]:
+    """Read .command.log / .command.err in full and pull out [FALLBACK] lines.
+
+    Returns a list of dicts with at least: details (raw), and any key=value
+    fields parsed from the marker (e.g. type, sample, original_cells, ...).
+    """
+    if not task_dir.exists():
+        return []
+
+    events: List[Dict[str, str]] = []
+    seen_raw: set = set()
+    for fname in (".command.log", ".command.err", ".command.out"):
+        path = task_dir / fname
+        if not path.exists():
+            continue
+        try:
+            content = path.read_text(encoding="utf-8", errors="replace")
+        except Exception:
+            continue
+        for match in FALLBACK_LINE_RE.finditer(content):
+            details = match.group(1).strip()
+            if details in seen_raw:
+                continue
+            seen_raw.add(details)
+            event = _parse_fallback_details(details)
+            event["details"] = details
+            event["source"] = fname
+            events.append(event)
+    return events
+
+
 def read_solo_summary(task_dir: Path) -> Dict[str, str]:
     summaries = {}
     for path in task_dir.iterdir():
@@ -285,6 +335,7 @@ def collect_task_report(
             command_script, task_dir, script_library
         )
         report["solo_summary"] = read_solo_summary(task_dir)
+        report["fallback_events"] = scan_for_fallback_events(task_dir)
 
     except Exception as exc:
         report["error"] = f"failed to parse task directory {task_dir}: {exc}"
@@ -295,13 +346,54 @@ def collect_task_report(
 # Part 3: Report Generation (Markdown & HTML)
 # ==========================================
 
+def _fallback_table_columns(events: List[Dict[str, object]]) -> List[str]:
+    """Pick a stable set of columns for the fallback events table."""
+    preferred = [
+        "type", "sample", "process", "status",
+        "original_cells", "keep_top", "min_umi_kept",
+        "auto_threshold", "fallback_threshold",
+        "reason", "hash",
+    ]
+    present = {k for ev in events for k in ev.keys()}
+    cols = [c for c in preferred if c in present]
+    # Append any leftover keys (sorted) we did not anticipate
+    extras = sorted(present - set(cols) - {"details", "source", "task_id", "work_dir"})
+    cols.extend(extras)
+    return cols
+
+
 def generate_markdown_report(payload: Dict[str, object], output_path: str):
     failures = payload.get("failures", [])
+    fallback_events = payload.get("fallback_events", [])
     script_library = payload.get("script_library", {})
 
     md_lines = []
     md_lines.append(f"# 🧬 Nextflow Failure Analysis Report")
-    md_lines.append(f"**Total Failures:** {len(failures)}\n")
+    md_lines.append(
+        f"**Total Failures:** {len(failures)}   "
+        f"**Fallback Events:** {len(fallback_events)}\n"
+    )
+
+    if fallback_events:
+        md_lines.append("## 🟡 Fallback Events")
+        md_lines.append(
+            "Automatic fallbacks triggered inside tasks (emitted via `[FALLBACK]` log lines)."
+        )
+        cols = _fallback_table_columns(fallback_events)
+        header = "| " + " | ".join(cols) + " |"
+        sep = "| " + " | ".join(["---"] * len(cols)) + " |"
+        md_lines.append(header)
+        md_lines.append(sep)
+        for ev in fallback_events:
+            cells = []
+            for c in cols:
+                val = ev.get(c, "")
+                if c == "hash" and isinstance(val, str) and val:
+                    val = f"`{val[:8]}…`"
+                cells.append(str(val))
+            md_lines.append("| " + " | ".join(cells) + " |")
+        md_lines.append("")
+
     md_lines.append("## 🔍 Failed Tasks Summary")
 
     for i, fail in enumerate(failures, 1):
@@ -317,6 +409,12 @@ def generate_markdown_report(payload: Dict[str, object], output_path: str):
 
         if fail.get('error'):
              md_lines.append(f"\n> **⚠️ Parser Error:** {fail.get('error')}")
+
+        task_fallbacks = fail.get("fallback_events", [])
+        if task_fallbacks:
+            md_lines.append("\n**🟡 Fallback Events for this task:**")
+            for ev in task_fallbacks:
+                md_lines.append(f"- `[FALLBACK] {ev.get('details', '')}`")
 
         solo_sums = fail.get("solo_summary", {})
         if solo_sums:
@@ -372,6 +470,7 @@ def generate_markdown_report(payload: Dict[str, object], output_path: str):
 
 def generate_html_report(payload: Dict[str, object], output_path: str):
     failures = payload.get("failures", [])
+    fallback_events = payload.get("fallback_events", [])
     script_library = payload.get("script_library", {})
 
     style = """
@@ -389,6 +488,8 @@ def generate_html_report(payload: Dict[str, object], output_path: str):
         .badge { display: inline-block; padding: 4px 8px; border-radius: 2em; font-size: 0.85em; font-weight: bold; border: 1px solid transparent; }
         .badge-red { background: #ffeef0; color: #b31d28; border-color: #f9dbe1; }
         .badge-gray { background: #eff3f6; color: #24292e; border-color: #e1e4e8; }
+        .badge-yellow { background: #fff8c5; color: #735c0f; border-color: #ffea7f; }
+        .card.fallback { border-left: 6px solid #d4a72c; }
         pre { background: #24292e; color: #f8f8f2; padding: 15px; border-radius: 6px; overflow-x: auto; font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: 0.85em; line-height: 1.45; }
         details { margin-top: 10px; border: 1px solid #e1e4e8; border-radius: 6px; }
         summary { background: #f6f8fa; padding: 12px; cursor: pointer; font-weight: 600; outline: none; list-style: none; display: flex; align-items: center; }
@@ -402,7 +503,39 @@ def generate_html_report(payload: Dict[str, object], output_path: str):
 
     html_content = [f"<!DOCTYPE html><html><head><meta charset='utf-8'><title>Nextflow Debug Forensics</title>{style}</head><body>"]
     html_content.append("<div class='header'><h1>🧬 Nextflow Failure Forensics</h1>")
-    html_content.append(f"<p><strong>Total Failures:</strong> <span style='font-size:1.5em; font-weight:bold; color:#d73a49;'>{len(failures)}</span></p></div>")
+    html_content.append(
+        f"<p><strong>Total Failures:</strong> "
+        f"<span style='font-size:1.5em; font-weight:bold; color:#d73a49;'>{len(failures)}</span>"
+        f"&nbsp;&nbsp;<strong>Fallback Events:</strong> "
+        f"<span style='font-size:1.5em; font-weight:bold; color:#b08800;'>{len(fallback_events)}</span></p></div>"
+    )
+
+    if fallback_events:
+        cols = _fallback_table_columns(fallback_events)
+        html_content.append("<div class='card fallback'>")
+        html_content.append("<h2>🟡 Fallback Events</h2>")
+        html_content.append(
+            "<p style='color:#586069;'>Automatic fallbacks triggered inside tasks "
+            "(emitted via <code>[FALLBACK]</code> log lines by "
+            "<code>bin/run_scrublet.py</code>).</p>"
+        )
+        html_content.append("<table><thead><tr>")
+        for c in cols:
+            html_content.append(f"<th>{html.escape(c)}</th>")
+        html_content.append("</tr></thead><tbody>")
+        for ev in fallback_events:
+            html_content.append("<tr>")
+            for c in cols:
+                raw_val = ev.get(c, "")
+                val = html.escape(str(raw_val))
+                if c == "hash" and isinstance(raw_val, str) and raw_val:
+                    val = f"<code>{html.escape(raw_val[:8])}…</code>"
+                if c == "type":
+                    val = f"<span class='badge badge-yellow'>{val}</span>"
+                html_content.append(f"<td>{val}</td>")
+            html_content.append("</tr>")
+        html_content.append("</tbody></table>")
+        html_content.append("</div>")
 
     for i, fail in enumerate(failures, 1):
         process = html.escape(fail.get('process_name', 'Unknown'))
@@ -422,6 +555,15 @@ def generate_html_report(payload: Dict[str, object], output_path: str):
 
         if fail.get('error'):
             html_content.append(f"<div style='color:#d73a49; font-weight:bold; background:#ffeef0; padding:10px; border-radius:4px;'>⚠️ {html.escape(fail.get('error'))}</div>")
+
+        task_fallbacks = fail.get("fallback_events", [])
+        if task_fallbacks:
+            html_content.append("<h4>🟡 Fallback Events for this task</h4>")
+            html_content.append("<ul style='margin-top:5px;'>")
+            for ev in task_fallbacks:
+                details = html.escape(str(ev.get("details", "")))
+                html_content.append(f"<li><code>[FALLBACK] {details}</code></li>")
+            html_content.append("</ul>")
 
         solo_sums = fail.get("solo_summary", {})
         if solo_sums:
@@ -501,16 +643,40 @@ def main() -> None:
                 "error": f"unexpected error: {exc}",
             })
 
+    # Scan every task (not just FAILED) for [FALLBACK] markers emitted by
+    # bin/run_scrublet.py. This surfaces fallbacks that occurred inside
+    # tasks that still completed successfully.
+    print(f"Scanning {len(rows)} tasks for fallback events...", file=sys.stderr)
+    fallback_events: List[Dict[str, object]] = []
+    for row in rows:
+        task_hash = row.get("hash") or row.get("task_hash") or ""
+        if not task_hash:
+            continue
+        task_dir = build_task_dir(work_dir, task_hash)
+        try:
+            events = scan_for_fallback_events(task_dir)
+        except Exception:
+            continue
+        for ev in events:
+            enriched: Dict[str, object] = dict(ev)
+            enriched["process"] = row.get("process") or row.get("name", "")
+            enriched["task_id"] = row.get("task_id", "")
+            enriched["status"] = row.get("status", "")
+            enriched["hash"] = task_hash
+            enriched["work_dir"] = str(task_dir)
+            fallback_events.append(enriched)
+
     final_payload = {
-        "summary": f"Found {len(failures)} failed tasks.",
+        "summary": f"Found {len(failures)} failed tasks; {len(fallback_events)} fallback events.",
         "failures": failures,
-        "script_library": script_library
+        "fallback_events": fallback_events,
+        "script_library": script_library,
     }
 
     generate_markdown_report(final_payload, args.report)
     generate_html_report(final_payload, args.html)
 
-    # stdout 依然保留纯净的 JSON，方便管道操作
+    # stdout stays as clean JSON so downstream tools can pipe it directly.
     print(json.dumps(final_payload, ensure_ascii=False, indent=2))
 
 

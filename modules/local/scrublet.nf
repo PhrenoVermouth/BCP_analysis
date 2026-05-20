@@ -16,7 +16,11 @@ process SCRUBLET {
     script:
     def mito_prefixes_str = params.mito_prefixes instanceof List ? params.mito_prefixes.join(' ') : params.mito_prefixes
     def mito_list_arg = params.mito_gene_list ? "\\\n        --mito_gene_list ${params.mito_gene_list}" : ""
-    def manual_threshold_arg = params.scrublet_manual_threshold != null ? "\\\n        --manual_threshold ${params.scrublet_manual_threshold}" : ""
+    // Per-sample threshold takes priority; falls back to global param; then auto-detect
+    def threshold = (meta.containsKey('scrublet_threshold') && meta.scrublet_threshold != null)
+        ? meta.scrublet_threshold
+        : params.scrublet_manual_threshold
+    def manual_threshold_arg = threshold != null ? "\\\n        --manual_threshold ${threshold}" : ""
     def mito_max = meta.containsKey('max_mito') ? meta.max_mito : params.max_mito
     def summary_csv = "${gzipped_dir}/GeneFull/Summary.csv"
     def knee_matrix_dir = "${gzipped_dir}/GeneFull/raw"

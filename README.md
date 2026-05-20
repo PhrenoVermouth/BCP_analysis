@@ -9,10 +9,11 @@ A Nextflow-based pipeline for single-cell RNA sequencing data preprocessing, spe
 
 - **Single-cell alignment** using STAR
 - **Ambient RNA removal** for cleaner expression profiles
-- **Doublet detection** to filter multiplets
+- **Doublet detection** with automatic fallbacks for pathological samples (see below)
 - **Comprehensive QC metrics** with MultiQC reporting
 - **Embedded QC plots** included in MultiQC report
 - **Automated preprocessing** with minimal manual intervention
+- **Failure forensics**: when tasks fail or fallbacks trigger, `nf_debug_agent` collects logs, scripts, and STARsolo summaries into a single Markdown/HTML report
 
 ## Future Development
 
@@ -56,16 +57,68 @@ nextflow run ~/BCP_analysis/main.nf -profile standard
   ```
   If GeneFull outputs live elsewhere, optionally add a `counts_h5ad` column in `samples.csv` to point to custom `.h5ad`
   locations.
-
-
-### Scrublet threshold override
-
-- By default, Scrublet uses its automatic threshold.
-- To force a manual cutoff, pass `--scrublet_manual_threshold` when launching Nextflow; this value is forwarded to `run_scrublet.py --manual_threshold`.
-
+- **Multiome (RNA + ATAC)**: runs Chromap-based ATAC alongside the RNA pipeline. Requires the multiome whitelist /
+  translation files configured in `nextflow.config` (`multiome_atac_whitelist`, `multiome_rna_whitelist`,
+  `multiome_barcode_translation`).
   ```bash
-  nextflow run ~/BCP_analysis/main.nf --scrublet_manual_threshold 0.25
+  nextflow run ~/BCP_analysis/main.nf --run_mode multiome
   ```
+
+To skip SoupX ambient-RNA correction entirely (useful when SoupX struggles on a dataset and you want to feed the raw
+Scrublet-cleaned matrix directly downstream), pass `--bypass_soupX true`.
+
+### Scrublet threshold control
+
+By default Scrublet uses its automatic threshold. Three escape hatches are available, listed in increasing specificity:
+
+1. **Global manual override** for all samples:
+   ```bash
+   nextflow run ~/BCP_analysis/main.nf --scrublet_manual_threshold 0.25
+   ```
+   This is forwarded to `run_scrublet.py --manual_threshold`.
+
+2. **Per-sample overrides** via `--scrublet_threshold_map /path/to/file`. Same `sample1, sample2 = value` format as
+   `--mito_max_map`. Listed samples use the mapped threshold; unlisted samples fall back to
+   `--scrublet_manual_threshold` (or pure automatic detection if that is also unset).
+
+3. **Automatic fallbacks** (see next section) — applied transparently when Scrublet's auto-detection misbehaves; no
+   action required.
+
+### Automatic fallbacks in `run_scrublet.py`
+
+The pipeline now self-corrects three pathological situations and emits a `[FALLBACK] …` log line for each one (these
+lines are picked up automatically by `nf_debug_agent` and surfaced in the debug report):
+
+| Trigger | Action | Marker |
+| --- | --- | --- |
+| STAR-filtered cell count > **50,000** | Keep only the top **30,000** barcodes by total UMI counts before doublet detection. Knee plot adds a red dashed reference line at the new boundary; the original black STARsolo line is retained. | `type=cell_count` |
+| Scrublet's auto-detected threshold > **0.4** | Force `call_doublets(threshold=0.4)`. Doublet histogram annotates the original auto threshold with a black solid line and the fallback with a red dashed line. | `type=threshold` |
+| `scrub_doublets()` returns `None` for `predicted_doublets` (auto-detection failed) | Force `call_doublets(threshold=0.4)` instead of raising. Histogram shows only the red dashed fallback line (no auto threshold to mark). | `type=none_threshold` |
+
+Manual overrides (`--scrublet_manual_threshold` / `--scrublet_threshold_map`) always take precedence over the
+threshold fallbacks; the cell-count fallback runs regardless.
+
+### Debugging failed tasks
+
+By default the pipeline runs `bin/nf_debug_agent.py` after the workflow completes (disable with `--debug_off true`).
+It reads `trace.txt`, walks each task's work directory, and produces:
+
+- `debug_report.md` — Markdown summary (failed tasks + fallback events table)
+- `debug_report.html` — HTML version with collapsible sections and code highlighting
+- A JSON payload on stdout for downstream tooling
+
+The **Fallback Events** section lists every `[FALLBACK]` marker the agent finds — including ones from *successful*
+tasks — so you can audit how many samples relied on the safety nets without digging through individual `.command.log`
+files.
+
+`nf_debug_agent` can also be run standalone for an arbitrary trace + work directory:
+```bash
+python bin/nf_debug_agent.py \
+    --trace path/to/execution_trace_TIMESTAMP.txt \
+    --work-dir path/to/work \
+    --report debug_report.md \
+    --html debug_report.html
+```
 
 ### Mitochondrial filtering
 
@@ -83,8 +136,12 @@ nextflow run ~/BCP_analysis/main.nf -profile standard
 
 ## Output
 
-The pipeline generates:
-- Processed single-cell count matrices
-- Quality control reports via MultiQC
-- Doublet detection results
-- Ambient RNA removal metrics
+The pipeline generates, under `${outdir}` (default `results/`):
+
+- `starsolo/<sample>/` — STAR alignment, Solo.out matrices, knee plot
+- `scrublet/<sample>/` — doublet-removed matrices (`*_rmdoublet.h5ad`, `*_rmMT*.h5ad`), per-sample QC PNGs, scrublet
+  debug histograms, and `*_whitelist.txt`
+- `soupx/<sample>/` — ambient-RNA-corrected matrices (skipped when `--bypass_soupX true`)
+- `sam_qc/<sample>/` — SAM-based QC outputs and the final filtered `*_filtered_QC2.h5ad`
+- `multiqc/` — MultiQC HTML report consolidating all sample-level metrics and embedded QC plots
+- `debug_report.{md,html}` — failure + fallback forensics from `nf_debug_agent` (unless `--debug_off true`)

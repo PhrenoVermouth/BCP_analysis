@@ -8,11 +8,6 @@ process STAR_SOLO {
         pattern: "${meta.id}.Log.final.out", \
         enabled: true
 
-    publishDir "$params.outdir/starsolo/${meta.id}/bam", \
-        mode: 'copy', \
-        pattern: "${meta.id}.Aligned.sortedByCoord.out.bam", \
-        enabled: true
-
     publishDir "$params.outdir/starsolo/${meta.id}", \
         mode: 'copy', \
         pattern: "${meta.id}.Solo.out", \
@@ -29,7 +24,7 @@ process STAR_SOLO {
        // pattern: "${meta.id}.Aligned.sortedByCoord.out.bam"
 
     input:
-    tuple val(meta), path(reads), path(genomeDir)
+    tuple val(meta), path(reads1), path(reads2), path(genomeDir)
 
     output:
     // tuple val(meta), path("${meta.id}.Solo.out")
@@ -38,30 +33,29 @@ process STAR_SOLO {
 
     tuple val(meta), path("${meta.id}.Solo.out"), emit: solo_out_dir
     path "${meta.id}.Log.final.out", emit: log
-    path "${meta.id}.Aligned.sortedByCoord.out.bam", emit: bam
 
     script:
     def solo_features = params.run_mode.toLowerCase() == 'velocity' ? 'Gene GeneFull Velocyto' : 'GeneFull'
+    def active_whitelist = params.run_mode.toLowerCase() == 'multiome' ? params.multiome_rna_whitelist : params.soloCBwhitelist
     """
-    STAR \
-        --runThreadN ${task.cpus} \
-        --genomeDir ${genomeDir} \
-        --readFilesIn ${reads[1]} ${reads[0]} \
-        --readFilesCommand zcat \
-        --outFileNamePrefix ${meta.id}. \
-        --soloType ${params.soloType} \
-        --soloCBwhitelist ${params.soloCBwhitelist} \
-        --soloUMIfiltering ${params.soloUMIfiltering} \
-        --soloUMIdedup ${params.soloUMIdedup} \
-        --soloUMIlen ${params.soloUMIlen} \
-        --outSAMtype BAM SortedByCoordinate \
-        --clipAdapterType CellRanger4 \
-        --outFilterScoreMin 30 \
-        --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
-        --soloCellFilter EmptyDrops_CR 10000 0.99 10 45000 90000 500 0.01 20000 0.01 10000 \
-        --soloFeatures ${solo_features} \
-        --soloMultiMappers EM \
-        --outSAMattributes NH HI nM AS CR UR CB UB GX GN sS sQ sM \
-        --outFilterMultimapNmax 20 --outBAMsortingBinsN 200
+    STAR \\
+        --runThreadN ${task.cpus} \\
+        --genomeDir ${genomeDir} \\
+        --readFilesIn ${reads2 instanceof List ? reads2.join(',') : reads2} ${reads1 instanceof List ? reads1.join(',') : reads1} \\
+        --readFilesCommand zcat \\
+        --outFileNamePrefix ${meta.id}. \\
+        --soloType ${params.soloType} \\
+        --soloCBwhitelist ${active_whitelist} \\
+        --soloUMIfiltering ${params.soloUMIfiltering} \\
+        --soloUMIdedup ${params.soloUMIdedup} \\
+        --soloUMIlen ${params.soloUMIlen} \\
+        --outSAMtype None \\
+        --clipAdapterType CellRanger4 \\
+        --outFilterScoreMin 30 \\
+        --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \\
+        --soloCellFilter EmptyDrops_CR 10000 0.99 10 45000 90000 500 0.01 20000 0.01 10000 \\
+        --soloFeatures ${solo_features} \\
+        --soloMultiMappers Uniform \\
+        --outFilterMultimapNmax 20
     """
 }

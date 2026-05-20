@@ -71,38 +71,38 @@ final_grobs <- list(
 dotplot_img <- readPNG(args$dotplot)
 
 
-################ 核心修改：精准控制高度 ################
+################ Layout: lock the dotplot row to its real aspect ratio ################
 
-# 1. 计算 Dotplot 需要的真实物理高度（英寸）
+# 1. Compute the dotplot's true physical height (inches) so it isn't squashed.
 dotplot_img <- readPNG(args$dotplot)
-# 获取高宽比
-ratio <- dim(dotplot_img)[1] / dim(dotplot_img)[2]
+ratio <- dim(dotplot_img)[1] / dim(dotplot_img)[2]  # height / width
 
-# 获取画布的宽度（英寸）
-# 你的设置是 width=2200, res=450，所以宽度是 2200/450 英寸
+# Canvas width in inches. Below we render with width=2200 px at res=450,
+# so the canvas is 2200/450 inches wide.
 canvas_width_in <- 2200 / 450
 
-# 计算 Dotplot 如果铺满宽度，它应该有多高（英寸）
-# 这样保证了 1:1 不变形
+# If the dotplot is stretched to full canvas width, this is the matching height
+# that preserves its 1:1 aspect ratio.
 dotplot_height_in <- canvas_width_in * ratio
 
-# 2. 定义高度列表
-# 使用 unit.c 组合不同单位
+# 2. Row heights for grid.arrange. unit.c() lets us mix relative ("null") and
+# absolute ("inch") units so the dotplot row stays exact while the others
+# divvy up the remaining vertical space proportionally.
 layout_heights <- unit.c(
-  unit(1, "null"),   # Row 1: 权重 1 (瓜分剩余空间)
-  unit(2, "null"), # Row 2: 权重 2
-  unit(1.3, "null"), # Row 3: 权重 1.3
-  unit(1.8, "null"), # Row 4: 权重 1.8 (UMAP通常比较大，给多点)
-  unit(dotplot_height_in, "inch") # Row 5: 强制锁定为真实英寸高度！
+  unit(1, "null"),    # Row 1: weight 1
+  unit(2, "null"),    # Row 2: weight 2
+  unit(1.3, "null"),  # Row 3: weight 1.3
+  unit(1.8, "null"),  # Row 4: weight 1.8 (UMAP, usually larger)
+  unit(dotplot_height_in, "inch")  # Row 5: pinned to the true dotplot height
 )
 
-# 3. 绘图
+# 3. Render.
 png(args$output, width = 2200, height = 3200, res = 450)
 
 grid.arrange(
   grobs = final_grobs,
   ncol = 1,
-  heights = layout_heights # 使用混合单位的高度列表
+  heights = layout_heights
 )
 
 dev.off()

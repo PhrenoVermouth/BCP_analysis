@@ -12,9 +12,14 @@ process GZIP_SOLO_OUTPUT {
 
     script:
     def feature_dirs = []
-    if (params.run_mode.toLowerCase() == 'genefull') {
+    def mode = params.run_mode.toLowerCase()
+    if (mode == 'genefull' || mode == 'multiome') {
+        // Both modes produce GeneFull output from STARsolo
         feature_dirs << "${solo_out_dir}/GeneFull"
     } else {
+        // velocity mode: STAR runs Gene + GeneFull + Velocyto; zip all three
+        feature_dirs << "${solo_out_dir}/Gene"
+        feature_dirs << "${solo_out_dir}/GeneFull"
         feature_dirs << "${solo_out_dir}/Velocyto"
     }
     def dirs_to_zip = feature_dirs.collect { "\"${it}\"" }.join(' ')

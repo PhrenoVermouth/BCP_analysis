@@ -28,6 +28,39 @@ custom_data:
     file_format: "png"
     plot_type: "image"
 
+  # Multiome-specific sections
+  multiome_qc:
+    section_name: "Multiome QC Tracking"
+    description: "Cell counts at each filtering step during multiome integration (ATAC QC, barcode intersection, SoupX, UMI filter, doublet removal)."
+    file_format: "tsv"
+    plot_type: "table"
+    sample_names_first_col: false
+    pconfig:
+      sortRows: false
+
+  multiome_tss_frags:
+    section_name: "TSS Enrichment vs Fragments"
+    description: "ATAC TSS enrichment score vs log10 unique fragments per cell."
+    file_format: "png"
+    plot_type: "image"
+
+  multiome_frag_sizes:
+    section_name: "Fragment Size Distribution"
+    description: "ATAC fragment size distribution (nucleosomal pattern)."
+    file_format: "png"
+    plot_type: "image"
+
+  multiome_umap:
+    section_name: "Joint UMAP"
+    description: "Joint RNA+ATAC UMAP colored by cluster."
+    file_format: "png"
+    plot_type: "image"
+
+  multiome_heatmaps:
+    section_name: "Marker Gene Heatmaps (RNA vs GeneScore)"
+    description: "Side-by-side heatmaps of RNA expression (left) and gene activity scores (right) for top marker genes per cluster."
+    file_format: "png"
+    plot_type: "image"
 
 
 ignore_images: false
@@ -38,13 +71,27 @@ sp:
     fn: "*_total_metaqc_mqc.tsv"
   img_qc_panel:
     fn: "*_qc_panel.png"
-
+  multiome_qc:
+    fn: "*_multiome_qc_mqc.tsv"
+  multiome_tss_frags:
+    fn: "*_TSS_vs_Frags_mqc.png"
+  multiome_frag_sizes:
+    fn: "*_Fragment_Sizes_mqc.png"
+  multiome_umap:
+    fn: "*_Joint_UMAP_mqc.png"
+  multiome_heatmaps:
+    fn: "*_Marker_Heatmaps_mqc.png"
 
 
 custom_content:
   order:
     - total_metaqc
     - img_qc_panel
+    - multiome_qc
+    - multiome_tss_frags
+    - multiome_frag_sizes
+    - multiome_umap
+    - multiome_heatmaps
 
 # Must be a mapping (dict), not a list, in MultiQC v1.21
 report_section_order:
@@ -52,3 +99,8 @@ report_section_order:
   "star": 20
   "custom_content:total_metaqc": 30
   "custom_content:img_qc_panel": 40
+  "custom_content:multiome_qc": 50
+  "custom_content:multiome_tss_frags": 60
+  "custom_content:multiome_frag_sizes": 70
+  "custom_content:multiome_umap": 80
+  "custom_content:multiome_heatmaps": 90

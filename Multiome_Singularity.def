@@ -1,0 +1,59 @@
+Bootstrap: docker
+From: condaforge/miniforge3:latest
+
+%environment
+    export PATH="/opt/conda/bin:$PATH"
+
+%post
+    # 1. Update system libraries slightly just in case
+    apt-get update && apt-get install -y \
+        build-essential libxml2-dev libssl-dev libcurl4-openssl-dev pkg-config
+
+    # 取消 Anaconda 的服务条款拦截 (如果您需要)
+    conda config --set show_channel_urls yes
+    conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main || true
+    conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r || true
+
+    # 2. Use Mamba (built into miniforge) to install Python and R pre-compiled binaries!
+    # This prevents any C++ compilation errors like httpuv/shiny/TFBSTools failing from source.
+    mamba install -y -c conda-forge -c bioconda \
+        python=3.11 \
+        numpy \
+        cython \
+        chromap \
+        htslib \
+        samtools \
+        r-base=4.4 \
+        r-devtools \
+        r-seurat \
+        r-pheatmap \
+        r-soupx \
+        r-shiny \
+        r-miniui \
+        r-httpuv \
+        bioconductor-genomicranges \
+        bioconductor-genomicfeatures \
+        bioconductor-rtracklayer \
+        bioconductor-bsgenome \
+        bioconductor-bsgenome.hsapiens.ucsc.hg38 \
+        bioconductor-bsgenome.mmusculus.ucsc.mm10 \
+        bioconductor-chromvar \
+        bioconductor-complexheatmap \
+        bioconductor-singlecellexperiment \
+        bioconductor-zellkonverter \
+        bioconductor-universalmotif \
+        bioconductor-tfbstools \
+        bioconductor-motifmatchr \
+        bioconductor-rhdf5 \
+        bioconductor-sparsematrixstats
+
+    # 3. Install MACS2 and anndata via pip (source compile for MACS2 to avoid glibc mismatch)
+    pip install --no-cache-dir macs2 anndata
+
+    # 4. Finally install ArchR via GitHub (ArchR is NOT on conda)
+    R -e "devtools::install_github('GreenleafLab/ArchR', ref='master')"
+
+%labels
+    Author "BCP_analysis Dev"
+    Version v2.0
+    Description "Singularity image recipe for Multiome (Chromap + ArchR + MACS2). Fully Conda-based for stability."

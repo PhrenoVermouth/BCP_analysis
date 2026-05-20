@@ -13,8 +13,8 @@ process MULTIQC {
     path config
 
     output:
-    path reportName, emit: report
-    path "multiqc_data", emit: data
+    path "${reportName}", emit: report
+    path "*_data", emit: data
 
     script:
     """
